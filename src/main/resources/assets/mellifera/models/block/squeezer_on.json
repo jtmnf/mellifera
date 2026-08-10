@@ -2,7 +2,7 @@
   "parent": "minecraft:block/cube_bottom_top",
   "textures": {
     "top": "mellifera:block/squeezer_top_on",
-    "bottom": "mellifera:block/centrifuge_bottom",
+    "bottom": "mellifera:block/squeezer_bottom",
     "side": "mellifera:block/squeezer_on"
   }
 }

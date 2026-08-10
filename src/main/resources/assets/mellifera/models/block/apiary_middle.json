@@ -1,8 +1,22 @@
 {
-  "parent": "minecraft:block/cube_bottom_top",
+  "__comment": "The only part with no hardware on it, so one cube and no trim. Every face is boards and every face is tinted.",
+  "parent": "minecraft:block/block",
   "textures": {
-    "top": "mellifera:block/apiary_front_middle",
-    "bottom": "mellifera:block/apiary_front_middle",
-    "side": "mellifera:block/apiary_front_middle"
-  }
+    "particle": "mellifera:block/apiary_front_middle",
+    "all": "mellifera:block/apiary_front_middle"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 16, 16],
+      "faces": {
+        "down":  { "uv": [0, 0, 16, 16], "texture": "#all", "cullface": "down",  "tintindex": 0 },
+        "up":    { "uv": [0, 0, 16, 16], "texture": "#all", "cullface": "up",    "tintindex": 0 },
+        "north": { "uv": [0, 0, 16, 16], "texture": "#all", "cullface": "north", "tintindex": 0 },
+        "south": { "uv": [0, 0, 16, 16], "texture": "#all", "cullface": "south", "tintindex": 0 },
+        "west":  { "uv": [0, 0, 16, 16], "texture": "#all", "cullface": "west",  "tintindex": 0 },
+        "east":  { "uv": [0, 0, 16, 16], "texture": "#all", "cullface": "east",  "tintindex": 0 }
+      }
+    }
+  ]
 }

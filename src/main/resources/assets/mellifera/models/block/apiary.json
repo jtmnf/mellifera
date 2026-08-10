@@ -1,8 +1,37 @@
 {
-  "parent": "minecraft:block/cube_bottom_top",
+  "__comment": "Two cubes at the same coordinates, the way vanilla's grass_block lays its overlay on its side. The first is the boards and carries tintindex 0, so ApiaryTintSource paints it; the second is the brass, the doorway and the bees, and carries none, so they keep their own colour on a dyed hive. The trim sprite has alpha, which is all it takes to put it in the cutout layer -- see BakedQuad.MaterialInfo.of.",
+  "parent": "minecraft:block/block",
   "textures": {
+    "particle": "mellifera:block/apiary_front",
     "top": "mellifera:block/apiary_top",
     "bottom": "mellifera:block/apiary_bottom",
-    "side": "mellifera:block/apiary_front"
-  }
+    "side": "mellifera:block/apiary_front",
+    "top_trim": "mellifera:block/apiary_top_trim",
+    "side_trim": "mellifera:block/apiary_front_trim"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 16, 16],
+      "faces": {
+        "down":  { "uv": [0, 0, 16, 16], "texture": "#bottom", "cullface": "down",  "tintindex": 0 },
+        "up":    { "uv": [0, 0, 16, 16], "texture": "#top",    "cullface": "up",    "tintindex": 0 },
+        "north": { "uv": [0, 0, 16, 16], "texture": "#side",   "cullface": "north", "tintindex": 0 },
+        "south": { "uv": [0, 0, 16, 16], "texture": "#side",   "cullface": "south", "tintindex": 0 },
+        "west":  { "uv": [0, 0, 16, 16], "texture": "#side",   "cullface": "west",  "tintindex": 0 },
+        "east":  { "uv": [0, 0, 16, 16], "texture": "#side",   "cullface": "east",  "tintindex": 0 }
+      }
+    },
+    {
+      "from": [0, 0, 0],
+      "to": [16, 16, 16],
+      "faces": {
+        "up":    { "uv": [0, 0, 16, 16], "texture": "#top_trim",  "cullface": "up" },
+        "north": { "uv": [0, 0, 16, 16], "texture": "#side_trim", "cullface": "north" },
+        "south": { "uv": [0, 0, 16, 16], "texture": "#side_trim", "cullface": "south" },
+        "west":  { "uv": [0, 0, 16, 16], "texture": "#side_trim", "cullface": "west" },
+        "east":  { "uv": [0, 0, 16, 16], "texture": "#side_trim", "cullface": "east" }
+      }
+    }
+  ]
 }

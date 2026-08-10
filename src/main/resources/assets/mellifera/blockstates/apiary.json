@@ -1,10 +1,16 @@
 {
   "variants": {
-    "part=single": {
+    "part=single,stand=false": {
       "model": "mellifera:block/apiary"
     },
-    "part=bottom": {
+    "part=single,stand=true": {
+      "model": "mellifera:block/apiary_stand"
+    },
+    "part=bottom,stand=false": {
       "model": "mellifera:block/apiary_bottom"
+    },
+    "part=bottom,stand=true": {
+      "model": "mellifera:block/apiary_bottom_stand"
     },
     "part=middle": {
       "model": "mellifera:block/apiary_middle"

@@ -147,7 +147,12 @@ public class IsolatorBlockEntity extends BlockEntity implements WorldlyContainer
                 return;
             }
 
+            // Banked and spent in the same breath. These two used to be a trait apart: the genome
+            // was taken here and the slot emptied on the first trait's completion, which left a
+            // window where the run was already committed and the specimen was still sitting there
+            // to be pulled back out -- the bee kept, and all eight serums produced from it anyway.
             isolator.trackedGenome = waiting;
+            isolator.items.set(SLOT_BEE, ItemStack.EMPTY);
             isolator.cursor = 0;
             isolator.progress = 0;
             isolator.setChanged();
@@ -174,12 +179,11 @@ public class IsolatorBlockEntity extends BlockEntity implements WorldlyContainer
         if (isolator.progress >= PROCESS_TICKS) {
             isolator.progress = 0;
 
-            // The specimen is destroyed the instant the first gene is read, before any
-            // serum exists. That is what stops a player taking one trait and walking off
-            // with a still-breedable bee -- and it is why the machine has to hold the
-            // genome itself: there is nothing left in the slot to read for genes 2..8.
-            isolator.items.set(SLOT_BEE, ItemStack.EMPTY);
-
+            // Nothing touches the bee slot here. It did, and because this block runs once per
+            // trait rather than once per run, a bee dropped in while the machine was on trait 3
+            // was deleted at the end of trait 4 and gave nothing back. The specimen is spent where
+            // the run starts, which is also why the machine has to hold the genome itself: there
+            // is nothing left in the slot to read for genes 2..8.
             isolator.insert(serum);
             isolator.items.get(SLOT_BOTTLE).shrink(1);
             isolator.advance();
@@ -310,8 +314,21 @@ public class IsolatorBlockEntity extends BlockEntity implements WorldlyContainer
         };
     }
 
+    /// The static rule, plus the one thing it cannot know: no second bee while a run is under way.
+    ///
+    /// A bee accepted mid-run would sit in the slot doing nothing until the eighth serum, since the
+    /// machine reads the genome it banked and not the slot. Refusing it is the honest answer, and
+    /// it is what stops a hopper feeding a queue of bees into a machine that cannot take them --
+    /// the hopper holds them instead, and resumes on its own when the run ends.
+    ///
+    /// Bottles are unaffected: those are consumed one per trait and are meant to be topped up
+    /// while the machine works.
     @Override
     public boolean canPlaceItem(int slot, ItemStack stack) {
+        if (slot == SLOT_BEE && trackedGenome != null) {
+            return false;
+        }
+
         return isValidForSlot(slot, stack);
     }
 

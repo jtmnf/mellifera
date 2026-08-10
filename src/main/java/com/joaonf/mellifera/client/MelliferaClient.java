@@ -1,6 +1,10 @@
 package com.joaonf.mellifera.client;
 
+import java.util.List;
+
 import com.joaonf.mellifera.Mellifera;
+import com.joaonf.mellifera.client.color.ApiaryItemTintSource;
+import com.joaonf.mellifera.client.color.ApiaryTintSource;
 import com.joaonf.mellifera.client.color.BeeTintSource;
 import com.joaonf.mellifera.client.color.SerumTintSource;
 import com.joaonf.mellifera.client.special.AnimatedSpecialItemModel;
@@ -9,6 +13,7 @@ import com.joaonf.mellifera.client.special.BeePortraitRenderer;
 import com.joaonf.mellifera.client.special.BeeSpecialRenderer;
 import com.joaonf.mellifera.client.swarm.HiveBeeRenderer;
 import com.joaonf.mellifera.registry.MelliferaBlockEntities;
+import com.joaonf.mellifera.registry.MelliferaBlocks;
 import com.joaonf.mellifera.registry.MelliferaMenus;
 
 import net.minecraft.client.Minecraft;
@@ -56,6 +61,16 @@ public class MelliferaClient {
     static void onRegisterItemTintSources(RegisterColorHandlersEvent.ItemTintSources event) {
         event.register(Identifier.fromNamespaceAndPath(Mellifera.MODID, "bee_color"), BeeTintSource.MAP_CODEC);
         event.register(Identifier.fromNamespaceAndPath(Mellifera.MODID, "serum_color"), SerumTintSource.MAP_CODEC);
+        event.register(Identifier.fromNamespaceAndPath(Mellifera.MODID, "apiary_color"), ApiaryItemTintSource.MAP_CODEC);
+    }
+
+    // The Apiary's paint. One entry, because the models ask for tintindex 0 and nothing else:
+    // the boards take it, and the second cube -- brass, doorway, bees -- deliberately does not.
+    // The block textures are stored neutral, so this runs even on an undyed hive, which is what
+    // gives it its wood colour at all -- see ApiaryBlock.Tint.UNDYED_TAN.
+    @SubscribeEvent
+    static void onRegisterBlockTintSources(RegisterColorHandlersEvent.BlockTintSources event) {
+        event.register(List.of(new ApiaryTintSource()), MelliferaBlocks.APIARY.get());
     }
 
     // Lets drone/princess/queen item JSONs ask for "mellifera:bee" as their special model.

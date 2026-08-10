@@ -264,13 +264,13 @@ public final class MelliferaCentrifugeRecipes {
                 out(MelliferaItems.HONEY_DROP, 0.25F),
                 vanilla(Items.EMERALD, 1, 0.12F)),
 
-            // Still the slowest line in the mod: a 0.05 comb chance behind a 0.10 gem chance is
-            // about two hundred apiary cycles per diamond. It was a thousand at the comb's old
-            // 0.01, which asked more patience than the reward was worth.
+            // Still the slowest line in the mod, but no longer punishing: a 0.05 comb chance behind
+            // a 0.25 gem chance is about eighty apiary cycles per diamond. It was two hundred at
+            // 0.10, and a thousand at the comb's original 0.01.
             recipe(MelliferaCombTypes.DIAMOND,
                 out(MelliferaItems.BEESWAX, 0.50F),
                 out(MelliferaItems.HONEY_DROP, 0.25F),
-                vanilla(Items.DIAMOND, 1, 0.10F)),
+                vanilla(Items.DIAMOND, 1, 0.25F)),
 
             // Redstone is the one resource cheap enough to leave near upstream's numbers
             // (beeswax 0.80, redstone 1.00, honey drop 0.50); only the dust is trimmed.

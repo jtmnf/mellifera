@@ -6,7 +6,16 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "mellifera:apiary"
+          "name": "mellifera:apiary",
+          "functions": [
+            {
+              "function": "minecraft:copy_state",
+              "block": "mellifera:apiary",
+              "properties": [
+                "tint"
+              ]
+            }
+          ]
         }
       ],
       "conditions": [

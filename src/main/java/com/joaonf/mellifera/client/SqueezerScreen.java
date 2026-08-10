@@ -17,6 +17,9 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 /// The Squeezer's window: a drop on the left, an arrow, and the tank on the right.
 ///
@@ -177,8 +180,28 @@ public class SqueezerScreen extends AbstractContainerScreen<SqueezerMenu> {
     /// Neither the strip nor the tank is a slot, so nothing draws their tooltips for us. Hooking
     /// extractContents puts them in the same pass the slot tooltips use, which is what keeps them above
     /// the window and below an item held on the cursor.
+    /// The empty bucket the machine wants, faded into its slot while that slot is empty. See GhostSlot,
+    /// and the same hint in InfuserScreen and IsolatorScreen.
+    ///
+    /// Only the input side gets one. The slot beside it is where the filled bucket comes out, and a
+    /// hint there would be an invitation to put something in a slot that only ever gives.
+    ///
+    /// Positioned off the Slot itself rather than off the menu's constants, so the hint cannot be left
+    /// behind when the slot moves.
+    private void renderGhost(GuiGraphicsExtractor graphics, int x, int y) {
+        Slot slot = menu.getSlot(SqueezerBlockEntity.SLOT_BUCKET_IN);
+        if (slot.getItem().isEmpty()) {
+            GhostSlot.render(graphics, x + slot.x, y + slot.y, new ItemStack(Items.BUCKET));
+        }
+    }
+
+    /// The ghost goes in before super, so real items and the hover highlight land over it.
     @Override
     public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partial) {
+        int ghostX = (width - imageWidth) / 2;
+        int ghostY = (height - imageHeight) / 2;
+        renderGhost(graphics, ghostX, ghostY);
+
         super.extractContents(graphics, mouseX, mouseY, partial);
 
         int x = (width - imageWidth) / 2;

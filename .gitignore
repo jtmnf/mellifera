@@ -53,3 +53,6 @@ replay_pid*.log
 ### Claude Code ###
 # settings.json is the project's own, and worth sharing; the local one holds per-machine choices.
 .claude/settings.local.json
+
+### Python (the texture generators in tools/) ###
+__pycache__/

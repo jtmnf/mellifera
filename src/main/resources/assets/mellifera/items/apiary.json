@@ -1,6 +1,11 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "mellifera:block/apiary"
+    "model": "mellifera:block/apiary",
+    "tints": [
+      {
+        "type": "mellifera:apiary_color"
+      }
+    ]
   }
 }

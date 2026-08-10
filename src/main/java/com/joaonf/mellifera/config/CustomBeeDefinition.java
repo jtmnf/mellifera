@@ -33,8 +33,9 @@ import net.minecraft.resources.Identifier;
 /// @param minCelsius lowest working temperature, before ToleranceAllele widens it
 /// @param maxCelsius highest working temperature
 /// @param dominant whether this species' allele beats a recessive partner's
-/// @param primaryColor abdomen colour, `"#RRGGBB"` or a raw integer
-/// @param secondaryColor the gold banding, `"#RRGGBB"` or a raw integer
+/// @param primaryColor abdomen colour, `"#RRGGBB"` or a raw integer. The only colour a species
+///                     has: BeeTextures repaints the abdomen with it and leaves the rest of
+///                     Vanilla's bee sheet alone
 /// @param glint whether the item renders with the enchantment shimmer, as branch tops do
 /// @param combs what an apiary yields, and how often -- existing combs by id, new ones
 ///              defined on the spot
@@ -47,7 +48,6 @@ public record CustomBeeDefinition(
     float maxCelsius,
     boolean dominant,
     int primaryColor,
-    int secondaryColor,
     boolean glint,
     List<CombEntry> combs,
     BeeTemplate traits,
@@ -60,7 +60,6 @@ public record CustomBeeDefinition(
         Codec.FLOAT.optionalFieldOf("max_celsius", 30.0F).forGetter(CustomBeeDefinition::maxCelsius),
         Codec.BOOL.optionalFieldOf("dominant", false).forGetter(CustomBeeDefinition::dominant),
         ConfigCodecs.COLOR.optionalFieldOf("primary_color", 0xFFDC16).forGetter(CustomBeeDefinition::primaryColor),
-        ConfigCodecs.COLOR.optionalFieldOf("secondary_color", 0xFFDC16).forGetter(CustomBeeDefinition::secondaryColor),
         Codec.BOOL.optionalFieldOf("glint", false).forGetter(CustomBeeDefinition::glint),
         CombEntry.CODEC.listOf().fieldOf("combs").forGetter(CustomBeeDefinition::combs),
         BeeTemplate.CODEC.optionalFieldOf("traits", BeeTemplate.DEFAULT).forGetter(CustomBeeDefinition::traits),
@@ -113,7 +112,7 @@ public record CustomBeeDefinition(
     }
 
     public BeeSpecies toSpecies() {
-        return new BeeSpecies(name, minCelsius, maxCelsius, dominant, primaryColor, secondaryColor,
+        return new BeeSpecies(name, minCelsius, maxCelsius, dominant, primaryColor,
             combs.stream().map(CombEntry::toProduct).toList(), traits, glint);
     }
 

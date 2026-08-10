@@ -18,31 +18,23 @@ import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 
-/// Tints one part of a bee or comb icon from whichever genetics component the stack
-/// actually carries.
+/// Tints one layer of a comb icon from the CombType the stack carries.
 ///
-/// A bee is two-tone -- the fuzz carries the species' own colour, the abdomen bands carry
-/// the colour that reads as "bee" for that climate -- so this is parameterised by which of
-/// the two colours to return rather than being two near-identical classes. Entry `i` of
-/// the model's `tints` list feeds `tintindex` `i`:
+/// A comb is two flat sprites, and `item/generated` assigns layerN to tintindex N, so entry
+/// `i` of the model's `tints` list feeds layer `i` -- which is why the comb's own JSON asks
+/// for `secondary` first, the cell fill being layer 0:
 ///
 /// ```json
 /// "tints": [
-///   { "type": "mellifera:bee_color", "layer": "primary" },
-///   { "type": "mellifera:bee_color", "layer": "secondary" }
+///   { "type": "mellifera:bee_color", "layer": "secondary" },
+///   { "type": "mellifera:bee_color", "layer": "primary" }
 /// ]
 /// ```
 ///
-/// The bee models are 3D (`models/item/*_bee.json`, cuboids in the shape of the vanilla
-/// bee) and set `tintindex` explicitly per face; the dark bands, eyes, wings and the
-/// queen's crown carry no tintindex and so stay the texture's own colour. That last part
-/// is load-bearing: species like `glacial` have a near-white primary *and* a near-white
-/// secondary, and the untinted bands are the only thing keeping the icon readable. Combs
-/// are still flat two-layer sprites, where `item/generated` assigns layerN to tintindex N.
-///
-/// Princess/Drone (BEE_GENOME) and Queen (QUEEN_GENOME, her own genome) resolve to the
-/// species' colours; a comb (COMB_TYPE) resolves to its CombType's, since a comb is
-/// coloured by what kind of comb it is, not by which bee happened to make it.
+/// The bees no longer come through here at all: they render as Vanilla's own model with a
+/// repainted texture, and the repaint is the species colour (see BeeSpecialRenderer and
+/// BeeTextures). A stack that is not a comb still resolves, to the species colour whichever
+/// layer is asked for, because a species has exactly one colour to give.
 public record BeeTintSource(Layer layer) implements ItemTintSource {
     public static final MapCodec<BeeTintSource> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         Layer.CODEC.optionalFieldOf("layer", Layer.PRIMARY).forGetter(BeeTintSource::layer)
@@ -73,8 +65,9 @@ public record BeeTintSource(Layer layer) implements ItemTintSource {
             return opaque(layer == Layer.PRIMARY ? comb.primaryColor() : comb.secondaryColor());
         }
 
-        var species = MelliferaBeeSpecies.get(resolveBeeSpecies(stack));
-        return opaque(layer == Layer.PRIMARY ? species.primaryColor() : species.secondaryColor());
+        // The layer is ignored: a species has one colour, and there is nothing sensible for a
+        // second request to return that is not just this again.
+        return opaque(MelliferaBeeSpecies.get(resolveBeeSpecies(stack)).primaryColor());
     }
 
     private static int opaque(int rgb) {

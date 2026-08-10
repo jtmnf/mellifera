@@ -3,24 +3,23 @@ package com.joaonf.mellifera.bee;
 import java.util.List;
 
 /// A registered kind of bee: display name, its base climate band (before ToleranceAllele
-/// widens it), whether its species allele is dominant, the two body colours its items
-/// render with, the comb(s) its Apiary yields and how often, and the alleles it is born
-/// with.
+/// widens it), whether its species allele is dominant, the body colour its items render
+/// with, the comb(s) its Apiary yields and how often, and the alleles it is born with.
 ///
 /// Real Forestry gives different branches genuinely different comb items (Dripping, Silky,
 /// Frozen...), not just a retinted Honey Comb. Which one a given comb stack *is* travels on
 /// the stack itself (MelliferaDataComponents.COMB_TYPE), so one shared item id still covers
 /// all 14.
 ///
-/// primaryColor and secondaryColor are packed 0xRRGGBB, multiplied over the bee's sprite
-/// layers the same way Vanilla tints leaves/grass over a white mask.
+/// primaryColor is packed 0xRRGGBB and is the species colour: BeeTextures repaints the
+/// abdomen texels of Vanilla's bee sheet with it, keeping each texel's own brightness, so the
+/// bands stay dark and the face stays Vanilla. See BeeSpecialRenderer.
 ///
-/// Which layer gets which colour is not obvious and is worth stating, because getting it
-/// wrong makes every bee look nearly identical: matching Forestry's own item model, the
-/// *outline* sprite (a solid white silhouette) takes primaryColor and is what actually
-/// gives a bee its species colour; `body1` takes secondaryColor and supplies the gold
-/// banding; and the caste sprite (`body2`, the crown/wings detail) is drawn on top
-/// untinted. See BeeTintSource and the model JSONs.
+/// There is deliberately no second colour. There used to be one, `secondaryColor`, for the
+/// gold banding of the old two-layer sprites; once the bees moved to Vanilla's model with a
+/// repainted texture, nothing read it, and a field nobody reads is a field that lies about
+/// what a species controls. The combs keep their own pair -- see CombType, which is a
+/// different thing entirely: a comb is coloured by what kind of comb it is.
 ///
 /// hasEffect is Forestry's own `setHasEffect()` flag: a handful of species -- the top of
 /// each branch, plus the festive ones -- render their item with the enchantment glint
@@ -36,7 +35,6 @@ public record BeeSpecies(
     float maxCelsius,
     boolean dominant,
     int primaryColor,
-    int secondaryColor,
     List<CombProduct> products,
     BeeTemplate template,
     boolean hasEffect) {}

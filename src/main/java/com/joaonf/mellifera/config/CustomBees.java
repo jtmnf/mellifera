@@ -231,7 +231,6 @@ public final class CustomBees {
               "dominant": true,
 
               "primary_color": "#4B3A78",
-              "secondary_color": "#FFDC16",
               "glint": false,
 
               "combs": [

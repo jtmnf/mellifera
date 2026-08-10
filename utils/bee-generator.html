@@ -1,0 +1,2579 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mellifera - 3D Bee & Comb Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-dark: #070605;
+    --bg-surface: #0f0d0a;
+    --bg-card: rgba(22, 18, 13, 0.75);
+    --panel-border: rgba(245, 158, 11, 0.16);
+    --panel-border-hover: rgba(245, 158, 11, 0.4);
+    
+    --input-bg: rgba(12, 10, 7, 0.9);
+    --input-border: rgba(255, 255, 255, 0.1);
+    --input-focus: #f59e0b;
+    
+    --text-main: #f8f4ec;
+    --text-muted: #a39682;
+    --text-dim: #6e6353;
+    
+    --accent: #f59e0b;
+    --accent-light: #fbbf24;
+    --accent-dark: #b45309;
+    --accent-gradient: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+    --accent-glow: 0 0 24px rgba(245, 158, 11, 0.35);
+    
+    --bad: #ef4444;
+    --bad-bg: rgba(239, 68, 68, 0.15);
+    --ok: #10b981;
+    --ok-bg: rgba(16, 185, 129, 0.15);
+    
+    --mono: 'Fira Code', monospace;
+    --sans: 'Plus Jakarta Sans', sans-serif;
+    --heading: 'Outfit', sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: rgba(8, 7, 5, 0.6); }
+  ::-webkit-scrollbar-thumb { background: rgba(245, 158, 11, 0.3); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(245, 158, 11, 0.6); }
+
+  body {
+    margin: 0;
+    background: var(--bg-dark);
+    background-image: 
+      radial-gradient(circle at 10% 10%, rgba(245, 158, 11, 0.06) 0%, transparent 45%),
+      radial-gradient(circle at 90% 90%, rgba(217, 119, 6, 0.05) 0%, transparent 45%),
+      linear-gradient(to bottom, var(--bg-dark), var(--bg-surface));
+    color: var(--text-main);
+    font-family: var(--sans);
+    font-size: 13px;
+    line-height: 1.5;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Top Navigation Bar */
+  header {
+    height: 58px;
+    background: rgba(14, 11, 8, 0.9);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--panel-border);
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    z-index: 100;
+    /* The bar is a fixed 58px tall, so nothing in it may wrap: a button on two lines does not
+       get a taller bar, it gets a clipped button. Everything here either refuses to wrap or
+       gives up width, and the brand is the one that gives. */
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    /* min-width on a flex item defaults to auto, which is what stops text ever shrinking below
+       its content. Zero lets the title truncate instead of pushing the buttons off the bar. */
+    min-width: 0;
+    flex: 0 1 auto;
+  }
+
+  .brand-title { min-width: 0; }
+  .brand-title h1, .brand-title p { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  .brand-logo {
+    width: 36px;
+    height: 36px;
+    background: var(--accent-gradient);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: var(--accent-glow);
+    animation: pulseGlow 4s infinite alternate;
+  }
+
+  @keyframes pulseGlow {
+    0% { box-shadow: 0 0 12px rgba(245, 158, 11, 0.2); }
+    100% { box-shadow: 0 0 24px rgba(245, 158, 11, 0.5); }
+  }
+
+  .brand-title h1 {
+    margin: 0;
+    font-family: var(--heading);
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #ffffff 40%, var(--accent-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .brand-title p {
+    margin: 0;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .studio-nav-tabs {
+    display: flex;
+    background: rgba(8, 6, 4, 0.7);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 2px;
+    flex: 0 0 auto;
+  }
+
+  .nav-btn {
+    border: 0;
+    background: transparent;
+    color: var(--text-muted);
+    padding: 6px 14px;
+    border-radius: 7px;
+    font-family: var(--heading);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .nav-btn:hover { color: var(--text-main); background: rgba(255,255,255,0.04); }
+  .nav-btn.active {
+    background: var(--accent-gradient);
+    color: #0c0906;
+    box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3);
+  }
+
+  .header-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* Never the item that shrinks. The preset dropdown inside it is, since a truncated preset
+       name still reads and a truncated button does not. */
+    flex: 0 0 auto;
+  }
+
+  .header-controls button {
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  .preset-select {
+    background: rgba(22, 18, 13, 0.9);
+    color: var(--accent-light);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-family: var(--heading);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 190px;
+  }
+
+  /* 3-Column Studio Grid Layout */
+  /* The inspector takes the width, the viewport gives it. Two fields side by side in the left
+     column need about 440px before their captions stop wrapping, and the 3D preview loses nothing
+     it needs: fit() frames the model against whatever aspect the middle column ends up with. */
+  .studio-body {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 440px minmax(0, 1fr) 380px;
+    height: calc(100vh - 58px);
+    overflow: hidden;
+  }
+
+  @media (max-width: 1440px) {
+    .studio-body { grid-template-columns: 400px minmax(0, 1fr) 360px; }
+  }
+
+  @media (max-width: 1280px) {
+    .studio-body { grid-template-columns: 360px minmax(0, 1fr) 330px; }
+  }
+
+  @media (max-width: 1024px) {
+    .studio-body { grid-template-columns: 1fr; overflow-y: auto; height: auto; }
+  }
+
+  /* Left Inspector Panel */
+  .inspector-panel {
+    background: rgba(14, 11, 8, 0.85);
+    backdrop-filter: blur(12px);
+    border-right: 1px solid var(--panel-border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-title {
+    font-family: var(--heading);
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent-light);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    /* One line, always. The uppercase letter-spacing makes these titles wider than they look, so
+       "Live JSON & Diagnostics" wrapped as soon as anything shared the row with it. */
+    white-space: nowrap;
+    min-width: 0;
+  }
+
+  .panel-title span { flex: 0 0 auto; }
+
+  /* Buttons at the foot of the code panel, under what they act on. */
+  .panel-footer {
+    display: flex;
+    gap: 8px;
+    padding: 12px 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(10, 8, 5, 0.4);
+    flex: 0 0 auto;
+  }
+
+  .panel-footer button { flex: 1 1 auto; white-space: nowrap; }
+
+  .panel-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 18px 40px;
+  }
+
+  /* Center 3D Viewport Hero Stage */
+  .viewport-stage {
+    position: relative;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  #view {
+    width: 100%;
+    height: 100%;
+    display: block;
+    background: #ffffff;
+    cursor: grab;
+    transition: background 0.3s ease;
+  }
+
+  #view.dragging { cursor: grabbing; }
+
+  /* Floating Viewport Toolbar */
+  .viewport-overlay-top {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    right: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .viewport-overlay-top > * { pointer-events: auto; }
+
+  .viewport-pill-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(10, 8, 5, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--panel-border);
+    border-radius: 30px;
+    padding: 4px 8px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+  }
+
+  .view-pill-btn {
+    border: 0;
+    background: transparent;
+    color: var(--text-muted);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-family: var(--heading);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .view-pill-btn:hover { color: var(--text-main); }
+  .view-pill-btn.active { background: var(--accent-gradient); color: #000; }
+
+  .bg-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--panel-border);
+    background: rgba(10, 8, 5, 0.85);
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s ease;
+  }
+  .bg-btn:hover { color: var(--accent-light); border-color: var(--accent); }
+
+  .viewport-overlay-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px 24px 16px;
+    background: linear-gradient(to top, rgba(7, 6, 5, 0.95) 0%, rgba(7, 6, 5, 0.5) 60%, transparent 100%);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .live-meta-title {
+    font-family: var(--heading);
+    font-size: 22px;
+    font-weight: 800;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    margin: 0 0 2px;
+  }
+
+  .live-meta-id {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--accent-light);
+    background: rgba(245, 158, 11, 0.12);
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+  }
+
+  .camera-hints {
+    color: var(--text-muted);
+    font-size: 11px;
+    text-align: right;
+    line-height: 1.4;
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(10, 8, 5, 0.92);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+    text-align: center;
+    z-index: 20;
+    color: var(--text-muted);
+  }
+  .overlay.hidden { display: none; }
+
+  /* Right Code & Diagnostic Studio */
+  .code-panel {
+    background: rgba(12, 9, 6, 0.9);
+    backdrop-filter: blur(12px);
+    border-left: 1px solid var(--panel-border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .code-container {
+    flex: 1;
+    /* Zero, so this shrinks to leave the footer its height instead of pushing it off the panel. */
+    min-height: 0;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    overflow: hidden;
+  }
+
+  pre#json {
+    flex: 1;
+    margin: 0;
+    background: rgba(5, 4, 3, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.55;
+    color: #e2e8f0;
+    overflow: auto;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.6);
+  }
+
+  .diagnostics-box {
+    background: rgba(18, 14, 10, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 12px 14px;
+    max-height: 120px;
+    overflow-y: auto;
+  }
+
+  .problems {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 12px;
+  }
+  .problems li {
+    padding: 3px 0;
+    color: var(--bad);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .problems li.ok { color: var(--ok); }
+
+  /* UI Form Controls & Cards */
+  .card-section {
+    background: var(--bg-card);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 16px;
+    transition: border-color 0.2s ease;
+  }
+  .card-section:hover { border-color: var(--panel-border-hover); }
+
+  .card-title {
+    font-family: var(--heading);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent-light);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .form-grid {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  label > span { color: var(--text-muted); font-size: 11.5px; font-weight: 500; }
+
+  input[type=text], input[type=number], select {
+    width: 100%;
+    background: var(--input-bg);
+    color: var(--text-main);
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-family: var(--sans);
+    font-size: 12.5px;
+    transition: all 0.2s ease;
+  }
+  input.mono { font-family: var(--mono); }
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--input-focus);
+    box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.25);
+  }
+
+  .color-swatch-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  input[type=color] {
+    -webkit-appearance: none;
+    border: none;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    background: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  input[type=color]::-webkit-color-swatch-wrapper { padding: 0; }
+  input[type=color]::-webkit-color-swatch { border: 1px solid var(--input-border); border-radius: 6px; }
+
+  /* `flex-direction: row` is the load-bearing line. Every label on the page is a column, so the
+     field's caption sits above its input; a toggle inherited that and put its box above its own
+     text, which is what read as misplaced. */
+  .toggle-label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+    min-height: 34px;
+  }
+
+  /* A switch rather than a tick box: same checkbox underneath, so it still keys, focuses and
+     posts its state like a checkbox, with the native rendering turned off and drawn over. */
+  .toggle-label input[type=checkbox] {
+    appearance: none;
+    -webkit-appearance: none;
+    position: relative;
+    flex: 0 0 auto;
+    width: 38px;
+    height: 22px;
+    margin: 0;
+    border: 1px solid var(--input-border);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition: background 0.18s ease, border-color 0.18s ease;
+  }
+
+  .toggle-label input[type=checkbox]::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #d8d0be;
+    transition: transform 0.18s ease, background 0.18s ease;
+  }
+
+  .toggle-label input[type=checkbox]:hover { border-color: var(--accent-dark); }
+
+  .toggle-label input[type=checkbox]:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .toggle-label input[type=checkbox]:checked::after {
+    transform: translateX(16px);
+    background: #1b1408;
+  }
+
+  .toggle-label input[type=checkbox]:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .toggle-label span { color: var(--text-main); font-weight: 500; }
+
+  /* Dynamic Cards (Combs / Mutations) */
+  .dynamic-row {
+    background: rgba(10, 8, 5, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+    transition: all 0.2s ease;
+  }
+  .dynamic-row.selected {
+    border-color: var(--accent);
+    background: rgba(245, 158, 11, 0.08);
+    box-shadow: 0 0 14px rgba(245, 158, 11, 0.12);
+  }
+  .row-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  /* Buttons */
+  button {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-main);
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  button:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  button.primary {
+    background: var(--accent-gradient);
+    color: #000;
+    border: 0;
+    font-weight: 700;
+    box-shadow: 0 4px 14px var(--accent-glow);
+  }
+  button.primary:hover:not(:disabled) {
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+  }
+  button.danger {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--bad);
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+  button.danger:hover { background: rgba(239, 68, 68, 0.25); color: #fff; }
+  button.small { padding: 4px 8px; font-size: 11px; }
+  .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+  /* Toast Notification */
+  #toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--accent-gradient);
+    color: #000;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    opacity: 0;
+    transform: translateY(12px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+    z-index: 1000;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+
+  .hidden-pane { display: none !important; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-logo">🐝</div>
+    <div class="brand-title">
+      <h1>Mellifera Studio</h1>
+      <p>Custom Species & Comb 3D Architect</p>
+    </div>
+  </div>
+
+  <nav class="studio-nav-tabs">
+    <button class="nav-btn active" id="paneBtnIdentity" onclick="switchInspectorPane('identity')"><span>🐝</span> Identity</button>
+    <button class="nav-btn" id="paneBtnGenome" onclick="switchInspectorPane('genome')"><span>🧬</span> Genome</button>
+    <button class="nav-btn" id="paneBtnCombs" onclick="switchInspectorPane('combs')"><span>🪮</span> Combs</button>
+    <button class="nav-btn" id="paneBtnBreeding" onclick="switchInspectorPane('breeding')"><span>🔀</span> Breeding</button>
+  </nav>
+
+  <div class="header-controls">
+    <select class="preset-select" id="presetPicker" onchange="applyPreset(this.value)">
+      <option value="" disabled selected>✨ Load Preset Template...</option>
+      <option value="obsidian">Obsidian Nether Bee</option>
+      <option value="glacial">Glacial Frost Bee</option>
+      <option value="atomic">Atomic Energy Bee</option>
+      <option value="edenic">Edenic Flora Bee</option>
+    </select>
+    <button type="button" id="import"><span>⬆</span> Import JSON</button>
+    <button type="button" class="primary" id="download"><span>⬇</span> Save JSON</button>
+  </div>
+</header>
+
+<div class="studio-body">
+  <!-- Left Inspector Drawer -->
+  <aside class="inspector-panel">
+    <div class="panel-header">
+      <div class="panel-title" id="paneTitle"><span>🐝</span> Species Identity & Palette</div>
+    </div>
+
+    <div class="panel-scroll-area">
+      <!-- PANE 1: IDENTITY -->
+      <div id="paneIdentity">
+        <div class="card-section">
+          <div class="card-title">Basic Information</div>
+          <div class="form-grid">
+            <label><span>Registry ID</span>
+              <input type="text" class="mono" id="beeId" value="obsidian"></label>
+            <label><span>Display Name</span>
+              <input type="text" id="beeName" value="Obsidian"></label>
+            <label><span>Branch</span>
+              <select id="beeBranch"></select></label>
+          </div>
+          <p style="font-size: 11px; color: var(--text-muted); margin: 8px 0 0;">
+            Registry File: <span class="mono" style="color: var(--accent-light);" id="fileHint">obsidian.json</span>
+          </p>
+        </div>
+
+        <div class="card-section">
+          <div class="card-title">Visual Colors & Glint</div>
+          <div class="form-grid">
+            <label><span>Abdomen Tint</span>
+              <div class="color-swatch-box">
+                <input type="color" id="beePrimary" value="#4b3a78">
+                <span class="mono" style="font-size: 11px; color: var(--text-muted);" id="primaryHex">#4B3A78</span>
+              </div>
+            </label>
+          </div>
+          <div style="display: flex; gap: 16px; margin-top: 8px;">
+            <label class="toggle-label"><input type="checkbox" id="beeGlint"><span>Enchantment Glint</span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANE 2: GENOME -->
+      <div id="paneGenome" class="hidden-pane">
+        <div class="card-section">
+          <div class="card-title">Climate Tolerance Range</div>
+          <div class="form-grid">
+            <label><span>Min Temp (°C)</span>
+              <input type="number" id="beeMin" value="0" step="0.5"></label>
+            <label><span>Max Temp (°C)</span>
+              <input type="number" id="beeMax" value="30" step="0.5"></label>
+          </div>
+          <p style="font-size: 11px; color: var(--text-muted); margin: 8px 0 0;">
+            The band before the tolerance allele below widens it.
+          </p>
+        </div>
+
+        <div class="card-section">
+          <div class="card-title">Species Allele</div>
+          <label class="toggle-label"><input type="checkbox" id="beeDominant" checked><span>Dominant</span></label>
+          <p style="font-size: 11px; color: var(--text-muted); margin: 8px 0 0;">
+            Whether this species' allele beats a recessive partner's when the two are crossed.
+          </p>
+        </div>
+
+        <div class="card-section">
+          <div class="card-title">Genome Trait Alleles</div>
+          <div class="form-grid" id="traits"></div>
+        </div>
+      </div>
+
+      <!-- PANE 3: COMBS -->
+      <div id="paneCombs" class="hidden-pane">
+        <div id="combs"></div>
+        <div class="btn-group">
+          <button type="button" id="addComb"><span>+</span> Existing Comb</button>
+          <button type="button" id="addNewComb"><span>+</span> Define Custom Comb</button>
+        </div>
+      </div>
+
+      <!-- PANE 4: BREEDING -->
+      <div id="paneBreeding" class="hidden-pane">
+        <div id="mutations"></div>
+        <div class="btn-group">
+          <button type="button" id="addMutation"><span>+</span> Add Breeding Cross</button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Center Hero 3D Viewport -->
+  <main class="viewport-stage">
+    <canvas id="view"></canvas>
+
+    <div class="viewport-overlay-top">
+      <div class="viewport-pill-group">
+        <button class="view-pill-btn active" id="tabBee">Bee 🐝</button>
+        <button class="view-pill-btn" id="tabComb">Comb 🪮</button>
+      </div>
+
+      <div class="viewport-pill-group">
+        <button class="bg-btn" id="bgToggle" title="Toggle Studio Lighting / Background">🎨</button>
+        <select id="castePick" style="padding: 3px 8px; font-size: 11px; font-weight: 600;">
+          <option value="princess">Princess</option>
+          <option value="drone">Drone</option>
+          <option value="queen">Queen</option>
+        </select>
+        <select id="combPick" style="padding: 3px 8px; font-size: 11px; font-weight: 600;" hidden></select>
+      </div>
+    </div>
+
+    <div class="viewport-overlay-bottom">
+      <div>
+        <div class="live-meta-title" id="viewName">Obsidian</div>
+        <div class="live-meta-id" id="viewId">mellifera:obsidian</div>
+      </div>
+      <div class="camera-hints">
+        Orbit: Mouse Drag &middot; Zoom: Scroll<br>Reset View: Double-Click
+      </div>
+    </div>
+
+    <div class="overlay hidden" id="overlay">
+      <div id="overlayText"></div>
+    </div>
+  </main>
+
+  <!-- Right Code & Diagnostic Studio -->
+  <aside class="code-panel">
+    <div class="panel-header">
+      <div class="panel-title"><span>💻</span> Live JSON &amp; Diagnostics</div>
+    </div>
+
+    <div class="code-container">
+      <div class="diagnostics-box">
+        <ul class="problems" id="problems"></ul>
+      </div>
+
+      <pre id="json"></pre>
+    </div>
+
+    <!-- Under the code rather than beside the title: the header then has the whole panel width for
+         one line of text, and the two buttons sit where the thing they act on ends. -->
+    <div class="panel-footer">
+      <button type="button" class="small" id="copy">📋 Copy</button>
+      <button type="button" class="small" id="load">📁 Open</button>
+      <input type="file" id="fileInput" accept=".json" hidden>
+    </div>
+  </aside>
+</div>
+
+<datalist id="itemList"></datalist>
+<div id="toast">Action Complete!</div>
+
+<script>
+"use strict";
+
+/* ============================================================================
+   1. Mod Specifications & Data Rules
+   ============================================================================ */
+
+const ALLELES = {
+  speed: { def: "slowest", values: ["slowest", "slower", "slow", "normal", "fast", "faster", "fastest"] },
+  lifespan: { def: "shorter", values: ["shortest", "shorter", "short", "shortened", "normal", "elongated", "long", "longer", "longest"] },
+  territory: { def: "average", values: ["average", "large", "larger", "largest"] },
+  fertility: { def: "normal", values: ["low", "normal", "high", "maximum"] },
+  tolerance: { def: "none", values: ["none", "both_1", "both_2", "both_3", "both_4", "both_5", "up_1", "up_2", "up_3", "up_4", "up_5", "down_1", "down_2", "down_3", "down_4", "down_5"] },
+  effect: { def: "none", values: ["none", "hydration", "aggressive", "ignition", "beatific", "exploration", "creeper", "fertile", "mycophilic", "repulsion", "snowing", "drunkard", "heroic", "reanimation", "resurrection", "miasmic", "misanthrope", "glacial", "radioactive", "festive"] },
+  flowering: { def: "slowest", values: ["slowest", "slower", "slow", "average", "fast", "faster", "fastest", "maximum"] }
+};
+
+const SPECIES = ["forest", "meadows", "common", "cultivated", "noble", "majestic", "imperial", "diligent", "unweary",
+  "industrious", "steadfast", "valiant", "heroic", "sinister", "fiendish", "demonic", "modest", "frugal", "austere",
+  "tropical", "exotic", "edenic", "ended", "spectral", "phantasmal", "wintry", "icy", "glacial", "vindictive",
+  "vengeful", "avenging", "leporine", "merry", "tipsy", "tricky", "rural", "farmerly", "agrarian", "marshy", "miry",
+  "boggy", "monastic", "secluded", "hermitic", "rock", "stone", "granite", "mineral", "coal", "copper", "iron",
+  "gold", "lapis", "emerald", "diamond", "excited", "energetic", "ecstatic"];
+
+const COMBS = [
+  ["honey", "Honey Comb", "#E8D56A", "#FFA12B"],
+  ["cocoa", "Cocoa Comb", "#674016", "#FFB62B"],
+  ["simmering", "Simmering Comb", "#981919", "#FFB62B"],
+  ["stringy", "Stringy Comb", "#C8BE67", "#BDA93E"],
+  ["frozen", "Frozen Comb", "#F9FFFF", "#A0FFFF"],
+  ["dripping", "Dripping Comb", "#DC7613", "#FFFF00"],
+  ["silky", "Silky Comb", "#508907", "#DDFF00"],
+  ["parched", "Parched Comb", "#DCBE13", "#FFFF00"],
+  ["mysterious", "Mysterious Comb", "#161616", "#E099FF"],
+  ["irradiated", "Irradiated Comb", "#EAFFF3", "#EEFF00"],
+  ["powdery", "Powdery Comb", "#E4E4E4", "#FFFFFF"],
+  ["wheaten", "Wheaten Comb", "#FEFF8F", "#FFFFFF"],
+  ["mossy", "Mossy Comb", "#2A3313", "#7E9939"],
+  ["mellow", "Mellow Comb", "#886000", "#FFF960"],
+  ["stone", "Rocky Comb", "#8C8C91", "#C6C6CC"],
+  ["coal", "Coal Comb", "#363534", "#1D1D21"],
+  ["copper", "Copper Comb", "#363534", "#D16308"],
+  ["iron", "Iron Comb", "#363534", "#A87058"],
+  ["gold", "Golden Comb", "#363534", "#E6CC0B"],
+  ["lapis", "Lapis Comb", "#363534", "#3D2CDB"],
+  ["emerald", "Emerald Comb", "#363534", "#1CFF03"],
+  ["diamond", "Diamond Comb", "#363534", "#7FBDFA"],
+  ["redstone", "Energetic Comb", "#FA9696", "#E61010"]
+];
+
+const COMB_BY_ID = new Map(COMBS.map(([id, name, primary, secondary]) => [id, { name, primary, secondary }]));
+
+const BRANCHES = ["custom", "agrarian", "austere", "boggy", "end", "energetic", "festive", "frozen", "gemstone",
+  "heroic", "honey", "industrious", "infernal", "metallic", "mineral", "monastic", "noble", "precious", "rocky",
+  "tropical", "vengeful"];
+
+const ITEM_SUGGESTIONS = ["mellifera:beeswax", "mellifera:honey_drop", "mellifera:honeydew",
+  "mellifera:royal_jelly", "mellifera:pollen", "mellifera:propolis", "mellifera:silky_propolis",
+  "mellifera:pulsating_propolis", "mellifera:refractory_wax", "mellifera:phosphor", "mellifera:silk_wisp",
+  "mellifera:ash", "mellifera:ice_shard", "mellifera:peat", "minecraft:redstone", "minecraft:coal",
+  "minecraft:raw_iron", "minecraft:raw_copper", "minecraft:raw_gold", "minecraft:lapis_lazuli",
+  "minecraft:emerald", "minecraft:diamond", "minecraft:obsidian", "minecraft:glowstone_dust"];
+
+const DEFAULTS = {
+  minCelsius: 0, maxCelsius: 30,
+  primary: "#ffdc16",
+  combPrimary: "#363534", combSecondary: "#e8d56a",
+  combTicks: 160, outputCount: 1
+};
+
+const MAX_COMB_TICKS = 20 * 60;
+const COMB_SCALE = 1;
+const ID_PATTERN = /^[a-z0-9_]+$/;
+const ITEM_PATTERN = /^[a-z0-9_.-]+:[a-z0-9_./-]+$/;
+
+const COMB_BASE_PNG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAqUlEQVR4nL1S2w3EIAwjJ3ZgCaZg7zAFS2SKnizhKqKhVT/u/AOJEj9KU/oVjomnubxb7r2fdxGRHcHnjr3Wet7NLHSUfYEhnFBvrSXe0R9j3DuyuayqFyXU6Ecusi8wFNWroxA6langyaCMehUISXQO+WGSgohRtzA3xMzMH7nI63IpRRhnm9dBVgI+Fz4anotu0Md/AYEtQXJ5oY4FEkbLj2DuV0t/xxfDS8mf5KiTlQAAAABJRU5ErkJggg==";
+const COMB_OVERLAY_PNG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAfklEQVR4nK1RgQkAIQi0JmiG9p+pEeI26BFe8CWz4g+K9M5TjMgBgMGHbgBVeGyCSYFME5rBEbXWxuwddvagTbIUl1KSJmQat6MGgrFDDsZAYhZasY0zX3b83rvbtdb60Z5v2+Pam9xZ2tLgJkdbpMOnlYgXpnMSb2P2jb/jAaA9qeKiXJApAAAAAElFTkSuQmCC";
+const BEE_PNG = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAANlBMVEUAAAD3/f3x8uD+1mjtw0N8ydHkrjvQjkjFgjyrZyCWUyRfMiVVLiIwKzdDJBs0GREeHigWEA5sqvdSAAAAAXRSTlMAQObYZgAAAR5JREFUeNrt0dFuhSAMBuAiPUUstPr+L7sfXc62KzQkW5bwFeoVfwrSl6JFwbwxek4BEceF4EA9IBxRsl0IFHVHrdRo832Ca/fV9wQSf0yg576pP0H/FsIRJOdt23J+PEElbgHM74DHOJ4J+ULP4TwWr7lZz2vdUUpUVHMlNIoqRVULVi/A2Fg5omrkttGVja2oadMJMJMWwZKSMMfrY2xido1g3QmSCwK47i/0117RTTy188X6VzDPLi7Me935s4uLZ0cClN4EfuRj9SSYoAoLOkvy9dgOJBiWdwM2ROQVUpKUVsjHhnK3c9FvWUIYO489lBAoLLSMjjCYEIiUhgQlGBbCMnZ+8CmW9hbhD/+FEg0+gQaapmmapmn65z4AUtcPa0pUY7MAAAAASUVORK5CYII=";
+
+// Vanilla's enchantment glint sheet, assets/minecraft/textures/misc/enchanted_glint_item.png, the
+// one RenderTypes.ENTITY_GLINT samples. 128x128, and its .mcmeta asks for blur, so it is the one
+// texture here that wants LINEAR filtering rather than NEAREST.
+const GLINT_PNG = "data:image/png;base64,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";
+
+/* Preset Templates */
+const PRESETS = {
+  obsidian: {
+    id: "obsidian", name: "Obsidian", branch: "mineral", min: 0, max: 30, primary: "#4b3a78", dominant: true, glint: false,
+    traits: { speed: "normal", lifespan: "long", territory: "average", fertility: "low", tolerance: "both_2", effect: "ignition", flowering: "slow" },
+    combs: [
+      { mode: "existing", id: "mellifera:stone", chance: 0.2 },
+      { mode: "new", chance: 0.1, newComb: { id: "obsidian", name: "Obsidian Comb", primary: "#363534", secondary: "#4b3a78", ticks: 160, outputs: [{ item: "mellifera:beeswax", count: 1, chance: 0.5 }, { item: "minecraft:obsidian", count: 1, chance: 0.05 }] } }
+    ],
+    mutations: [{ parents: ["mellifera:rock", "mellifera:sinister"], chance: 0.06 }]
+  },
+  glacial: {
+    id: "glacial", name: "Glacial Frost", branch: "frozen", min: -20, max: 10, primary: "#93c5fd", dominant: true, glint: true,
+    traits: { speed: "fast", lifespan: "elongated", territory: "large", fertility: "normal", tolerance: "down_3", effect: "glacial", flowering: "average" },
+    combs: [
+      { mode: "existing", id: "mellifera:frozen", chance: 0.4 }
+    ],
+    mutations: [{ parents: ["mellifera:wintry", "mellifera:icy"], chance: 0.12 }]
+  },
+  atomic: {
+    id: "atomic", name: "Atomic Energy", branch: "energetic", min: 10, max: 50, primary: "#84cc16", dominant: true, glint: true,
+    traits: { speed: "fastest", lifespan: "shorter", territory: "largest", fertility: "high", tolerance: "up_4", effect: "radioactive", flowering: "fastest" },
+    combs: [
+      { mode: "existing", id: "mellifera:redstone", chance: 0.5 }
+    ],
+    mutations: [{ parents: ["mellifera:excited", "mellifera:energetic"], chance: 0.08 }]
+  },
+  edenic: {
+    id: "edenic", name: "Edenic Flora", branch: "tropical", min: 15, max: 35, primary: "#ec4899", dominant: false, glint: false,
+    traits: { speed: "faster", lifespan: "longest", territory: "larger", fertility: "maximum", tolerance: "both_1", effect: "beatific", flowering: "maximum" },
+    combs: [
+      { mode: "existing", id: "mellifera:silky", chance: 0.35 }
+    ],
+    mutations: [{ parents: ["mellifera:exotic", "mellifera:tropical"], chance: 0.15 }]
+  }
+};
+
+/* ============================================================================
+   2. App State & Inspector Panes
+   ============================================================================ */
+
+const state = {
+  combs: PRESETS.obsidian.combs,
+  mutations: PRESETS.obsidian.mutations,
+  tab: "bee",
+  caste: "princess",
+  combIndex: 1,
+  bgMode: "white",
+  glint: false
+};
+
+let overlayNotice = null;
+const $ = id => document.getElementById(id);
+
+function el(tag, props, kids) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(props || {})) {
+    if (key === "list" || key === "role" || key === "hidden") node.setAttribute(key, value);
+    else node[key] = value;
+  }
+  (kids || []).forEach(kid => node.append(kid));
+  return node;
+}
+
+const option = (value, label) => el("option", { value, textContent: label === undefined ? value : label });
+
+function showToast(msg) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2000);
+}
+
+function switchInspectorPane(pane) {
+  ["Identity", "Genome", "Combs", "Breeding"].forEach(p => {
+    const pLower = p.toLowerCase();
+    const btn = $("paneBtn" + p);
+    const content = $("pane" + p);
+    if (pLower === pane) {
+      btn.classList.add("active");
+      content.classList.remove("hidden-pane");
+    } else {
+      btn.classList.remove("active");
+      content.classList.add("hidden-pane");
+    }
+  });
+
+  const titles = {
+    identity: "🐝 Species Identity & Palette",
+    genome: "🧬 Genome Trait Alleles",
+    combs: "🪮 Comb Products & Centrifuge Loot",
+    breeding: "🔀 Breeding Mutations & Parents"
+  };
+  $("paneTitle").textContent = titles[pane];
+}
+
+function applyPreset(key) {
+  const preset = PRESETS[key];
+  if (!preset) return;
+
+  $("beeId").value = preset.id;
+  $("beeName").value = preset.name;
+  $("beeBranch").value = preset.branch;
+  $("beeMin").value = preset.min;
+  $("beeMax").value = preset.max;
+  $("beePrimary").value = preset.primary;
+  $("beeDominant").checked = preset.dominant;
+  $("beeGlint").checked = preset.glint;
+
+  // Checked against the allele's own values rather than assigned blindly. A select silently
+  // refuses a value it has no option for and reports "" afterwards, which is how a preset with one
+  // wrong allele name produced `"flowering": ""` in the output, a file the mod would reject.
+  for (const [trait, value] of Object.entries(preset.traits)) {
+    const spec = ALLELES[trait];
+    const select = $("trait-" + trait);
+    if (!spec || !select) continue;
+    select.value = spec.values.includes(value) ? value : spec.def;
+  }
+
+  state.combs = JSON.parse(JSON.stringify(preset.combs));
+  state.mutations = JSON.parse(JSON.stringify(preset.mutations));
+  state.combIndex = 0;
+
+  renderCombs();
+  renderMutations();
+  showToast("Loaded Preset: " + preset.name);
+}
+
+/* ============================================================================
+   3. Minecraft Bee 3D Mesh Engine
+   ============================================================================ */
+
+const TEX_SIZE = 64;
+
+class PartMesh {
+  constructor() {
+    this.positions = [];
+    this.uvs = [];
+    this.normals = [];
+  }
+
+  get vertexCount() { return this.positions.length / 3; }
+
+  cube(texU, texV, origin, size, grow, mirror) {
+    const inflate = grow || 0;
+    const [ox, oy, oz] = origin;
+    const [width, height, depth] = size;
+
+    let minX = ox - inflate;
+    let minY = oy - inflate;
+    let minZ = oz - inflate;
+    let maxX = ox + width + inflate;
+    let maxY = oy + height + inflate;
+    let maxZ = oz + depth + inflate;
+
+    if (mirror) {
+      const swap = maxX;
+      maxX = minX;
+      minX = swap;
+    }
+
+    const t0 = [minX, minY, minZ], t1 = [maxX, minY, minZ], t2 = [maxX, maxY, minZ], t3 = [minX, maxY, minZ];
+    const l0 = [minX, minY, maxZ], l1 = [maxX, minY, maxZ], l2 = [maxX, maxY, maxZ], l3 = [minX, maxY, maxZ];
+
+    const u0 = texU;
+    const u1 = texU + depth;
+    const u2 = texU + depth + width;
+    const u22 = u2 + width;
+    const u3 = u2 + depth;
+    const u4 = u3 + width;
+    const v0 = texV;
+    const v1 = texV + depth;
+    const v2 = texV + depth + height;
+
+    const flip = mirror ? -1 : 1;
+    this.quad([l1, l0, t0, t1], u1, v0, u2, v1, [0, -1, 0], mirror);
+    this.quad([t2, t3, l3, l2], u2, v1, u22, v0, [0, 1, 0], mirror);
+    this.quad([t0, l0, l3, t3], u0, v1, u1, v2, [-flip, 0, 0], mirror);
+    this.quad([t1, t0, t3, t2], u1, v1, u2, v2, [0, 0, -1], mirror);
+    this.quad([l1, t1, t2, l2], u2, v1, u3, v2, [flip, 0, 0], mirror);
+    this.quad([l0, l1, l2, l3], u3, v1, u4, v2, [0, 0, 1], mirror);
+    return this;
+  }
+
+  quad(corners, u0, v0, u1, v1, normal, mirror) {
+    const uv = [[u1, v0], [u0, v0], [u0, v1], [u1, v1]];
+    let vertices = corners.map((corner, i) => ({ corner, uv: uv[i] }));
+    if (mirror) vertices = vertices.slice().reverse();
+
+    const push = vertex => {
+      this.positions.push(vertex.corner[0] / 16, vertex.corner[1] / 16, vertex.corner[2] / 16);
+      this.uvs.push(vertex.uv[0] / TEX_SIZE, vertex.uv[1] / TEX_SIZE);
+      this.normals.push(normal[0], normal[1], normal[2]);
+    };
+
+    push(vertices[0]); push(vertices[1]); push(vertices[2]);
+    push(vertices[0]); push(vertices[2]); push(vertices[3]);
+    return this;
+  }
+}
+
+function buildBeeParts() {
+  const part = (name, pose, mesh, children) => ({
+    name,
+    x: pose[0], y: pose[1], z: pose[2],
+    xRot: pose[3] || 0, yRot: pose[4] || 0, zRot: pose[5] || 0,
+    base: { x: pose[0], y: pose[1], z: pose[2], xRot: pose[3] || 0, yRot: pose[4] || 0, zRot: pose[5] || 0 },
+    mesh: mesh || null,
+    children: children || [],
+    visible: true
+  });
+
+  const body = part("body", [0, 0, 0], new PartMesh().cube(0, 0, [-3.5, -4, -5], [7, 7, 10]), [
+    part("stinger", [0, 0, 0], new PartMesh().cube(26, 7, [0, -1, 5], [0, 1, 2])),
+    part("left_antenna", [0, -2, -5], new PartMesh().cube(2, 0, [1.5, -2, -3], [1, 2, 3])),
+    part("right_antenna", [0, -2, -5], new PartMesh().cube(2, 3, [-2.5, -2, -3], [1, 2, 3]))
+  ]);
+
+  const wingGrow = 0.001;
+  const bone = part("bone", [0, 19, 0], null, [
+    body,
+    part("right_wing", [-1.5, -4, -3, 0, -0.2618, 0], new PartMesh().cube(0, 18, [-9, 0, 0], [9, 0, 6], wingGrow, false)),
+    part("left_wing", [1.5, -4, -3, 0, 0.2618, 0], new PartMesh().cube(0, 18, [0, 0, 0], [9, 0, 6], wingGrow, true)),
+    part("front_legs", [1.5, 3, -2], new PartMesh().cube(26, 1, [-5, 0, 0], [7, 2, 0])),
+    part("middle_legs", [1.5, 3, 0], new PartMesh().cube(26, 3, [-5, 0, 0], [7, 2, 0])),
+    part("back_legs", [1.5, 3, 2], new PartMesh().cube(26, 5, [-5, 0, 0], [7, 2, 0]))
+  ]);
+
+  return bone;
+}
+
+function findPart(root, name) {
+  const stack = [root];
+  while (stack.length) {
+    const node = stack.pop();
+    if (node.name === name) return node;
+    stack.push(...node.children);
+  }
+  return null;
+}
+
+function resetPose(part) {
+  Object.assign(part, part.base);
+  part.visible = true;
+  part.children.forEach(resetPose);
+}
+
+function animateBee(bone, ageInTicks, hasStinger) {
+  resetPose(bone);
+  const find = name => findPart(bone, name);
+  const speed = Math.cos(ageInTicks * 0.18);
+  const wingPhase = ageInTicks * 120.32113 * Math.PI / 180;
+
+  const rightWing = find("right_wing");
+  const leftWing = find("left_wing");
+  rightWing.xRot = 0;
+  rightWing.yRot = 0;
+  rightWing.zRot = Math.cos(wingPhase) * Math.PI * 0.15;
+  leftWing.xRot = rightWing.xRot;
+  leftWing.yRot = rightWing.yRot;
+  leftWing.zRot = -rightWing.zRot;
+
+  find("middle_legs").xRot = Math.PI / 4;
+  find("front_legs").xRot = -speed * Math.PI * 0.1 + Math.PI / 8;
+  find("back_legs").xRot = -speed * Math.PI * 0.05 + Math.PI / 4;
+
+  bone.xRot = 0.1 + speed * Math.PI * 0.025;
+  bone.y = 19 - speed * 0.9;
+
+  const antenna = speed * Math.PI * 0.03;
+  find("left_antenna").xRot = antenna;
+  find("right_antenna").xRot = antenna;
+
+  find("stinger").visible = hasStinger;
+}
+
+/* ============================================================================
+   4. Matrix Math & Lighting System
+   ============================================================================ */
+
+const identity = () => [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+
+function multiply(a, b) {
+  const out = new Array(16).fill(0);
+  for (let col = 0; col < 4; col++) {
+    for (let row = 0; row < 4; row++) {
+      for (let k = 0; k < 4; k++) {
+        out[col * 4 + row] += a[k * 4 + row] * b[col * 4 + k];
+      }
+    }
+  }
+  return out;
+}
+
+const translation = (x, y, z) => [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, x, y, z, 1];
+const scaling = (x, y, z) => [x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, 1];
+const rotationX = a => [1, 0, 0, 0, 0, Math.cos(a), Math.sin(a), 0, 0, -Math.sin(a), Math.cos(a), 0, 0, 0, 0, 1];
+const rotationY = a => [Math.cos(a), 0, -Math.sin(a), 0, 0, 1, 0, 0, Math.sin(a), 0, Math.cos(a), 0, 0, 0, 0, 1];
+const rotationZ = a => [Math.cos(a), Math.sin(a), 0, 0, -Math.sin(a), Math.cos(a), 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+
+const partMatrix = part => multiply(
+  translation(part.x / 16, part.y / 16, part.z / 16),
+  multiply(rotationZ(part.zRot), multiply(rotationY(part.yRot), rotationX(part.xRot)))
+);
+
+function perspective(fovDegrees, aspect, near, far) {
+  const f = 1 / Math.tan(fovDegrees * Math.PI / 360);
+  const range = 1 / (near - far);
+  return [f / aspect, 0, 0, 0, 0, f, 0, 0, 0, 0, (near + far) * range, -1, 0, 0, near * far * range * 2, 0];
+}
+
+const upper3 = m => [m[0], m[1], m[2], m[4], m[5], m[6], m[8], m[9], m[10]];
+
+const hexToRgb = hex => [
+  parseInt(hex.slice(1, 3), 16),
+  parseInt(hex.slice(3, 5), 16),
+  parseInt(hex.slice(5, 7), 16)
+];
+
+const DIFFUSE_LIGHT_0 = normalize3([0.2, 1.0, -0.7]);
+const DIFFUSE_LIGHT_1 = normalize3([-0.2, 1.0, 0.7]);
+
+function normalize3(v) {
+  const length = Math.hypot(v[0], v[1], v[2]);
+  return [v[0] / length, v[1] / length, v[2] / length];
+}
+
+function transformDirection(matrix, v) {
+  return normalize3([
+    matrix[0] * v[0] + matrix[4] * v[1] + matrix[8] * v[2],
+    matrix[1] * v[0] + matrix[5] * v[1] + matrix[9] * v[2],
+    matrix[2] * v[0] + matrix[6] * v[1] + matrix[10] * v[2]
+  ]);
+}
+
+const rotateYXZ = (y, x, z) => multiply(rotationY(y), multiply(rotationX(x), rotationZ(z)));
+
+const LIGHT_RIGS = (() => {
+  const flatPose = multiply(rotationY(-Math.PI / 8), rotationX(Math.PI * 3 / 4));
+  const item3DPose = multiply(
+    scaling(1, -1, 1),
+    multiply(rotateYXZ(1.0821041, 3.2375858, 0), rotateYXZ(-Math.PI / 8, Math.PI * 3 / 4, 0))
+  );
+
+  return {
+    itemsFlat: [transformDirection(flatPose, DIFFUSE_LIGHT_0), transformDirection(flatPose, DIFFUSE_LIGHT_1)],
+    items3d: [transformDirection(item3DPose, DIFFUSE_LIGHT_0), transformDirection(item3DPose, DIFFUSE_LIGHT_1)]
+  };
+})();
+
+/* ============================================================================
+   5. Texture Painting & Comb Sprite Compositor
+   ============================================================================ */
+
+const ABDOMEN_REGIONS = [
+  [10, 0, 7, 5],
+  [17, 0, 7, 5],
+  [0, 10, 5, 7],
+  [22, 10, 5, 7],
+  [27, 10, 7, 7]
+];
+
+const ANTENNAE_REGIONS = [[2, 0, 8, 8]];
+const QUEEN_GOLD = "#f7c738";
+
+const luminance = (r, g, b) => (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+
+function paintRegions(pixels, width, regions, hex) {
+  let peak = 0;
+  for (const [rx, ry, rw, rh] of regions) {
+    for (let y = ry; y < ry + rh; y++) {
+      for (let x = rx; x < rx + rw; x++) {
+        const i = (y * width + x) * 4;
+        if (pixels[i + 3] === 0) continue;
+        peak = Math.max(peak, luminance(pixels[i], pixels[i + 1], pixels[i + 2]));
+      }
+    }
+  }
+  if (peak <= 0) return;
+
+  const [cr, cg, cb] = hexToRgb(hex);
+  const clamp = value => Math.max(0, Math.min(255, Math.round(value)));
+
+  for (const [rx, ry, rw, rh] of regions) {
+    for (let y = ry; y < ry + rh; y++) {
+      for (let x = rx; x < rx + rw; x++) {
+        const i = (y * width + x) * 4;
+        if (pixels[i + 3] === 0) continue;
+        const scale = luminance(pixels[i], pixels[i + 1], pixels[i + 2]) / peak;
+        pixels[i] = clamp(cr * scale);
+        pixels[i + 1] = clamp(cg * scale);
+        pixels[i + 2] = clamp(cb * scale);
+      }
+    }
+  }
+}
+
+function canvasOf(width, height) {
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  return canvas;
+}
+
+function recolouredBee(sourceImage, primary, goldAntennae) {
+  const canvas = canvasOf(sourceImage.width, sourceImage.height);
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  context.drawImage(sourceImage, 0, 0);
+
+  const image = context.getImageData(0, 0, canvas.width, canvas.height);
+  paintRegions(image.data, canvas.width, ABDOMEN_REGIONS, primary);
+  if (goldAntennae) paintRegions(image.data, canvas.width, ANTENNAE_REGIONS, QUEEN_GOLD);
+  context.putImageData(image, 0, 0);
+
+  return canvas;
+}
+
+function compositeComb(baseImage, overlayImage, primary, secondary) {
+  const canvas = canvasOf(baseImage.width, baseImage.height);
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+
+  const tinted = (image, hex) => {
+    const layer = canvasOf(image.width, image.height);
+    const layerContext = layer.getContext("2d", { willReadFrequently: true });
+    layerContext.drawImage(image, 0, 0);
+
+    const data = layerContext.getImageData(0, 0, layer.width, layer.height);
+    const [cr, cg, cb] = hexToRgb(hex);
+    for (let i = 0; i < data.data.length; i += 4) {
+      if (data.data[i + 3] === 0) continue;
+      data.data[i] = data.data[i] * cr / 255;
+      data.data[i + 1] = data.data[i + 1] * cg / 255;
+      data.data[i + 2] = data.data[i + 2] * cb / 255;
+    }
+    layerContext.putImageData(data, 0, 0);
+    return layer;
+  };
+
+  context.drawImage(tinted(baseImage, secondary), 0, 0);
+  context.drawImage(tinted(overlayImage, primary), 0, 0);
+  return canvas;
+}
+
+function buildSpriteMesh(pixels, size) {
+  const mesh = new PartMesh();
+  const depth = 1 / 16;
+  const half = depth / 2;
+
+  const opaque = (x, y) => x >= 0 && y >= 0 && x < size && y < size && pixels[(y * size + x) * 4 + 3] > 0;
+
+  const push = (corners, uv, normal) => {
+    const order = [0, 1, 2, 0, 2, 3];
+    for (const index of order) {
+      mesh.positions.push(corners[index][0], corners[index][1], corners[index][2]);
+      mesh.uvs.push(uv[index][0], uv[index][1]);
+      mesh.normals.push(normal[0], normal[1], normal[2]);
+    }
+  };
+
+  push(
+    [[-0.5, -0.5, half], [0.5, -0.5, half], [0.5, 0.5, half], [-0.5, 0.5, half]],
+    [[0, 1], [1, 1], [1, 0], [0, 0]],
+    [0, 0, 1]
+  );
+  push(
+    [[0.5, -0.5, -half], [-0.5, -0.5, -half], [-0.5, 0.5, -half], [0.5, 0.5, -half]],
+    [[1, 1], [0, 1], [0, 0], [1, 0]],
+    [0, 0, -1]
+  );
+
+  const unit = 1 / size;
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      if (!opaque(x, y)) continue;
+
+      const left = -0.5 + x * unit;
+      const right = left + unit;
+      const top = 0.5 - y * unit;
+      const bottom = top - unit;
+      const uvCentre = [(x + 0.5) * unit, (y + 0.5) * unit];
+      const uv = [uvCentre, uvCentre, uvCentre, uvCentre];
+
+      if (!opaque(x, y - 1)) {
+        push([[left, top, half], [right, top, half], [right, top, -half], [left, top, -half]], uv, [0, 1, 0]);
+      }
+      if (!opaque(x, y + 1)) {
+        push([[right, bottom, half], [left, bottom, half], [left, bottom, -half], [right, bottom, -half]], uv, [0, -1, 0]);
+      }
+      if (!opaque(x - 1, y)) {
+        push([[left, bottom, half], [left, top, half], [left, top, -half], [left, bottom, -half]], uv, [-1, 0, 0]);
+      }
+      if (!opaque(x + 1, y)) {
+        push([[right, top, half], [right, bottom, half], [right, bottom, -half], [right, top, -half]], uv, [1, 0, 0]);
+      }
+    }
+  }
+
+  return mesh;
+}
+
+/* ============================================================================
+   6. Realtime WebGL Render Pipeline
+   ============================================================================ */
+
+const VERTEX_SHADER = `
+attribute vec3 aPosition;
+attribute vec3 aNormal;
+attribute vec2 aUv;
+
+uniform mat4 uProjection;
+uniform mat4 uView;
+uniform mat4 uModel;
+uniform mat3 uNormalMatrix;
+
+varying vec2 vUv;
+varying vec3 vNormal;
+
+void main() {
+  vUv = aUv;
+  vNormal = uNormalMatrix * aNormal;
+  gl_Position = uProjection * uView * uModel * vec4(aPosition, 1.0);
+}
+`;
+
+const FRAGMENT_SHADER = `
+precision mediump float;
+
+#define MINECRAFT_LIGHT_POWER 0.6
+#define MINECRAFT_AMBIENT_LIGHT 0.4
+
+uniform sampler2D uTexture;
+uniform vec3 uLight0;
+uniform vec3 uLight1;
+
+varying vec2 vUv;
+varying vec3 vNormal;
+
+void main() {
+  vec4 texel = texture2D(uTexture, vUv);
+
+  if (texel.a < 0.1) discard;
+
+  vec3 normal = normalize(vNormal);
+  vec2 light = max(vec2(0.0), vec2(dot(uLight0, normal), dot(uLight1, normal)));
+  float lightAccum = min(1.0, (light.x + light.y) * MINECRAFT_LIGHT_POWER + MINECRAFT_AMBIENT_LIGHT);
+
+  gl_FragColor = vec4(texel.rgb * lightAccum, 1.0);
+}
+`;
+
+/* The enchantment glint, as core/glint.vsh and core/glint.fsh do it.
+
+   The scroll comes from TextureTransform.setupGlintTexturing(0.5) -- 0.5 is the scale
+   ENTITY_GLINT uses, which is the render type BeeSpecialRenderer asks for. The vertex shader
+   passes UV0 through that matrix and nothing else; the fragment shader multiplies by GlintAlpha,
+   which is the glintStrength option, 0.75 by default.
+
+   Fog is dropped: there is no fog in a preview, and total_fog_value would be 0 throughout. */
+const GLINT_VERTEX_SHADER = `
+attribute vec3 aPosition;
+attribute vec2 aUv;
+
+uniform mat4 uProjection;
+uniform mat4 uView;
+uniform mat4 uModel;
+uniform mat4 uTextureMatrix;
+
+varying vec2 vUv;
+
+void main() {
+  vUv = (uTextureMatrix * vec4(aUv, 0.0, 1.0)).xy;
+  gl_Position = uProjection * uView * uModel * vec4(aPosition, 1.0);
+}
+`;
+
+const GLINT_FRAGMENT_SHADER = `
+precision mediump float;
+
+uniform sampler2D uTexture;
+uniform float uGlintAlpha;
+
+varying vec2 vUv;
+
+void main() {
+  vec4 color = texture2D(uTexture, vUv);
+  if (color.a < 0.1) discard;
+  gl_FragColor = vec4(color.rgb * uGlintAlpha, color.a);
+}
+`;
+
+const viewer = (() => {
+  const canvas = $("view");
+  const gl = canvas.getContext("webgl", { antialias: true, alpha: true });
+
+  let clearColorRgb = [1, 1, 1];
+
+  const stub = { setBee() {}, setComb() {}, setGlint() {}, setTab() {}, fit() {}, setClearColor() {}, ready: false };
+  if (!gl) {
+    showOverlay("WebGL is unavailable in this browser environment.");
+    return stub;
+  }
+
+  const compile = (type, source) => {
+    const shader = gl.createShader(type);
+    gl.shaderSource(shader, source);
+    gl.compileShader(shader);
+    if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(shader));
+    return shader;
+  };
+
+  // Attribute slots are pinned to the same indices in both programs, so one set of buffers feeds
+  // the lit pass and the glint pass without being re-bound per program.
+  const ATTRIBUTE = { position: 0, uv: 1, normal: 2 };
+
+  function buildProgram(vertexSource, fragmentSource) {
+    const built = gl.createProgram();
+    gl.attachShader(built, compile(gl.VERTEX_SHADER, vertexSource));
+    gl.attachShader(built, compile(gl.FRAGMENT_SHADER, fragmentSource));
+    for (const [name, index] of Object.entries(ATTRIBUTE)) {
+      gl.bindAttribLocation(built, index, "a" + name[0].toUpperCase() + name.slice(1));
+    }
+    gl.linkProgram(built);
+    if (!gl.getProgramParameter(built, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(built));
+    return built;
+  }
+
+  const uniformsOf = (built, names) => {
+    const map = { program: built };
+    for (const name of names) {
+      map[name] = gl.getUniformLocation(built, "u" + name[0].toUpperCase() + name.slice(1));
+    }
+    return map;
+  };
+
+  const program = buildProgram(VERTEX_SHADER, FRAGMENT_SHADER);
+  const glintProgram = buildProgram(GLINT_VERTEX_SHADER, GLINT_FRAGMENT_SHADER);
+
+  const location = uniformsOf(program,
+    ["projection", "view", "model", "normalMatrix", "texture", "light0", "light1"]);
+  const glintLocation = uniformsOf(glintProgram,
+    ["projection", "view", "model", "texture", "textureMatrix", "glintAlpha"]);
+
+  gl.useProgram(program);
+
+  gl.enable(gl.DEPTH_TEST);
+  gl.disable(gl.CULL_FACE);
+  gl.clearColor(1, 1, 1, 1);
+
+  function upload(mesh) {
+    const buffer = (data, size, attribute) => {
+      const handle = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, handle);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+      return { handle, size, attribute };
+    };
+
+    return {
+      count: mesh.vertexCount,
+      buffers: [
+        buffer(mesh.positions, 3, ATTRIBUTE.position),
+        buffer(mesh.uvs, 2, ATTRIBUTE.uv),
+        buffer(mesh.normals, 3, ATTRIBUTE.normal)
+      ]
+    };
+  }
+
+  // `smooth` is for the glint sheet alone: its .mcmeta asks for blur, and it has to repeat because
+  // the scrolling matrix walks the coordinates far outside 0..1.
+  function textureFrom(source, smooth) {
+    const filter = smooth ? gl.LINEAR : gl.NEAREST;
+    const wrap = smooth ? gl.REPEAT : gl.CLAMP_TO_EDGE;
+
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, filter);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, filter);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrap);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrap);
+    return texture;
+  }
+
+  // TextureTransform.setupGlintTexturing, with ENTITY_GLINT's scale of 0.5 and the default
+  // glintSpeed of 0.5. The two periods are the two layers drifting past each other.
+  const GLINT_SCALE = 0.5;
+  const GLINT_SPEED = 0.5;
+  const GLINT_ALPHA = 0.75;
+
+  function glintMatrix(nowMillis) {
+    const millis = nowMillis * GLINT_SPEED * 8;
+    const layerOffset0 = (millis % 110000) / 110000;
+    const layerOffset1 = (millis % 30000) / 30000;
+
+    let matrix = translation(-layerOffset0, layerOffset1, 0);
+    matrix = multiply(matrix, rotationZ(Math.PI / 18));
+    matrix = multiply(matrix, scaling(GLINT_SCALE, GLINT_SCALE, GLINT_SCALE));
+    return matrix;
+  }
+
+  const beeRoot = buildBeeParts();
+  const beeParts = [];
+  (function collect(part) {
+    if (part.mesh) beeParts.push({ part, model: upload(part.mesh) });
+    part.children.forEach(collect);
+  })(beeRoot);
+
+  let combModel = null;
+  let beeTexture = null;
+  let combTexture = null;
+  let glintTexture = null;
+
+  const camera = { yaw: 0, pitch: 0, distance: 2.4 };
+  const home = { yaw: 0, pitch: 0, distance: 2.4 };
+  let current = "bee";
+  const metricsCache = new Map();
+  let dragging = false;
+  let last = null;
+
+  canvas.addEventListener("pointerdown", event => {
+    dragging = true;
+    last = [event.clientX, event.clientY];
+    canvas.classList.add("dragging");
+    canvas.setPointerCapture(event.pointerId);
+  });
+
+  canvas.addEventListener("pointermove", event => {
+    if (!dragging) return;
+    camera.yaw += (event.clientX - last[0]) * 0.011;
+    camera.pitch = Math.max(-1.3, Math.min(1.3, camera.pitch + (event.clientY - last[1]) * 0.009));
+    last = [event.clientX, event.clientY];
+  });
+
+  const endDrag = () => {
+    dragging = false;
+    canvas.classList.remove("dragging");
+  };
+
+  canvas.addEventListener("pointerup", endDrag);
+  canvas.addEventListener("pointercancel", endDrag);
+
+  canvas.addEventListener("wheel", event => {
+    event.preventDefault();
+    camera.distance = Math.max(1.1, Math.min(6, camera.distance + Math.sign(event.deltaY) * 0.18));
+  }, { passive: false });
+
+  canvas.addEventListener("dblclick", () => Object.assign(camera, home));
+
+  let framedFor = 0;
+
+  function resize() {
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    const width = Math.round(canvas.clientWidth * ratio);
+    const height = Math.round(canvas.clientHeight * ratio);
+    if (canvas.width !== width || canvas.height !== height) {
+      canvas.width = width;
+      canvas.height = height;
+    }
+    gl.viewport(0, 0, canvas.width, canvas.height);
+
+    // Reframe when the window changes shape, but only while the view is still where fit() left it.
+    // A reader who has zoomed or orbited keeps their view: resizing a window is not a request to
+    // throw it away.
+    const aspect = width / Math.max(1, height);
+    if (Math.abs(aspect - framedFor) > 0.001) {
+      framedFor = aspect;
+      if (camera.distance === home.distance) api.fit();
+    }
+  }
+
+  function bindAttributes(model) {
+    for (const buffer of model.buffers) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffer.handle);
+      gl.enableVertexAttribArray(buffer.attribute);
+      gl.vertexAttribPointer(buffer.attribute, buffer.size, gl.FLOAT, false, 0, 0);
+    }
+  }
+
+  function draw(model, matrix) {
+    gl.uniformMatrix4fv(location.model, false, matrix);
+    gl.uniformMatrix3fv(location.normalMatrix, false, upper3(matrix));
+    bindAttributes(model);
+    gl.drawArrays(gl.TRIANGLES, 0, model.count);
+  }
+
+  function drawGlint(model, matrix) {
+    gl.uniformMatrix4fv(glintLocation.model, false, matrix);
+    bindAttributes(model);
+    gl.drawArrays(gl.TRIANGLES, 0, model.count);
+  }
+
+  function beeTransform(scale) {
+    let matrix = scaling(-scale, -scale, scale);
+    matrix = multiply(matrix, translation(0, -19 / 16, 0));
+    matrix = multiply(matrix, rotationX(-25 * Math.PI / 180));
+    matrix = multiply(matrix, rotationY(200 * Math.PI / 180));
+    return matrix;
+  }
+
+  function beeMetrics(scale) {
+    const cached = metricsCache.get(scale);
+    if (cached) return cached;
+
+    resetPose(beeRoot);
+    const min = [Infinity, Infinity, Infinity];
+    const max = [-Infinity, -Infinity, -Infinity];
+
+    (function walk(part, parent) {
+      const matrix = multiply(parent, partMatrix(part));
+      const entry = beeParts.find(candidate => candidate.part === part);
+      if (entry) {
+        const positions = part.mesh.positions;
+        for (let i = 0; i < positions.length; i += 3) {
+          const [x, y, z] = [positions[i], positions[i + 1], positions[i + 2]];
+          for (let axis = 0; axis < 3; axis++) {
+            const value = matrix[axis] * x + matrix[4 + axis] * y + matrix[8 + axis] * z + matrix[12 + axis];
+            min[axis] = Math.min(min[axis], value);
+            max[axis] = Math.max(max[axis], value);
+          }
+        }
+      }
+      part.children.forEach(child => walk(child, matrix));
+    })(beeRoot, beeTransform(scale));
+
+    const centre = [0, 1, 2].map(axis => (min[axis] + max[axis]) / 2);
+    const radius = Math.max(...[0, 1, 2].map(axis => (max[axis] - min[axis]) / 2));
+    const metrics = { centre, radius };
+    metricsCache.set(scale, metrics);
+    return metrics;
+  }
+
+  function frame() {
+    resize();
+
+    const aspect = canvas.width / Math.max(1, canvas.height);
+    const orbit = multiply(rotationX(camera.pitch), rotationY(camera.yaw));
+    const projection = perspective(40, aspect, 0.05, 40);
+    const view = translation(0, 0, -camera.distance);
+
+    gl.useProgram(program);
+    gl.clearColor(clearColorRgb[0], clearColorRgb[1], clearColorRgb[2], 1);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.uniformMatrix4fv(location.projection, false, projection);
+    gl.uniformMatrix4fv(location.view, false, view);
+    gl.uniform1i(location.texture, 0);
+    gl.activeTexture(gl.TEXTURE0);
+
+    const rig = current === "bee" ? LIGHT_RIGS.items3d : LIGHT_RIGS.itemsFlat;
+    gl.uniform3fv(location.light0, rig[0]);
+    gl.uniform3fv(location.light1, rig[1]);
+
+    if (current === "bee" && beeTexture) {
+      gl.bindTexture(gl.TEXTURE_2D, beeTexture);
+      const caste = CASTES[state.caste];
+      animateBee(beeRoot, (performance.now() % 1000000) / 50, caste.stinger);
+
+      const metrics = beeMetrics(caste.scale);
+      const centred = multiply(translation(-metrics.centre[0], -metrics.centre[1], -metrics.centre[2]),
+        beeTransform(caste.scale));
+      const base = multiply(orbit, centred);
+
+      // Every part's final matrix, kept so the glint pass can repeat the walk without posing the
+      // model a second time. It has to be the same matrices to the bit: the glint depth test is
+      // EQUAL, so anything that shifts a vertex by a hair makes the glint vanish.
+      const posed = [];
+      (function drawPart(part, parent) {
+        const matrix = multiply(parent, partMatrix(part));
+        const entry = part.visible ? beeParts.find(candidate => candidate.part === part) : null;
+        if (entry) {
+          draw(entry.model, matrix);
+          posed.push({ model: entry.model, matrix });
+        }
+        if (part.visible) part.children.forEach(child => drawPart(child, matrix));
+      })(beeRoot, base);
+
+      if (state.glint && glintTexture) {
+        // RenderPipelines.GLINT: no depth write, CompareOp.EQUAL so it lands only on the surfaces
+        // just drawn, culling off, and BlendFunction.GLINT, which is
+        // (SRC_COLOR, ONE, ZERO, ONE) -- the source multiplied by itself, added to what is there.
+        gl.useProgram(glintProgram);
+        gl.uniformMatrix4fv(glintLocation.projection, false, projection);
+        gl.uniformMatrix4fv(glintLocation.view, false, view);
+        gl.uniformMatrix4fv(glintLocation.textureMatrix, false, glintMatrix(performance.now()));
+        gl.uniform1i(glintLocation.texture, 0);
+        gl.uniform1f(glintLocation.glintAlpha, GLINT_ALPHA);
+        gl.bindTexture(gl.TEXTURE_2D, glintTexture);
+
+        gl.depthFunc(gl.EQUAL);
+        gl.depthMask(false);
+        gl.enable(gl.BLEND);
+        gl.blendFuncSeparate(gl.SRC_COLOR, gl.ONE, gl.ZERO, gl.ONE);
+
+        for (const entry of posed) drawGlint(entry.model, entry.matrix);
+
+        gl.disable(gl.BLEND);
+        gl.depthMask(true);
+        gl.depthFunc(gl.LESS);
+        gl.useProgram(program);
+      }
+    }
+
+    if (current === "comb" && combTexture && combModel) {
+      gl.bindTexture(gl.TEXTURE_2D, combTexture);
+      draw(combModel, multiply(orbit, scaling(COMB_SCALE, COMB_SCALE, COMB_SCALE)));
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  requestAnimationFrame(frame);
+
+  // Named, because resize() reframes through it.
+  const api = {
+    ready: true,
+
+    setGlint(image) {
+      if (glintTexture) gl.deleteTexture(glintTexture);
+      glintTexture = textureFrom(image, true);
+    },
+
+    setClearColor(r, g, b) {
+      clearColorRgb = [r, g, b];
+    },
+
+    setBee(sourceImage, primary, goldAntennae) {
+      if (beeTexture) gl.deleteTexture(beeTexture);
+      beeTexture = textureFrom(recolouredBee(sourceImage, primary, goldAntennae));
+    },
+
+    setComb(baseImage, overlayImage, primary, secondary) {
+      const composite = compositeComb(baseImage, overlayImage, primary, secondary);
+      if (combTexture) gl.deleteTexture(combTexture);
+      combTexture = textureFrom(composite);
+
+      if (!combModel) {
+        const context = composite.getContext("2d", { willReadFrequently: true });
+        const pixels = context.getImageData(0, 0, composite.width, composite.height).data;
+        combModel = upload(buildSpriteMesh(pixels, composite.width));
+      }
+    },
+
+    setTab(tab) {
+      current = tab;
+      this.fit();
+    },
+
+    fit() {
+      const isBee = current === "bee";
+      const radius = isBee ? beeMetrics(CASTES[state.caste].scale).radius : COMB_SCALE * 0.5;
+
+      // The projection's field of view is vertical, so a viewport taller than it is wide runs out
+      // of room sideways long before it runs out above and below. Dividing by the aspect in that
+      // case is what stops a narrow column showing a close-up of the abdomen and nothing else.
+      const aspect = canvas.clientWidth / Math.max(1, canvas.clientHeight);
+      const halfFov = Math.tan(20 * Math.PI / 180) * Math.min(1, aspect);
+
+      home.distance = radius / halfFov * 1.25;
+      camera.distance = home.distance;
+    }
+  };
+
+  return api;
+})();
+
+/* ============================================================================
+   7. Texture Initialization
+   ============================================================================ */
+
+function showOverlay(message) {
+  overlayNotice = message;
+  updateOverlay();
+}
+
+function updateOverlay() {
+  $("overlay").classList.toggle("hidden", !overlayNotice);
+  if (overlayNotice) $("overlayText").textContent = overlayNotice;
+}
+
+const loadImage = source => new Promise((resolve, reject) => {
+  const image = new Image();
+  image.onload = () => resolve(image);
+  image.onerror = () => reject(new Error("could not load texture"));
+  image.src = source;
+});
+
+let beeImage = null;
+let combImages = null;
+
+async function initTextures() {
+  const [bee, base, overlay, glint] = await Promise.all([
+    loadImage(BEE_PNG), loadImage(COMB_BASE_PNG), loadImage(COMB_OVERLAY_PNG), loadImage(GLINT_PNG)
+  ]);
+
+  beeImage = bee;
+  combImages = { base, overlay };
+  viewer.setGlint(glint);
+  refreshTextures();
+}
+
+function refreshTextures() {
+  if (!viewer.ready) return;
+
+  if (beeImage) {
+    viewer.setBee(beeImage, $("beePrimary").value, state.caste === "queen");
+  }
+
+  if (combImages) {
+    const comb = previewedComb();
+    viewer.setComb(combImages.base, combImages.overlay, comb.primary, comb.secondary);
+  }
+}
+
+/* ============================================================================
+   8. Form Builder & DOM Wiring
+   ============================================================================ */
+
+const CASTES = {
+  princess: { scale: 1.15, stinger: true, gold: false },
+  drone: { scale: 0.85, stinger: false, gold: false },
+  queen: { scale: 1.15, stinger: true, gold: true }
+};
+
+BRANCHES.forEach(branch => $("beeBranch").append(option(branch)));
+ITEM_SUGGESTIONS.forEach(item => $("itemList").append(option(item)));
+
+for (const [trait, spec] of Object.entries(ALLELES)) {
+  const select = el("select", { id: "trait-" + trait });
+  spec.values.forEach(value => select.append(option(value)));
+  select.value = spec.def;
+  select.addEventListener("input", render);
+  $("traits").append(el("label", {}, [el("span", { textContent: trait.toUpperCase() }), select]));
+}
+
+$("trait-tolerance").value = "both_2";
+$("trait-lifespan").value = "long";
+$("trait-fertility").value = "low";
+
+function numberInput(value, onChange, attributes) {
+  const node = el("input", Object.assign({ type: "number", value }, attributes || {}));
+  node.addEventListener("input", () => {
+    onChange(node.value === "" ? "" : Number(node.value));
+    render();
+  });
+  return node;
+}
+
+function textInput(value, onChange, options) {
+  const settings = options || {};
+  const node = el("input", { type: "text", value, className: settings.mono ? "mono" : "" });
+  if (settings.list) node.setAttribute("list", settings.list);
+  node.addEventListener("input", () => {
+    onChange(node.value);
+    render();
+  });
+  return node;
+}
+
+function colorInput(value, onChange) {
+  const picker = el("input", { type: "color", value });
+  const textVal = el("span", { className: "mono", style: "font-size: 11px; color: var(--text-muted);", textContent: value.toUpperCase() });
+  
+  picker.addEventListener("input", () => {
+    textVal.textContent = picker.value.toUpperCase();
+    onChange(picker.value);
+    render();
+  });
+
+  return el("div", { className: "color-swatch-box" }, [picker, textVal]);
+}
+
+const field = (labelText, control) => el("label", {}, [el("span", { textContent: labelText }), control]);
+const chanceInput = (holder, key) => numberInput(holder[key], v => holder[key] = v, { step: "0.01", min: "0", max: "1" });
+
+function combRow(comb, index) {
+  const isNew = comb.mode === "new";
+  const row = el("div", { className: "dynamic-row" + (index === state.combIndex ? " selected" : "") });
+
+  row.addEventListener("pointerdown", () => {
+    if (state.combIndex === index && state.tab === "comb") return;
+    state.combIndex = index;
+    state.tab = "comb";
+    syncTabs();
+    renderCombs();
+  });
+
+  row.append(el("div", { className: "row-top" }, [
+    el("span", { className: "card-title", style: "margin: 0;", textContent: "Comb #" + (index + 1) + (isNew ? " (Custom)" : "") }),
+    el("div", { style: "display: flex; gap: 6px;" }, [
+      el("button", {
+        type: "button", className: "small",
+        textContent: isNew ? "Use Built-in" : "Make Custom",
+        onclick: (e) => {
+          e.stopPropagation();
+          comb.mode = isNew ? "existing" : "new";
+          if (comb.mode === "existing" && !comb.id) comb.id = "mellifera:honey";
+          if (comb.mode === "new" && !comb.newComb) {
+            comb.newComb = {
+              id: "", name: "", primary: DEFAULTS.combPrimary, secondary: DEFAULTS.combSecondary,
+              ticks: DEFAULTS.combTicks, outputs: []
+            };
+          }
+          renderCombs();
+        }
+      }),
+      el("button", {
+        type: "button", className: "small danger", textContent: "Delete",
+        onclick: (e) => {
+          e.stopPropagation();
+          state.combs.splice(index, 1);
+          state.combIndex = Math.max(0, Math.min(state.combIndex, state.combs.length - 1));
+          renderCombs();
+        }
+      })
+    ])
+  ]));
+
+  const grid = el("div", { className: "form-grid" });
+
+  if (!isNew) {
+    const select = el("select", {});
+    COMBS.forEach(([id, name]) => select.append(option("mellifera:" + id, name)));
+    if (!COMB_BY_ID.has(comb.id.replace("mellifera:", ""))) select.append(option(comb.id));
+    select.value = comb.id;
+    select.addEventListener("input", () => {
+      comb.id = select.value;
+      render();
+    });
+
+    grid.append(field("Comb Type", select));
+    grid.append(field("Chance per Pulse", chanceInput(comb, "chance")));
+    row.append(grid);
+    return row;
+  }
+
+  const newComb = comb.newComb;
+  grid.append(field("Comb ID", textInput(newComb.id, v => newComb.id = v, { mono: true })));
+  grid.append(field("Comb Name", textInput(newComb.name, v => newComb.name = v)));
+  grid.append(field("Cell Walls Colour", colorInput(newComb.primary, v => newComb.primary = v)));
+  grid.append(field("Cell Fill Colour", colorInput(newComb.secondary, v => newComb.secondary = v)));
+  grid.append(field("Centrifuge Ticks",
+    numberInput(newComb.ticks, v => newComb.ticks = v, { min: "1", max: String(MAX_COMB_TICKS), step: "10" })));
+  grid.append(field("Chance per Pulse", chanceInput(comb, "chance")));
+  row.append(grid);
+
+  const sub = el("div", { style: "margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06);" }, [
+    el("div", { className: "card-title", style: "font-size: 11px; margin-bottom: 8px;", textContent: "Centrifuge Outputs" })
+  ]);
+
+  newComb.outputs.forEach((output, outputIndex) => {
+    sub.append(el("div", { className: "form-grid", style: "margin-bottom: 8px;" }, [
+      field("Item Registry ID", textInput(output.item, v => output.item = v, { mono: true, list: "itemList" })),
+      field("Count", numberInput(output.count, v => output.count = v, { min: "1", max: "64", step: "1" })),
+      field("Chance", chanceInput(output, "chance")),
+      field(" ", el("button", {
+        type: "button", className: "small danger", textContent: "Remove", style: "margin-top: 18px;",
+        onclick: () => {
+          newComb.outputs.splice(outputIndex, 1);
+          renderCombs();
+        }
+      }))
+    ]));
+  });
+
+  sub.append(el("div", { className: "btn-group" }, [
+    el("button", {
+      type: "button", className: "small", textContent: "+ Add Loot Output",
+      onclick: () => {
+        newComb.outputs.push({ item: "mellifera:beeswax", count: 1, chance: 0.5 });
+        renderCombs();
+      }
+    })
+  ]));
+
+  row.append(sub);
+  return row;
+}
+
+function renderCombs() {
+  const host = $("combs");
+  host.textContent = "";
+  state.combs.forEach((comb, index) => host.append(combRow(comb, index)));
+  render();
+}
+
+function mutationRow(cross, index) {
+  const row = el("div", { className: "dynamic-row" });
+
+  row.append(el("div", { className: "row-top" }, [
+    el("span", { className: "card-title", style: "margin: 0;", textContent: "Cross #" + (index + 1) }),
+    el("button", {
+      type: "button", className: "small danger", textContent: "Delete",
+      onclick: () => {
+        state.mutations.splice(index, 1);
+        renderMutations();
+      }
+    })
+  ]));
+
+  const grid = el("div", { className: "form-grid" });
+
+  [0, 1].forEach(slot => {
+    const select = el("select", {});
+    SPECIES.forEach(species => select.append(option("mellifera:" + species)));
+    if (!SPECIES.includes(cross.parents[slot].replace("mellifera:", ""))) {
+      select.append(option(cross.parents[slot]));
+    }
+    select.value = cross.parents[slot];
+    select.addEventListener("input", () => {
+      cross.parents[slot] = select.value;
+      render();
+    });
+    grid.append(field("Parent " + (slot + 1), select));
+  });
+
+  grid.append(field("Chance per Brood", chanceInput(cross, "chance")));
+  row.append(grid);
+  return row;
+}
+
+function renderMutations() {
+  const host = $("mutations");
+  host.textContent = "";
+  state.mutations.forEach((cross, index) => host.append(mutationRow(cross, index)));
+  render();
+}
+
+/* ============================================================================
+   9. JSON Builder & Validator
+   ============================================================================ */
+
+const hex = value => value.toUpperCase();
+
+function build() {
+  const json = { name: $("beeName").value.trim() };
+
+  const branch = $("beeBranch").value;
+  if (branch !== "custom") json.branch = branch;
+
+  const min = Number($("beeMin").value);
+  const max = Number($("beeMax").value);
+  if (min !== DEFAULTS.minCelsius) json.min_celsius = min;
+  if (max !== DEFAULTS.maxCelsius) json.max_celsius = max;
+  if ($("beeDominant").checked) json.dominant = true;
+
+  const primary = $("beePrimary").value;
+  if (primary !== DEFAULTS.primary) json.primary_color = hex(primary);
+  // Mirrored onto the state so the render loop can read it without touching the DOM every frame.
+  state.glint = $("beeGlint").checked;
+  if (state.glint) json.glint = true;
+
+  json.combs = state.combs.map(comb => {
+    if (comb.mode !== "new") return { comb: comb.id, chance: Number(comb.chance) };
+
+    const source = comb.newComb;
+    const definition = { id: source.id.trim(), name: source.name.trim() };
+    if (source.primary !== DEFAULTS.combPrimary) definition.primary_color = hex(source.primary);
+    if (source.secondary !== DEFAULTS.combSecondary) definition.secondary_color = hex(source.secondary);
+    if (Number(source.ticks) !== DEFAULTS.combTicks) definition.centrifuge_ticks = Number(source.ticks);
+
+    if (source.outputs.length) {
+      definition.centrifuge = source.outputs.map(output => {
+        const row = { item: output.item.trim() };
+        if (Number(output.count) !== DEFAULTS.outputCount) row.count = Number(output.count);
+        row.chance = Number(output.chance);
+        return row;
+      });
+    }
+
+    return { comb: definition, chance: Number(comb.chance) };
+  });
+
+  const traits = {};
+  for (const [trait, spec] of Object.entries(ALLELES)) {
+    const value = $("trait-" + trait).value;
+    if (value !== spec.def) traits[trait] = value;
+  }
+  if (Object.keys(traits).length) json.traits = traits;
+
+  if (state.mutations.length) {
+    json.mutations = state.mutations.map(cross => ({
+      parents: [cross.parents[0], cross.parents[1]],
+      chance: Number(cross.chance)
+    }));
+  }
+
+  return json;
+}
+
+function validate(json) {
+  const problems = [];
+  const fileId = $("beeId").value.trim();
+  const inRange = value => typeof value === "number" && value >= 0 && value <= 1;
+
+  if (!fileId) problems.push("File ID is empty.");
+  else if (!ID_PATTERN.test(fileId)) problems.push("File ID must be lower-case letters, digits & underscores.");
+
+  if (!json.name) problems.push("Display name is required.");
+  if (Number($("beeMax").value) < Number($("beeMin").value)) problems.push("Max °C is lower than Min °C.");
+  if (!json.combs.length) problems.push("At least one comb is required.");
+
+  // The dropdowns can only offer legal alleles, so this only ever fires on a value put there by
+  // code: a preset naming an allele that does not exist, or a loaded file with a typo in it. The
+  // alternative is a file that looks fine here and fails at load with a codec error.
+  for (const [trait, value] of Object.entries(json.traits || {})) {
+    if (!ALLELES[trait]) problems.push('Trait "' + trait + '" is not one the mod reads.');
+    else if (!ALLELES[trait].values.includes(value)) {
+      problems.push('Trait "' + trait + '" is set to "' + value + '", which is not one of its alleles.');
+    }
+  }
+
+  const named = new Set();
+  const invented = new Set();
+
+  json.combs.forEach((entry, index) => {
+    const label = "Comb " + (index + 1) + ": ";
+    if (!inRange(entry.chance)) problems.push(label + "chance must be between 0 and 1.");
+
+    if (typeof entry.comb === "string") {
+      if (named.has(entry.comb)) problems.push(label + "listed twice.");
+      named.add(entry.comb);
+      return;
+    }
+
+    const definition = entry.comb;
+    if (!definition.id) problems.push(label + "custom comb needs an ID.");
+    else if (!ID_PATTERN.test(definition.id)) problems.push(label + "comb ID must be lower-case & underscores.");
+    else if (COMB_BY_ID.has(definition.id)) problems.push(label + '"' + definition.id + '" is a built-in comb ID.');
+    else if (invented.has(definition.id)) problems.push(label + '"' + definition.id + '" is defined twice.');
+    invented.add(definition.id);
+
+    if (!definition.name) problems.push(label + "custom comb needs a display name.");
+    const ticks = definition.centrifuge_ticks;
+    if (ticks !== undefined && !(Number.isInteger(ticks) && ticks >= 1 && ticks <= MAX_COMB_TICKS)) {
+      problems.push(label + "centrifuge ticks must be 1 to " + MAX_COMB_TICKS + ".");
+    }
+
+    (definition.centrifuge || []).forEach((output, outputIndex) => {
+      const outputLabel = label + "output " + (outputIndex + 1) + ": ";
+      if (!ITEM_PATTERN.test(output.item)) problems.push(outputLabel + "item needs namespace (e.g. minecraft:obsidian).");
+      if (!inRange(output.chance)) problems.push(outputLabel + "chance must be between 0 and 1.");
+      const count = output.count === undefined ? DEFAULTS.outputCount : output.count;
+      if (!(Number.isInteger(count) && count >= 1 && count <= 64)) {
+        problems.push(outputLabel + "count must be 1 to 64.");
+      }
+    });
+  });
+
+  (json.mutations || []).forEach((cross, index) => {
+    const label = "Cross " + (index + 1) + ": ";
+    if (!inRange(cross.chance)) problems.push(label + "chance must be between 0 and 1.");
+    if (cross.parents[0] === cross.parents[1]) problems.push(label + "both parents are the same.");
+    if (cross.parents.includes("mellifera:" + fileId)) problems.push(label + "cannot be its own parent.");
+  });
+
+  return problems;
+}
+
+/* ============================================================================
+   10. Sync & Render Execution
+   ============================================================================ */
+
+function syncTabs() {
+  const isBee = state.tab === "bee";
+  $("tabBee").classList.toggle("active", isBee);
+  $("tabComb").classList.toggle("active", !isBee);
+  $("castePick").hidden = !isBee;
+  $("combPick").hidden = isBee;
+  updateOverlay();
+  viewer.setTab(state.tab);
+}
+
+function previewedComb() {
+  const comb = state.combs[state.combIndex] || state.combs[0];
+  if (!comb) return { name: "No comb", id: "-", primary: DEFAULTS.combPrimary, secondary: DEFAULTS.combSecondary };
+
+  if (comb.mode === "new") {
+    return {
+      name: comb.newComb.name || "Unnamed comb",
+      id: "mellifera:" + (comb.newComb.id || "?"),
+      primary: comb.newComb.primary,
+      secondary: comb.newComb.secondary
+    };
+  }
+
+  const path = comb.id.replace("mellifera:", "");
+  const known = COMB_BY_ID.get(path);
+  return {
+    name: known ? known.name : path,
+    id: comb.id,
+    primary: known ? known.primary : DEFAULTS.combPrimary,
+    secondary: known ? known.secondary : DEFAULTS.combSecondary
+  };
+}
+
+function renderCombPicker() {
+  const select = $("combPick");
+  select.textContent = "";
+  state.combs.forEach((comb, index) => {
+    const label = comb.mode === "new"
+      ? (comb.newComb.name || "Unnamed comb") + " (Custom)"
+      : (COMB_BY_ID.get(comb.id.replace("mellifera:", "")) || { name: comb.id }).name;
+    select.append(option(String(index), label));
+  });
+  if (state.combs.length) {
+    select.value = String(Math.max(0, Math.min(state.combIndex, state.combs.length - 1)));
+  }
+}
+
+function render() {
+  const json = build();
+  const fileId = $("beeId").value.trim() || "unnamed";
+
+  $("json").textContent = JSON.stringify(json, null, 2);
+  $("fileHint").textContent = fileId + ".json";
+  $("primaryHex").textContent = $("beePrimary").value.toUpperCase();
+
+  const problems = validate(json);
+  const list = $("problems");
+  list.textContent = "";
+  if (problems.length) {
+    problems.forEach(problem => list.append(el("li", { textContent: "⚠ " + problem })));
+  } else {
+    list.append(el("li", { className: "ok", textContent: "✓ Valid Mod Specification JSON Schema" }));
+  }
+  $("download").disabled = problems.length > 0;
+
+  renderCombPicker();
+
+  if (state.tab === "bee") {
+    $("viewName").textContent = (json.name || "Unnamed") + " (" + state.caste + ")";
+    $("viewId").textContent = "mellifera:" + fileId;
+  } else {
+    const comb = previewedComb();
+    $("viewName").textContent = comb.name;
+    $("viewId").textContent = comb.id;
+  }
+
+  refreshTextures();
+}
+
+/* ============================================================================
+   11. Reading File Input
+   ============================================================================ */
+
+function normaliseColor(value, fallback) {
+  if (typeof value === "number") return "#" + (value & 0xFFFFFF).toString(16).padStart(6, "0");
+  if (typeof value === "string" && /^#[0-9a-fA-F]{6}$/.test(value)) return value.toLowerCase();
+  return fallback;
+}
+
+function load(json, fileName) {
+  const id = fileName.replace(/\.json$/i, "");
+  if (id) $("beeId").value = id;
+
+  $("beeName").value = json.name || "";
+  $("beeBranch").value = BRANCHES.includes(json.branch) ? json.branch : "custom";
+  $("beeMin").value = json.min_celsius === undefined ? DEFAULTS.minCelsius : json.min_celsius;
+  $("beeMax").value = json.max_celsius === undefined ? DEFAULTS.maxCelsius : json.max_celsius;
+  $("beeDominant").checked = json.dominant === true;
+  $("beeGlint").checked = json.glint === true;
+  $("beePrimary").value = normaliseColor(json.primary_color, DEFAULTS.primary);
+
+  for (const [trait, spec] of Object.entries(ALLELES)) {
+    const value = (json.traits || {})[trait];
+    if ($("trait-" + trait)) $("trait-" + trait).value = spec.values.includes(value) ? value : spec.def;
+  }
+
+  state.combs = (json.combs || []).map(entry => {
+    if (typeof entry.comb === "string") return { mode: "existing", id: entry.comb, chance: entry.chance };
+
+    const definition = entry.comb || {};
+    return {
+      mode: "new", chance: entry.chance,
+      newComb: {
+        id: (definition.id || "").replace("mellifera:", ""),
+        name: definition.name || "",
+        primary: normaliseColor(definition.primary_color, DEFAULTS.combPrimary),
+        secondary: normaliseColor(definition.secondary_color, DEFAULTS.combSecondary),
+        ticks: definition.centrifuge_ticks === undefined ? DEFAULTS.combTicks : definition.centrifuge_ticks,
+        outputs: (definition.centrifuge || []).map(output => ({
+          item: output.item || "",
+          count: output.count === undefined ? 1 : output.count,
+          chance: output.chance
+        }))
+      }
+    };
+  });
+
+  if (!state.combs.length) state.combs = [{ mode: "existing", id: "mellifera:honey", chance: 0.3 }];
+  state.combIndex = 0;
+
+  state.mutations = (json.mutations || [])
+    .filter(cross => Array.isArray(cross.parents) && cross.parents.length === 2)
+    .map(cross => ({ parents: [cross.parents[0], cross.parents[1]], chance: cross.chance }));
+
+  renderCombs();
+  renderMutations();
+}
+
+/* ============================================================================
+   12. Global Events & Wiring
+   ============================================================================ */
+
+["beeId", "beeName", "beeBranch", "beeMin", "beeMax", "beePrimary", "beeDominant", "beeGlint"]
+  .forEach(id => $(id).addEventListener("input", render));
+
+$("tabBee").addEventListener("click", () => {
+  state.tab = "bee";
+  syncTabs();
+  render();
+});
+
+$("tabComb").addEventListener("click", () => {
+  state.tab = "comb";
+  syncTabs();
+  render();
+});
+
+$("bgToggle").addEventListener("click", () => {
+  const canvas = $("view");
+  if (state.bgMode === "white") {
+    state.bgMode = "dark";
+    canvas.style.background = "#14110e";
+    viewer.setClearColor(0.08, 0.07, 0.05);
+  } else if (state.bgMode === "dark") {
+    state.bgMode = "grid";
+    canvas.style.background = "radial-gradient(#334155 1px, transparent 1px) 0 0 / 18px 18px, #0f172a";
+    viewer.setClearColor(0.06, 0.09, 0.16);
+  } else {
+    state.bgMode = "white";
+    canvas.style.background = "#ffffff";
+    viewer.setClearColor(1, 1, 1);
+  }
+});
+
+$("castePick").addEventListener("input", event => {
+  state.caste = event.target.value;
+  if (viewer.ready) viewer.fit();
+  render();
+});
+
+$("combPick").addEventListener("input", event => {
+  state.combIndex = Number(event.target.value);
+  renderCombs();
+});
+
+$("addComb").addEventListener("click", () => {
+  state.combs.push({ mode: "existing", id: "mellifera:honey", chance: 0.3 });
+  state.combIndex = state.combs.length - 1;
+  renderCombs();
+});
+
+$("addNewComb").addEventListener("click", () => {
+  state.combs.push({
+    mode: "new", chance: 0.1,
+    newComb: {
+      id: "", name: "", primary: DEFAULTS.combPrimary, secondary: DEFAULTS.combSecondary,
+      ticks: DEFAULTS.combTicks, outputs: [{ item: "mellifera:beeswax", count: 1, chance: 0.5 }]
+    }
+  });
+  state.combIndex = state.combs.length - 1;
+  state.tab = "comb";
+  syncTabs();
+  renderCombs();
+});
+
+$("addMutation").addEventListener("click", () => {
+  state.mutations.push({ parents: ["mellifera:forest", "mellifera:meadows"], chance: 0.1 });
+  renderMutations();
+});
+
+$("copy").addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText($("json").textContent);
+    showToast("Copied JSON to Clipboard!");
+  } catch (error) {
+    showToast("Clipboard access blocked");
+  }
+});
+
+$("download").addEventListener("click", () => {
+  const name = ($("beeId").value.trim() || "bee") + ".json";
+  const blob = new Blob([$("json").textContent + "\n"], { type: "application/json" });
+  const link = el("a", { href: URL.createObjectURL(blob), download: name });
+  link.click();
+  URL.revokeObjectURL(link.href);
+  showToast("Downloaded " + name);
+});
+
+// Two buttons, one file input: the one in the header and the one under the JSON do the same thing,
+// so they open the same picker rather than each carrying their own copy of the read.
+$("load").addEventListener("click", () => $("fileInput").click());
+$("import").addEventListener("click", () => $("fileInput").click());
+
+$("fileInput").addEventListener("change", async event => {
+  const file = event.target.files[0];
+  event.target.value = "";
+  if (!file) return;
+  try {
+    load(JSON.parse(await file.text()), file.name);
+    showToast("Loaded " + file.name);
+  } catch (error) {
+    alert("Could not read file: " + error.message);
+  }
+});
+
+window.addEventListener("dragover", e => e.preventDefault());
+window.addEventListener("drop", async e => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (file && file.name.endsWith(".json")) {
+    try {
+      load(JSON.parse(await file.text()), file.name);
+      showToast("Loaded " + file.name);
+    } catch (err) {
+      alert("Could not load file: " + err.message);
+    }
+  }
+});
+
+syncTabs();
+renderCombs();
+renderMutations();
+initTextures();
+</script>
+</body>
+</html>

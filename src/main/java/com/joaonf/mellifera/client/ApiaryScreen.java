@@ -237,6 +237,11 @@ public class ApiaryScreen extends AbstractContainerScreen<ApiaryMenu> {
 
     private final class MenuView implements WorkPanel.ApiaryMenuView {
         @Override
+        public int flowers() {
+            return menu.flowers();
+        }
+
+        @Override
         public boolean queenPresent() {
             return menu.queenPresent();
         }

@@ -1,16 +1,28 @@
 {
   "variants": {
-    "part=single,stand=false": {
+    "part=single,stand=false,working=false": {
       "model": "mellifera:block/apiary"
     },
-    "part=single,stand=true": {
+    "part=single,stand=false,working=true": {
+      "model": "mellifera:block/apiary_working"
+    },
+    "part=single,stand=true,working=false": {
       "model": "mellifera:block/apiary_stand"
     },
-    "part=bottom,stand=false": {
+    "part=single,stand=true,working=true": {
+      "model": "mellifera:block/apiary_working_stand"
+    },
+    "part=bottom,stand=false,working=false": {
       "model": "mellifera:block/apiary_bottom"
     },
-    "part=bottom,stand=true": {
+    "part=bottom,stand=false,working=true": {
+      "model": "mellifera:block/apiary_bottom_working"
+    },
+    "part=bottom,stand=true,working=false": {
       "model": "mellifera:block/apiary_bottom_stand"
+    },
+    "part=bottom,stand=true,working=true": {
+      "model": "mellifera:block/apiary_bottom_working_stand"
     },
     "part=middle": {
       "model": "mellifera:block/apiary_middle"

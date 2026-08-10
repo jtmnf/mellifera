@@ -234,6 +234,11 @@ public class ApiaryMenu extends AbstractContainerMenu {
         return data.get(ApiaryBlockEntity.DATA_LIFESPAN);
     }
 
+    /// Blocks worth foraging that the hive's last survey found within its territory.
+    public int flowers() {
+        return data.get(ApiaryBlockEntity.DATA_FLOWERS);
+    }
+
     public boolean queenPresent() {
         return data.get(ApiaryBlockEntity.DATA_QUEEN_PRESENT) != 0;
     }

@@ -159,12 +159,26 @@ public class ApiaryBlock extends BaseEntityBlock {
     /// scaffolding -- so it never has to be reconciled with PART.
     public static final BooleanProperty STAND = BooleanProperty.create("stand");
 
+    /// Whether the hive is producing, so the block can say so without the player having to be
+    /// close enough to see the bees.
+    ///
+    /// HiveBeeRenderer stops drawing foragers past 32 blocks, which is the right call for five
+    /// posed entity models per hive -- but it left an Apiary looking dead from any further than
+    /// that, standing next to four machines that all animate when they run. This is the same
+    /// signal the swarm carries, at a range a swarm cannot pay for.
+    ///
+    /// Only ever true on the block that runs the hive, which is the bottom of the column (see
+    /// ApiaryBlockEntity.canRun). That is also the only part with a doorway on it, so the two
+    /// agree without having to be made to.
+    public static final BooleanProperty WORKING = BooleanProperty.create("working");
+
     public ApiaryBlock(Properties properties) {
         super(properties);
         registerDefaultState(stateDefinition.any()
             .setValue(PART, Part.SINGLE)
             .setValue(TINT, Tint.NONE)
-            .setValue(STAND, false));
+            .setValue(STAND, false)
+            .setValue(WORKING, false));
     }
 
     @Override
@@ -174,7 +188,7 @@ public class ApiaryBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(PART, TINT, STAND);
+        builder.add(PART, TINT, STAND, WORKING);
     }
 
     /// The variant is decided at placement, not a tick later.

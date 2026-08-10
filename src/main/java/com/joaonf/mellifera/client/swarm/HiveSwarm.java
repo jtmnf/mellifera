@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 
+import com.joaonf.mellifera.bee.Foraging;
+
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.entity.state.BeeRenderState;
 import net.minecraft.core.BlockPos;
@@ -904,12 +906,10 @@ public final class HiveSwarm {
             return null;
         }
 
-        /// What counts as worth flying to. `Bee.attractsBees` is vanilla's own answer (flowers,
-        /// less the waterlogged ones and the lower half of a sunflower); BEE_GROWABLES adds the
-        /// crops the apiary's flowering pass bonemeals, so a hive over a wheat field shows bees
-        /// in the wheat.
+        /// What counts as worth flying to. Shared with the hive itself, which now counts the
+        /// same blocks to decide what it produces -- see Foraging.attracts.
         private static boolean attracts(BlockState state) {
-            return Bee.attractsBees(state) || state.is(BlockTags.BEE_GROWABLES);
+            return Foraging.attracts(state);
         }
 
         // -- rendering ------------------------------------------------------------------------

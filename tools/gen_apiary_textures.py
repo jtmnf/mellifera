@@ -34,10 +34,11 @@ Every face is written twice, as `<name>.png` and `<name>_trim.png` -- see Face. 
 lets a dyed Apiary keep its brass and its bees. Faces with no hardware on them get no trim file
 at all, and their model is a single cube.
 
-There is no lit variant: the Apiary has no `working` blockstate, and the bees flying in and out
-are entities drawn by HiveBeeRenderer. The two amber pixels on the landing board are the only
-life the texture itself carries, and they are there because a hive with nothing at the door
-reads as an empty box.
+The two faces with a doorway are written a third time, animated, as `<name>_trim_working.png`.
+That is the block's own answer to "is this hive running", and it exists because HiveBeeRenderer
+stops drawing foragers at 32 blocks while the four machines next door animate at any range. Only
+the trim moves: the boards behind the traffic are the same sprite either way, so the working
+state costs one extra sheet per door rather than a second copy of the hive.
 """
 import sys
 
@@ -224,7 +225,7 @@ def groove(face, top):
     face.paint(SIZE - 3, top + 1, WOOD[3])
 
 
-def entrance(face, slot):
+def entrance(face, slot, frame=None):
     """The doorway and the board the bees land on.
 
     The landing board is the one part of the block that sticks out, so it is the one part lit
@@ -246,8 +247,32 @@ def entrance(face, slot):
     # Comb just inside the door, then two bees on the board. Three pixels of life, which is as
     # much as a face this size will take before it turns into a picture of bees.
     face.fit(7, slot + 1, WOOD[6])
-    face.fit(5, slot + 2, BEE)
-    face.fit(10, slot + 2, BEE)
+    for x in bee_positions(frame):
+        face.fit(x, slot + 2, BEE)
+
+
+# Where the bees on the landing board stand, per animation frame.
+#
+# An idle hive keeps the two it always had. A working one has traffic: bees arriving at one end,
+# crossing the board and going in, with the count rising and falling so the door reads as busy
+# rather than as two pixels blinking. Eight frames at four ticks is a little over a second and a
+# half for the whole cycle -- a hive doorway, not a motor, and slower than any machine in the mod.
+DOORWAY = [
+    (5, 10),
+    (4, 6, 10),
+    (4, 7, 11),
+    (5, 8, 11),
+    (3, 5, 9, 11),
+    (3, 6, 9),
+    (4, 6, 10),
+    (5, 9, 11),
+]
+
+WORKING_FRAMETIME = 4
+
+
+def bee_positions(frame):
+    return (5, 10) if frame is None else DOORWAY[frame % len(DOORWAY)]
 
 
 def lid(face):
@@ -285,7 +310,7 @@ def hasp(face, top):
 
 # ---------------------------------------------------------------------------------- the faces
 
-def front_single():
+def front_single(frame=None):
     """One block that has to be a whole hive: lid at the top, door at the bottom, catch between.
 
     The tightest of the six. Everything is on it because a single Apiary is what a player builds
@@ -299,12 +324,12 @@ def front_single():
     # band between the catch and the door is the only dead space anywhere in the set, and it is
     # also the one part the single shares with a super rather than with a lid.
     groove(face, 7)
-    entrance(face, 10)
+    entrance(face, 10, frame)
     face.paint(SIZE - 1, SIZE - 1, WOOD[0])
     return face
 
 
-def front_bottom():
+def front_bottom(frame=None):
     """The floor super of a tower: door, landing board, and the plinth it stands on.
 
     The plinth is the one horizontal band left in the set, and it is allowed because it is the
@@ -312,7 +337,7 @@ def front_bottom():
     """
     face = board(shift=GRAIN_BOTTOM)
     joints(face)
-    entrance(face, 9)
+    entrance(face, 9, frame)
     for x in range(1, SIZE - 1):
         face.paint(x, SIZE - 2, WOOD[2])
     return face
@@ -435,6 +460,13 @@ FACES = {
 }
 
 
+# The faces with a doorway, which are the only ones that have anything to animate.
+DOORS = {
+    "apiary_front": front_single,
+    "apiary_front_bottom": front_bottom,
+}
+
+
 def generate(out):
     for name, build in FACES.items():
         face = build()
@@ -443,6 +475,17 @@ def generate(out):
         if face.trimmed():
             Image.fromarray(face.trim).save("%s/%s_trim.png" % (out, name))
             print("%s/%s_trim.png  16x16  trim" % (out, name))
+
+    for name, build in DOORS.items():
+        # Only the trim: the boards do not move, so a working hive reuses the same wood sprite
+        # and the animation costs one sheet rather than a whole second face.
+        sheet = np.concatenate([build(frame).trim for frame in range(len(DOORWAY))], axis=0)
+        path = "%s/%s_trim_working.png" % (out, name)
+        Image.fromarray(sheet).save(path)
+        with open(path + ".mcmeta", "w", encoding="utf-8", newline="\n") as meta:
+            meta.write('{\n  "animation": {\n    "frametime": %d\n  }\n}\n' % WORKING_FRAMETIME)
+        print("%s  16x%d  %d frames  frametime %d"
+              % (path, sheet.shape[0], len(DOORWAY), WORKING_FRAMETIME))
 
 
 # A handful of the vanilla dyes, straight off DyeColor.getTextureDiffuseColor, for the preview.

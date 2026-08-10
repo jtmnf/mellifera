@@ -8,8 +8,10 @@ import org.jspecify.annotations.Nullable;
 import com.joaonf.mellifera.bee.BeeGenome;
 import com.joaonf.mellifera.bee.BeeSpecies;
 import com.joaonf.mellifera.bee.BeeStacks;
+import com.joaonf.mellifera.bee.Foraging;
 import com.joaonf.mellifera.bee.FrameType;
 import com.joaonf.mellifera.bee.ToleranceAllele;
+import com.joaonf.mellifera.block.BeeHousingBlockEntity;
 import com.joaonf.mellifera.item.FrameItem;
 import com.joaonf.mellifera.registry.MelliferaBeeSpecies;
 import com.joaonf.mellifera.temperature.EnvironmentTemperature;
@@ -25,28 +27,57 @@ import net.minecraft.world.level.Level;
 
 /// Why the hive is or is not working, on the left of the window.
 ///
-/// The apiary has exactly two failure modes and neither of them says anything: with no queen
-/// it sits still, and with a queen outside her temperature band it also sits still, and the
-/// two look identical. A player who has just carried a Tropical princess into a tundra gets
-/// no feedback at all -- the hive simply never produces, and nothing on screen distinguishes
-/// that from a hive that is merely slow.
+/// A hive that is doing nothing and a hive that is doing something slowly look identical from
+/// outside, and the apiary now has four reasons to be one or the other: no queen, a queen out of
+/// her temperature band, nothing in flower within her territory, and foragers in for the night
+/// or the rain. Only the first two stop it. The other two swing production by a factor of ten,
+/// which is far too much to leave a player to infer from a comb arriving late.
 ///
-/// So the closed tab is a single verdict, and opening it lists the checks with a tick or a
-/// cross each, plus the numbers for the one check that has any: the actual temperature here
-/// against the band this queen accepts.
+/// So the closed tab is a single verdict -- a cross if something has stopped it, a bang if
+/// something is slowing it, a tick if neither -- and opening it lists the checks, each a short
+/// label with its figures indented underneath.
 ///
-/// Everything is computed on the client from what the menu already carries. The temperature
-/// model reads the world's blocks and biome, which the client has in full, so this needs no
-/// new data slot and updates the instant the player walks a torch up to the hive.
+/// Almost all of it is computed on the client from what it already has. The temperature model
+/// reads blocks and biome, the hour and the weather are the client's own, and only the flower
+/// count comes across, on the menu's data channel where it is paid for by the one player looking
+/// at it rather than by everyone in render distance.
 public class WorkPanel extends SideTab {
     private static final int OPEN_WIDTH = 132;
-    private static final int OPEN_HEIGHT = 62;
 
     private static final int ROW_HEIGHT = 11;
-    private static final int BAD_COLOR = 0xFFE06A5A;
+    private static final int DETAIL_HEIGHT = 10;
+    private static final int MARK_WIDTH = 12;
 
-    /// One line of the verdict: whether it passes and what to say about it.
-    public record Check(boolean ok, Component label) {}
+    private static final int BAD_COLOR = 0xFFE06A5A;
+    private static final int WARN_COLOR = 0xFFE0C45A;
+
+    /// Dimmer than TITLE_COLOR, because a detail line is read second or not at all.
+    private static final int DETAIL_COLOR = 0xFF9A9285;
+
+    /// Three outcomes, not two.
+    ///
+    /// A hive with three flowers in reach is not broken and is not fine either: it works, at a
+    /// quarter speed, and a cross would send the player looking for a fault that is not there
+    /// while a tick would leave them wondering why the comb is slow. WARN is the state the mod
+    /// gained the day production started depending on the neighbourhood.
+    ///
+    /// Only BAD counts against the tab's verdict -- see refresh.
+    public enum Status {
+        OK, WARN, BAD
+    }
+
+    /// One line of the verdict: how it stands, what to call it, and the numbers behind it.
+    ///
+    /// The numbers are a separate line on purpose. "Too cold or hot: 12°C (needs 5 to 25)" was a
+    /// single string a hundred and forty pixels wide in a panel a hundred and eight wide, so it
+    /// was silently cut off mid-word by `clipped`, which is exactly the "looks like a bug" the
+    /// method's own note warns about. A short label the eye can scan, with the figures indented
+    /// under it, fits and reads better than either half did.
+    public record Check(Status status, Component label, @Nullable Component detail) {
+        public Check(Status status, Component label) {
+            this(status, label, null);
+        }
+    }
 
     private final ApiaryMenuView menu;
 
@@ -69,6 +100,9 @@ public class WorkPanel extends SideTab {
     public interface ApiaryMenuView {
         boolean queenPresent();
 
+        /// Blocks worth foraging inside the hive's territory, as of its last survey.
+        int flowers();
+
         ItemStack queenStack();
 
         List<Slot> frameSlots();
@@ -86,9 +120,18 @@ public class WorkPanel extends SideTab {
         return OPEN_WIDTH;
     }
 
+    /// Grown to fit whatever the verdict turned out to be. The list is not a fixed length any
+    /// more -- a hive with no queen says one thing and a working one says four, some with figures
+    /// under them -- and a fixed box would either clip the long case or leave a hole in the short
+    /// one.
     @Override
     protected int openHeight() {
-        return OPEN_HEIGHT;
+        int height = headerHeight() + 3 + PADDING;
+        for (Check check : checks()) {
+            height += ROW_HEIGHT + (check.detail() == null ? 0 : DETAIL_HEIGHT);
+        }
+
+        return height;
     }
 
     @Override
@@ -122,7 +165,7 @@ public class WorkPanel extends SideTab {
 
         boolean all = true;
         for (Check check : current) {
-            all &= check.ok();
+            all &= check.status() != Status.BAD;
         }
 
         cached = current;
@@ -140,22 +183,35 @@ public class WorkPanel extends SideTab {
         List<Check> checks = new ArrayList<>();
 
         boolean queen = menu.queenPresent();
-        checks.add(new Check(queen, Component.translatable(
+        checks.add(new Check(queen ? Status.OK : Status.BAD, Component.translatable(
             queen ? "gui.mellifera.work.queen_ok" : "gui.mellifera.work.queen_missing")));
 
         if (!queen) {
             return checks;
         }
 
-        if (insulated()) {
-            checks.add(new Check(true, Component.translatable("gui.mellifera.work.insulated")));
+        Level level = Minecraft.getInstance().level;
+        if (level == null) {
             return checks;
         }
 
+        climate(checks, level);
+        forage(checks, level);
+        return checks;
+    }
+
+    /// The gate that stops a hive dead, and the only one with figures worth printing.
+    private void climate(List<Check> checks, Level level) {
+        if (insulated()) {
+            checks.add(new Check(Status.OK,
+                Component.translatable("gui.mellifera.work.climate"),
+                Component.translatable("gui.mellifera.work.insulated")));
+            return;
+        }
+
         BeeGenome genome = BeeStacks.genomeOf(menu.queenStack());
-        Level level = Minecraft.getInstance().level;
-        if (genome == null || level == null) {
-            return checks;
+        if (genome == null) {
+            return;
         }
 
         BeeSpecies species = MelliferaBeeSpecies.get(genome.species().active());
@@ -165,11 +221,43 @@ public class WorkPanel extends SideTab {
         float here = EnvironmentTemperature.celsius(level, menu.apiaryPos());
 
         boolean ok = here >= low && here <= high;
-        checks.add(new Check(ok, Component.translatable(
-            ok ? "gui.mellifera.work.climate_ok" : "gui.mellifera.work.climate_bad",
-            Math.round(here), Math.round(low), Math.round(high))));
+        checks.add(new Check(
+            ok ? Status.OK : Status.BAD,
+            Component.translatable(ok
+                ? "gui.mellifera.work.climate"
+                : here < low ? "gui.mellifera.work.climate_cold" : "gui.mellifera.work.climate_hot"),
+            Component.translatable("gui.mellifera.work.climate_range",
+                Math.round(here), Math.round(low), Math.round(high))));
+    }
 
-        return checks;
+    /// The two things that decide how fast a working hive works: what there is to forage, and
+    /// whether anyone is out foraging it.
+    ///
+    /// Neither can stop a hive, so neither is ever BAD. Between them they swing production by a
+    /// factor of ten, which is far too much to leave a player to infer from a comb arriving late.
+    private void forage(List<Check> checks, Level level) {
+        int flowers = menu.flowers();
+        int wanted = BeeHousingBlockEntity.FLOWERS_FOR_FULL_SPEED;
+        boolean enough = flowers >= wanted;
+        checks.add(new Check(
+            enough ? Status.OK : Status.WARN,
+            Component.translatable(enough
+                ? "gui.mellifera.work.forage_ok"
+                : "gui.mellifera.work.forage_poor"),
+            Component.translatable("gui.mellifera.work.forage_count", flowers, wanted)));
+
+        // Asked of the client's own world, which is where the answer lives: the hive syncs
+        // nothing about the hour or the weather because both sides can already see them. Same
+        // call the foragers themselves are gated on -- see BeeHousingBlockEntity.showsBees.
+        boolean flying = Foraging.flying(level, menu.apiaryPos());
+        checks.add(new Check(
+            flying ? Status.OK : Status.WARN,
+            Component.translatable(flying
+                ? "gui.mellifera.work.foragers_out"
+                : "gui.mellifera.work.foragers_in"),
+            flying ? null : Component.translatable(level.isRaining()
+                ? "gui.mellifera.work.foragers_rain"
+                : "gui.mellifera.work.foragers_dark")));
     }
 
     private boolean insulated() {
@@ -182,18 +270,55 @@ public class WorkPanel extends SideTab {
     /// without opening anything.
     @Override
     protected void renderTabIcon(GuiGraphicsExtractor graphics, int iconX, int iconY) {
-        mark(graphics, iconX + 4, iconY + 4, working());
+        mark(graphics, iconX + 4, iconY + 4, verdict());
+    }
+
+    /// The worst thing the panel has to say, which is what the closed tab shows.
+    ///
+    /// Worst rather than "is it working": a hive standing in a desert at midnight is working, and
+    /// saying only that would be true and useless. The bang is the tab's way of being worth
+    /// opening.
+    private Status verdict() {
+        Status worst = Status.OK;
+        for (Check check : checks()) {
+            if (check.status() == Status.BAD) {
+                return Status.BAD;
+            }
+            if (check.status() == Status.WARN) {
+                worst = Status.WARN;
+            }
+        }
+
+        return worst;
     }
 
     @Override
     protected void renderBody(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        int left = contentLeft() + PADDING;
+        int textLeft = left + MARK_WIDTH;
+        int available = OPEN_WIDTH - PADDING * 2 - MARK_WIDTH;
+
         int rowY = bodyY();
         for (Check check : checks()) {
-            mark(graphics, contentLeft() + PADDING, rowY + 1, check.ok());
-            clipped(graphics, check.label(), contentLeft() + PADDING + 12, rowY,
-                OPEN_WIDTH - PADDING * 2 - 12, check.ok() ? TITLE_COLOR : BAD_COLOR);
+            mark(graphics, left, rowY + 1, check.status());
+            clipped(graphics, check.label(), textLeft, rowY, available, color(check.status()));
             rowY += ROW_HEIGHT;
+
+            // Indented under its label and dimmer than it: the figures are what you look at
+            // after the line has told you which way to feel about them.
+            if (check.detail() != null) {
+                clipped(graphics, check.detail(), textLeft, rowY, available, DETAIL_COLOR);
+                rowY += DETAIL_HEIGHT;
+            }
         }
+    }
+
+    private static int color(Status status) {
+        return switch (status) {
+            case OK -> TITLE_COLOR;
+            case WARN -> WARN_COLOR;
+            case BAD -> BAD_COLOR;
+        };
     }
 
     /// A tick or a cross drawn from filled pixels rather than a texture.
@@ -201,21 +326,34 @@ public class WorkPanel extends SideTab {
     /// Two glyphs of eight pixels each is less than the cost of an atlas entry, and drawing
     /// them by hand keeps them the same weight as the panel's own bevels -- a font glyph
     /// scaled into this space reads thinner than everything around it.
-    private static void mark(GuiGraphicsExtractor graphics, int left, int top, boolean ok) {
-        int color = ok ? GOOD_COLOR : BAD_COLOR;
-        if (ok) {
-            for (int i = 0; i < 3; i++) {
-                graphics.fill(left + i, top + 3 + i, left + i + 1, top + 4 + i + 1, color);
-            }
-            for (int i = 0; i < 4; i++) {
-                graphics.fill(left + 3 + i, top + 5 - i, left + 4 + i, top + 6 - i, color);
-            }
-            return;
-        }
+    private static void mark(GuiGraphicsExtractor graphics, int left, int top, Status status) {
+        int color = switch (status) {
+            case OK -> GOOD_COLOR;
+            case WARN -> WARN_COLOR;
+            case BAD -> BAD_COLOR;
+        };
 
-        for (int i = 0; i < 7; i++) {
-            graphics.fill(left + i, top + i, left + i + 1, top + i + 1, color);
-            graphics.fill(left + 6 - i, top + i, left + 7 - i, top + i + 1, color);
+        switch (status) {
+            case OK -> {
+                for (int i = 0; i < 3; i++) {
+                    graphics.fill(left + i, top + 3 + i, left + i + 1, top + 4 + i + 1, color);
+                }
+                for (int i = 0; i < 4; i++) {
+                    graphics.fill(left + 3 + i, top + 5 - i, left + 4 + i, top + 6 - i, color);
+                }
+            }
+            // A bar and a dot: the one glyph that reads as "look at this" without reading as
+            // "this is broken", which is the whole distinction WARN exists to draw.
+            case WARN -> {
+                graphics.fill(left + 3, top, left + 5, top + 5, color);
+                graphics.fill(left + 3, top + 6, left + 5, top + 8, color);
+            }
+            case BAD -> {
+                for (int i = 0; i < 7; i++) {
+                    graphics.fill(left + i, top + i, left + i + 1, top + i + 1, color);
+                    graphics.fill(left + 6 - i, top + i, left + 7 - i, top + i + 1, color);
+                }
+            }
         }
     }
 

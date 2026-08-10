@@ -11,6 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -121,6 +122,22 @@ public class ApiaryBlockEntity extends BeeHousingBlockEntity {
     @Override
     protected boolean canRun() {
         return level == null || ApiaryBlock.isController(level, worldPosition);
+    }
+
+    /// Puts the hive's activity on the block, so it reads as working from further away than the
+    /// foragers are drawn.
+    ///
+    /// Only the controller ever gets here -- serverTick bails on canRun before reaching
+    /// syncActivity -- and the controller is the bottom of the column, which is the only part
+    /// whose texture has a doorway to animate. Nothing has to reconcile the two.
+    ///
+    /// UPDATE_CLIENTS, like the paint: a colour and an animation are not the neighbours'
+    /// business, and the part and stand this block already had are carried across untouched.
+    @Override
+    protected void onWorkingChanged(Level level, BlockPos pos, BlockState state, boolean nowWorking) {
+        if (state.hasProperty(ApiaryBlock.WORKING) && state.getValue(ApiaryBlock.WORKING) != nowWorking) {
+            level.setBlock(pos, state.setValue(ApiaryBlock.WORKING, nowWorking), Block.UPDATE_CLIENTS);
+        }
     }
 
     /// Spills the contents of every slot the current height does not reach.

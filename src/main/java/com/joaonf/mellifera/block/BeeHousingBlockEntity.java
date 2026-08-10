@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 import com.joaonf.mellifera.bee.BeeGenome;
+import com.joaonf.mellifera.bee.Foraging;
 import com.joaonf.mellifera.bee.BeeSpecies;
 import com.joaonf.mellifera.bee.CombProduct;
 import com.joaonf.mellifera.bee.EffectAllele;
@@ -90,7 +91,12 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
     public static final int DATA_PROGRESS_TOTAL = 1;
     public static final int DATA_QUEEN_PRESENT = 2;
     public static final int DATA_LIFESPAN = 3;
-    public static final int NUM_DATA_VALUES = 4;
+
+    /// How many blocks worth foraging the last survey found. On the menu's data channel rather
+    /// than the block entity's update packet: it is wanted by the one player who has the window
+    /// open, not by everyone in render distance.
+    public static final int DATA_FLOWERS = 4;
+    public static final int NUM_DATA_VALUES = 5;
 
     /// Ticks a Normal-speed queen takes to fill the production timer. Other speeds scale
     /// this at mating time (see tryMate), not the per-tick increment.
@@ -106,6 +112,38 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
     /// How many bonemeal attempts a flowering pass makes at FloweringAllele.NORMAL (1.0x).
     private static final int BASE_FLOWERING_ATTEMPTS = 4;
     private static final int FLOWERING_VERTICAL_RANGE = 2;
+
+    /// Ticks between forage surveys, and how far above and below the hive one looks.
+    ///
+    /// Ten seconds, on the same reasoning as the climate sample: what it asks is how flowery the
+    /// neighbourhood is, and a neighbourhood does not change in a tick. A player who plants a
+    /// bed of poppies wants to see it counted while they are still standing there, and ten
+    /// seconds is well inside that.
+    private static final int FORAGE_INTERVAL_TICKS = 200;
+    private static final int FORAGE_VERTICAL_RANGE = 4;
+
+    /// Flowers within territory needed for a hive to work at full speed, and what it drops to
+    /// with none at all.
+    ///
+    /// Not zero. A hive that stops dead in a desert is a hive a player reports as broken -- there
+    /// is nothing on the block, in the window or in the tooltip that would tell them why -- and
+    /// the mod already has a way to say "not here", which is the climate band. This says
+    /// something quieter and more useful: a hive works wherever you put it, and works properly
+    /// where there is something to work.
+    ///
+    /// Twelve is about one flower per twenty columns at the smallest territory (radius 4, 81
+    /// columns), which is a garden bed rather than a meadow. Deliberately reachable by hand: the
+    /// point is to reward planting, not to gate the mod behind biome luck.
+    public static final int FLOWERS_FOR_FULL_SPEED = 12;
+    private static final float BARREN_SPEED = 0.25F;
+
+    /// What a hive keeps doing while its foragers are in for the night, or for the rain.
+    ///
+    /// A real colony does not stop when the light goes: it ripens nectar, builds comb and feeds
+    /// brood on what came in during the day. So this is a slowdown and not a stop, and it is the
+    /// same number whether the reason is dusk or weather, because from inside the hive it is the
+    /// same reason -- nothing new is coming in.
+    private static final float SHELTERING_SPEED = 0.4F;
 
     private static final int[] NO_SLOTS = new int[0];
 
@@ -158,6 +196,16 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
     private int speciesColor;
     private int territory;
 
+    /// Blocks within territory that a forager would fly to, resurveyed every
+    /// FORAGE_INTERVAL_TICKS.
+    ///
+    /// Deliberately not saved, like climateOk: a hive whose chunk has just loaded surveys on its
+    /// first tick, which is what a cooldown of zero means. Saving it would only preserve a stale
+    /// answer about a neighbourhood that may have been mown, built over or set on fire while the
+    /// chunk was unloaded.
+    private int flowersInRange;
+    private int forageCooldown;
+
     private final ContainerData data = new ContainerData() {
         @Override
         public int get(int id) {
@@ -165,6 +213,7 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
                 case DATA_PROGRESS -> progress;
                 case DATA_PROGRESS_TOTAL -> progressTotal;
                 case DATA_LIFESPAN -> lifespanRemaining;
+                case DATA_FLOWERS -> flowersInRange;
                 default -> queenPresent ? 1 : 0;
             };
         }
@@ -175,6 +224,7 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
                 case DATA_PROGRESS -> progress = value;
                 case DATA_PROGRESS_TOTAL -> progressTotal = value;
                 case DATA_LIFESPAN -> lifespanRemaining = value;
+                case DATA_FLOWERS -> flowersInRange = value;
                 default -> queenPresent = value != 0;
             }
         }
@@ -322,7 +372,9 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
 
         if (producing) {
             housing.progress++;
-            float speed = housing.frameSpeedMultiplier() * housing.housingSpeedMultiplier();
+            float speed = housing.frameSpeedMultiplier()
+                * housing.housingSpeedMultiplier()
+                * housing.forageSpeedMultiplier(level, pos, ownGenome);
             int threshold = Math.max(1, Math.round(housing.progressTotal / speed));
             boolean forced = housing.forceCycle || housing.forceDeath;
             if ((forced || housing.progress >= threshold) && housing.producePulse(ownGenome, level.getRandom())) {
@@ -389,6 +441,7 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
             return;
         }
 
+        boolean startedOrStopped = nowWorking != working;
         working = nowWorking;
         if (nowWorking) {
             speciesColor = color;
@@ -399,17 +452,34 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
         // Same state in and out: this exists purely to make the chunk holder re-broadcast the
         // block entity's update tag (see getUpdateTag), not to change the block.
         level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
+
+        if (startedOrStopped) {
+            onWorkingChanged(level, pos, state, nowWorking);
+        }
     }
+
+    /// Called when a hive starts or stops producing, and only then -- not when its colour or
+    /// territory move. A housing that shows the difference on the block itself overrides this;
+    /// the base does nothing, because nothing here knows what block it is sitting in.
+    protected void onWorkingChanged(Level level, BlockPos pos, BlockState state, boolean nowWorking) {}
 
     /// Whether this housing should have foragers in the air around it.
     ///
-    /// The three questions the renderer would otherwise have to ask separately, and the only ones
-    /// it is allowed to ask: is the hive producing, and is this block entity the one that runs
-    /// the hive at all (a three-high apiary has three of them -- see ApiaryBlockEntity.canRun).
+    /// The questions the renderer would otherwise have to ask separately, and the only ones it is
+    /// allowed to ask: is the hive producing, is this block entity the one that runs the hive at
+    /// all (a three-high apiary has three of them -- see ApiaryBlockEntity.canRun), and are bees
+    /// flying at this hour and in this weather.
+    ///
+    /// That last one costs nothing to sync because it is not synced: Foraging.flying reads an
+    /// environment attribute, and the time of day and the weather are things the client already
+    /// knows. Server and client reach the same answer by asking the same question of the same
+    /// world, which is the only arrangement in which the bees a player watches cannot contradict
+    /// the hive they belong to.
+    ///
     /// Everything past this point is drawn from the two synced cosmetic fields below and from
     /// blocks the client already has; there is no inventory and no genome on this side.
     public boolean showsBees() {
-        return working && canRun();
+        return working && canRun() && level != null && Foraging.flying(level, worldPosition);
     }
 
     /// The producing species' colour, for tinting those bees. Meaningless unless showsBees().
@@ -855,6 +925,59 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
 
         effectCooldown = EFFECT_INTERVAL_TICKS;
         effect.effect().apply((ServerLevel) level, pos, territoryRadius(genome));
+    }
+
+    /// How much of full speed this hive's surroundings are worth right now.
+    ///
+    /// Two things, multiplied, and both of them are about whether nectar is coming in: how much
+    /// there is to forage, and whether anyone is out foraging it. Neither can reach zero -- see
+    /// BARREN_SPEED and SHELTERING_SPEED -- so the timer always moves and the threshold below can
+    /// never divide by it.
+    ///
+    /// This is what makes the foragers mean something. Before it, a hive in a desert and a hive
+    /// in a meadow produced identically, and the bees a player watched fly out to real flowers
+    /// were pure decoration over a simulation that had never heard of flowers.
+    private float forageSpeedMultiplier(Level level, BlockPos pos, BeeGenome genome) {
+        surveyForage(level, pos, territoryRadius(genome));
+
+        float flowers = Math.min(1.0F, (float) flowersInRange / FLOWERS_FOR_FULL_SPEED);
+        float site = BARREN_SPEED + (1.0F - BARREN_SPEED) * flowers;
+        return Foraging.flying(level, pos) ? site : site * SHELTERING_SPEED;
+    }
+
+    /// Counts what a forager would fly to, over the same box the flowering pass works.
+    ///
+    /// A full sweep rather than the sampling HiveSwarm does, because the two are answering
+    /// different questions: a bee only has to find *a* flower, and picking the nearest every time
+    /// would make it look like a machine, whereas this has to produce a number that does not
+    /// jitter between surveys. Sampling here would make a hive's speed flicker with nothing in
+    /// the world having changed.
+    ///
+    /// Counting stops at the cap, so the cost is bounded by how flowery the place is rather than
+    /// by how large the territory is: a meadow is a handful of lookups, and only a genuinely
+    /// barren site pays for the whole box, once every ten seconds.
+    private void surveyForage(Level level, BlockPos pos, int radius) {
+        if (--forageCooldown > 0) {
+            return;
+        }
+
+        forageCooldown = FORAGE_INTERVAL_TICKS;
+
+        int found = 0;
+        BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
+        for (int x = -radius; x <= radius && found < FLOWERS_FOR_FULL_SPEED; x++) {
+            for (int z = -radius; z <= radius && found < FLOWERS_FOR_FULL_SPEED; z++) {
+                for (int y = -FORAGE_VERTICAL_RANGE; y <= FORAGE_VERTICAL_RANGE; y++) {
+                    cursor.set(pos.getX() + x, pos.getY() + y, pos.getZ() + z);
+                    if (Foraging.attracts(level.getBlockState(cursor))) {
+                        found++;
+                        break; // one per column, so a tall sunflower is not worth two poppies
+                    }
+                }
+            }
+        }
+
+        flowersInRange = found;
     }
 
     /// Nudges a random crop/sapling within territory toward its next growth stage, the same

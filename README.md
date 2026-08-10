@@ -182,9 +182,3 @@ species whose output has a Vanilla Minecraft equivalent are included, and the ce
 yields are rebalanced away from Extra Bees' ore dusts; both departures, and every other one,
 are documented at the code that makes them. No Extra Bees textures are used -- the resource
 combs reuse this mod's own comb sprite, tinted with Extra Bees' colours.
-
-One species is this mod's own rather than transcribed: the Coal bee (Sooty), with its comb,
-its centrifuge recipe and its `Forest x Rock` mutation. Neither Forestry nor Extra Bees has
-a coal bee; the resource line as inherited leads only to materials you build with, and never
-to anything you can burn. Its reasoning is documented at each of the four places that define
-it, marked `ADDITION` the way the transcribed departures are marked `DEVIATION`.

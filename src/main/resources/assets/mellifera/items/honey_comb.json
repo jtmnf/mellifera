@@ -1,0 +1,10 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "mellifera:item/honey_comb",
+    "tints": [
+      { "type": "mellifera:bee_color", "layer": "secondary" },
+      { "type": "mellifera:bee_color", "layer": "primary" }
+    ]
+  }
+}

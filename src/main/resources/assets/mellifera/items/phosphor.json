@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "mellifera:item/phosphor",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": 13168698
+      }
+    ]
+  }
+}

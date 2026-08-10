@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "mellifera:item/ice_shard",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": 12577535
+      }
+    ]
+  }
+}

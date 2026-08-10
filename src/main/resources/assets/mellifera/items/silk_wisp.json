@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "mellifera:item/silk_wisp",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": 13879018
+      }
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "part=single": {
+      "model": "mellifera:block/apiary"
+    },
+    "part=bottom": {
+      "model": "mellifera:block/apiary_bottom"
+    },
+    "part=middle": {
+      "model": "mellifera:block/apiary_middle"
+    },
+    "part=top": {
+      "model": "mellifera:block/apiary_top"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "mellifera:honey_drop",
+    "mellifera:honey_drop",
+    "mellifera:honey_drop",
+    "minecraft:glass_bottle"
+  ],
+  "result": {
+    "id": "minecraft:honey_bottle"
+  }
+}

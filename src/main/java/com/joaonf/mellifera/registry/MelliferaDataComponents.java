@@ -1,0 +1,65 @@
+package com.joaonf.mellifera.registry;
+
+import com.joaonf.mellifera.Mellifera;
+import com.joaonf.mellifera.bee.BeeGenome;
+import com.joaonf.mellifera.bee.QueenGenomeData;
+import com.joaonf.mellifera.bee.SerumData;
+
+import com.mojang.serialization.Codec;
+
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
+
+// BEE_GENOME/QUEEN_GENOME/COMB_TYPE are the apiculture system's genetics: Princess and
+// Drone stacks carry one BeeGenome (BEE_GENOME); a mated Queen carries two, her own plus
+// her mate's (QUEEN_GENOME); a comb only ever carries which kind of comb it is (COMB_TYPE),
+// never a full genome -- it's an inert output, not a breeding individual. COMB_TYPE names
+// the comb directly rather than the bee that made it, because a species can produce more
+// than one comb (Austere yields both Parched and Powdery) and two species in a branch
+// produce the same one.
+public final class MelliferaDataComponents {
+    public static final DeferredRegister.DataComponents COMPONENTS =
+        DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, Mellifera.MODID);
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<BeeGenome>> BEE_GENOME =
+        COMPONENTS.registerComponentType("bee_genome", builder -> builder.persistent(BeeGenome.CODEC));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<QueenGenomeData>> QUEEN_GENOME =
+        COMPONENTS.registerComponentType("queen_genome", builder -> builder.persistent(QueenGenomeData.CODEC));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Identifier>> COMB_TYPE =
+        COMPONENTS.registerComponentType("comb_type", builder -> builder.persistent(Identifier.CODEC));
+
+    /// Set by combining a frame with an ender pearl on an anvil (see MelliferaAnvilRecipes).
+    /// Such a frame never loses wear at all -- see FrameItem.neverWears.
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> FRAME_UNBREAKABLE =
+        COMPONENTS.registerComponentType("frame_unbreakable", builder -> builder.persistent(Codec.BOOL));
+
+    // 1.0 = fresh, 0.0 = spent and pulled from its frame slot. See ApiaryBlockEntity.
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Float>> FRAME_WEAR =
+        COMPONENTS.registerComponentType("frame_wear", builder -> builder.persistent(Codec.FLOAT));
+
+    /// One gene bottled by the Isolator: which chromosome, and what it held. See SerumData --
+    /// it is deliberately trait-name + value strings rather than a typed allele, so this one
+    /// component covers all eight chromosomes and survives an allele being renamed.
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<SerumData>> SERUM_DATA =
+        COMPONENTS.registerComponentType("serum_data", builder -> builder.persistent(SerumData.CODEC));
+
+    /// Which of its two jobs the debug stick does when clicked on a hive: false runs a
+    /// single production cycle, true runs the queen out to her death and her whole brood.
+    /// On the stack rather than in a static field so two people testing on a server, or the
+    /// same person with two sticks, do not share one setting -- and so it survives a reload
+    /// mid-session, which is exactly when a testing tool should not forget what it was set to.
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> DEBUG_FULL_PRODUCTION =
+        COMPONENTS.registerComponentType("debug_full_production", builder -> builder.persistent(Codec.BOOL));
+
+    private MelliferaDataComponents() {}
+
+    public static void register(IEventBus modEventBus) {
+        COMPONENTS.register(modEventBus);
+    }
+}

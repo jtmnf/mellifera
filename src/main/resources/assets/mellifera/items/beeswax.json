@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "mellifera:item/beeswax",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": 15255626
+      }
+    ]
+  }
+}

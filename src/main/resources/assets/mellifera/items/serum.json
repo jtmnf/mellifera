@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "mellifera:item/serum",
+    "tints": [
+      { "type": "mellifera:serum_color" }
+    ]
+  }
+}

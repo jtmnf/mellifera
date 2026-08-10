@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#c:is_desert",
+  "features": "mellifera:hive_modest",
+  "step": "vegetal_decoration"
+}

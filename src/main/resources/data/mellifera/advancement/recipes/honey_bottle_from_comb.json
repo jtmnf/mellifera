@@ -1,0 +1,30 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_comb": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          { "items": "mellifera:honey_drop" }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "mellifera:honey_bottle_from_comb"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_comb"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "mellifera:honey_bottle_from_comb"
+    ]
+  }
+}

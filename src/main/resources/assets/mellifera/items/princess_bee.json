@@ -1,0 +1,11 @@
+{
+  "model": {
+    "type": "mellifera:animated_special",
+    "base": "mellifera:item/bee_base",
+    "model": {
+      "type": "mellifera:bee",
+      "scale": 1.15,
+      "stinger": true
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "working=false": {
+      "model": "mellifera:block/centrifuge"
+    },
+    "working=true": {
+      "model": "mellifera:block/centrifuge_on"
+    }
+  }
+}

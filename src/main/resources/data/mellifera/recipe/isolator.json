@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "G": "minecraft:glass",
+    "X": "minecraft:redstone"
+  },
+  "pattern": [
+    "IGI",
+    "GXG",
+    "IGI"
+  ],
+  "result": {
+    "id": "mellifera:isolator"
+  }
+}

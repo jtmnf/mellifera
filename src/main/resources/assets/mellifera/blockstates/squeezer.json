@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "working=false": {
+      "model": "mellifera:block/squeezer"
+    },
+    "working=true": {
+      "model": "mellifera:block/squeezer_on"
+    }
+  }
+}

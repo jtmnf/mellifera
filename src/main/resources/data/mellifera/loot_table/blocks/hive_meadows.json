@@ -1,0 +1,133 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "rolls": 1.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mellifera:drone_bee",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "mellifera:bee_genome": {
+                  "species": {
+                    "active": "mellifera:meadows",
+                    "inactive": "mellifera:meadows"
+                  },
+                  "speed": {
+                    "active": "slowest",
+                    "inactive": "slowest"
+                  },
+                  "lifespan": {
+                    "active": "shorter",
+                    "inactive": "shorter"
+                  },
+                  "territory": {
+                    "active": "average",
+                    "inactive": "average"
+                  },
+                  "fertility": {
+                    "active": "normal",
+                    "inactive": "normal"
+                  },
+                  "tolerance": {
+                    "active": "none",
+                    "inactive": "none"
+                  },
+                  "effect": {
+                    "active": "none",
+                    "inactive": "none"
+                  },
+                  "flowering": {
+                    "active": "slower",
+                    "inactive": "slower"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rolls": 1.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mellifera:princess_bee",
+          "conditions": [
+            {
+              "condition": "minecraft:random_chance",
+              "chance": 0.35
+            }
+          ],
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "mellifera:bee_genome": {
+                  "species": {
+                    "active": "mellifera:meadows",
+                    "inactive": "mellifera:meadows"
+                  },
+                  "speed": {
+                    "active": "slowest",
+                    "inactive": "slowest"
+                  },
+                  "lifespan": {
+                    "active": "shorter",
+                    "inactive": "shorter"
+                  },
+                  "territory": {
+                    "active": "average",
+                    "inactive": "average"
+                  },
+                  "fertility": {
+                    "active": "normal",
+                    "inactive": "normal"
+                  },
+                  "tolerance": {
+                    "active": "none",
+                    "inactive": "none"
+                  },
+                  "effect": {
+                    "active": "none",
+                    "inactive": "none"
+                  },
+                  "flowering": {
+                    "active": "slower",
+                    "inactive": "slower"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rolls": {
+        "type": "minecraft:uniform",
+        "min": 1.0,
+        "max": 2.0
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mellifera:honey_comb",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "mellifera:comb_type": "mellifera:honey"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "random_sequence": "mellifera:blocks/hive_meadows"
+}

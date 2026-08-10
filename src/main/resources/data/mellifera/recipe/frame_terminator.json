@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": ["mellifera:frame", "mellifera:phosphor"],
+  "result": { "id": "mellifera:frame_terminator" }
+}

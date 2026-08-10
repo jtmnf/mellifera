@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "mellifera:item/refractory_wax",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": 14704668
+      }
+    ]
+  }
+}

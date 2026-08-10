@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": ["mellifera:frame", "minecraft:redstone", "mellifera:beeswax"],
+  "result": { "id": "mellifera:frame_automation" }
+}

@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "#": "minecraft:copper_ingot",
+    "P": "minecraft:piston"
+  },
+  "pattern": [
+    "I#I",
+    "IPI",
+    "I#I"
+  ],
+  "result": {
+    "id": "mellifera:squeezer"
+  }
+}

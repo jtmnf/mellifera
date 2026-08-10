@@ -1,0 +1,6 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#c:is_jungle",
+  "features": "mellifera:hive_tropical",
+  "step": "vegetal_decoration"
+}

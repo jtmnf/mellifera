@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": ["mellifera:frame", "mellifera:royal_jelly"],
+  "result": { "id": "mellifera:frame_dominant" }
+}

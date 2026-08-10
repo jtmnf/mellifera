@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "mellifera:item/silky_propolis",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": 14548736
+      }
+    ]
+  }
+}

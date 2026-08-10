@@ -1,0 +1,47 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:honeycomb",
+    "minecraft:cocoa_beans"
+  ],
+  "result": {
+    "id": "mellifera:princess_bee",
+    "components": {
+      "mellifera:bee_genome": {
+        "species": {
+          "active": "mellifera:tropical",
+          "inactive": "mellifera:tropical"
+        },
+        "speed": {
+          "active": "slower",
+          "inactive": "slower"
+        },
+        "lifespan": {
+          "active": "short",
+          "inactive": "short"
+        },
+        "territory": {
+          "active": "average",
+          "inactive": "average"
+        },
+        "fertility": {
+          "active": "normal",
+          "inactive": "normal"
+        },
+        "tolerance": {
+          "active": "none",
+          "inactive": "none"
+        },
+        "effect": {
+          "active": "none",
+          "inactive": "none"
+        },
+        "flowering": {
+          "active": "slowest",
+          "inactive": "slowest"
+        }
+      }
+    }
+  }
+}

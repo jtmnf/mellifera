@@ -1,0 +1,35 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_frame_materials": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mellifera:frame"
+          },
+          {
+            "items": "mellifera:beeswax"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "mellifera:frame_automation"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_frame_materials"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "mellifera:frame_automation"
+    ]
+  }
+}

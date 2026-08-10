@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": ["minecraft:paper", "mellifera:honey_drop"],
+  "result": { "id": "mellifera:climate_chart" }
+}

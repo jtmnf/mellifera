@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "mellifera:item/climate_chart",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": 15767098
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "mellifera:frame",
+    "mellifera:silk_wisp"
+  ],
+  "result": {
+    "id": "mellifera:frame_insulation"
+  }
+}

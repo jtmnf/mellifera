@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "mellifera:item/peat",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": 3416333
+      }
+    ]
+  }
+}

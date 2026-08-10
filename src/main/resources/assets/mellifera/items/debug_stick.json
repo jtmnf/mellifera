@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "mellifera:item/debug_stick",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": 15253562
+      }
+    ]
+  }
+}

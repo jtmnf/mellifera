@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_beeswax": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mellifera:beeswax"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "mellifera:frame"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_beeswax"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "mellifera:frame"
+    ]
+  }
+}

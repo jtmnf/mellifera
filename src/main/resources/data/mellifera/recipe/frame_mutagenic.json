@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": ["mellifera:frame", "mellifera:pulsating_propolis"],
+  "result": { "id": "mellifera:frame_mutagenic" }
+}

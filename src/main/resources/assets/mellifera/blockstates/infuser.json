@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "working=false": {
+      "model": "mellifera:block/infuser"
+    },
+    "working=true": {
+      "model": "mellifera:block/infuser_on"
+    }
+  }
+}

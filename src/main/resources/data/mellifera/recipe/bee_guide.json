@@ -1,0 +1,6 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": ["minecraft:book", "mellifera:honey_comb"],
+  "result": { "id": "mellifera:bee_guide" }
+}

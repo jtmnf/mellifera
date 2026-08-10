@@ -1,0 +1,12 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "mellifera:item/royal_jelly",
+    "tints": [
+      {
+        "type": "minecraft:constant",
+        "value": 16777099
+      }
+    ]
+  }
+}

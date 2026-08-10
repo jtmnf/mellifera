@@ -1,0 +1,118 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": 1.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mellifera:princess_bee",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "mellifera:bee_genome": {
+                  "species": {
+                    "active": "mellifera:monastic",
+                    "inactive": "mellifera:monastic"
+                  },
+                  "speed": {
+                    "active": "slowest",
+                    "inactive": "slowest"
+                  },
+                  "lifespan": {
+                    "active": "shorter",
+                    "inactive": "shorter"
+                  },
+                  "territory": {
+                    "active": "average",
+                    "inactive": "average"
+                  },
+                  "fertility": {
+                    "active": "normal",
+                    "inactive": "normal"
+                  },
+                  "tolerance": {
+                    "active": "none",
+                    "inactive": "none"
+                  },
+                  "effect": {
+                    "active": "none",
+                    "inactive": "none"
+                  },
+                  "flowering": {
+                    "active": "slowest",
+                    "inactive": "slowest"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.2
+        }
+      ]
+    },
+    {
+      "rolls": 1.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mellifera:drone_bee",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "mellifera:bee_genome": {
+                  "species": {
+                    "active": "mellifera:monastic",
+                    "inactive": "mellifera:monastic"
+                  },
+                  "speed": {
+                    "active": "slowest",
+                    "inactive": "slowest"
+                  },
+                  "lifespan": {
+                    "active": "shorter",
+                    "inactive": "shorter"
+                  },
+                  "territory": {
+                    "active": "average",
+                    "inactive": "average"
+                  },
+                  "fertility": {
+                    "active": "normal",
+                    "inactive": "normal"
+                  },
+                  "tolerance": {
+                    "active": "none",
+                    "inactive": "none"
+                  },
+                  "effect": {
+                    "active": "none",
+                    "inactive": "none"
+                  },
+                  "flowering": {
+                    "active": "slowest",
+                    "inactive": "slowest"
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.2
+        }
+      ]
+    }
+  ],
+  "random_sequence": "mellifera:inject/monastic_bees"
+}

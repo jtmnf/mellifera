@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "working=false": {
+      "model": "mellifera:block/isolator"
+    },
+    "working=true": {
+      "model": "mellifera:block/isolator_on"
+    }
+  }
+}

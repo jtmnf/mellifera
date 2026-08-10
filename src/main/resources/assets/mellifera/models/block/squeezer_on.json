@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "mellifera:block/squeezer_top_on",
+    "bottom": "mellifera:block/centrifuge_bottom",
+    "side": "mellifera:block/squeezer_on"
+  }
+}

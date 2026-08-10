@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "mellifera:item/comb_base",
+    "layer1": "mellifera:item/comb_overlay"
+  }
+}

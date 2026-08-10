@@ -1,0 +1,60 @@
+license="${mod_license}"
+
+[[mods]]
+modId="${mod_id}"
+version="${mod_version}"
+displayName="${mod_name}"
+authors="joaonf"
+credits='''
+Species data, mutation tree and part of the textures are adapted from ForestryMC
+(c) SirSengir and contributors, and from Binnie's Mods / Extra Bees (c) Binnie and
+contributors, both under LGPL v3. See the README for the full attribution.
+'''
+description='''
+Beekeeping as a breeding game.
+
+Find a wild hive, take the Princess and the Drones inside it, and put them in an Apiary.
+Every bee carries a genome -- species, speed, lifespan, fertility, flowering, territory,
+temperature and humidity tolerance, and a special effect -- with a dominant and a recessive
+allele for each. What a queen produces, how fast she works, and whether she will work at
+all in a given biome all follow from those genes.
+
+Cross two species and they may mutate into a third. There are 58 species across twenty
+branches -- from the wild Forest and Meadows bees up to the Imperial, Demonic, Phantasmal,
+Diamond and Ecstatic lines at the top of each one -- reached through a mutation tree gated
+on climate, biome, date and the parents you feed it. The Apiarist Database item (and JEI, if
+installed) lists every species you have discovered, its products and the pairs that lead to
+it.
+
+Queens drop combs; the Centrifuge turns those into honey, wax, propolis, phosphor and the
+resource drops of the deeper branches. Specialised Frames in the Apiary trade lifespan for
+production, force dominant or recessive inheritance, or raise the mutation rate. The
+Isolator extracts a single gene from a bee into a Serum, and the Infuser writes that Serum
+back into another bee -- so a line can be built deliberately instead of by luck.
+
+Bees of your own go in `config/mellifera/custom_bees/`, one JSON file each, and may invent
+the comb they produce along with what a Centrifuge gets out of it.
+
+The machines run on Forge Energy and work with any tech mod that provides it.
+'''
+
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="[${neo_version},)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="jei"
+    type="optional"
+    versionRange="[0,)"
+    ordering="AFTER"
+    side="BOTH"

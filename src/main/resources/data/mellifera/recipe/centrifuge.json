@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "#": "minecraft:copper_ingot",
+    "X": "minecraft:redstone"
+  },
+  "pattern": [
+    "I#I",
+    "IXI",
+    "I#I"
+  ],
+  "result": {
+    "id": "mellifera:centrifuge"
+  }
+}

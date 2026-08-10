@@ -1,0 +1,47 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "minecraft:honeycomb",
+    "minecraft:clay_ball"
+  ],
+  "result": {
+    "id": "mellifera:drone_bee",
+    "components": {
+      "mellifera:bee_genome": {
+        "species": {
+          "active": "mellifera:marshy",
+          "inactive": "mellifera:marshy"
+        },
+        "speed": {
+          "active": "slowest",
+          "inactive": "slowest"
+        },
+        "lifespan": {
+          "active": "shorter",
+          "inactive": "shorter"
+        },
+        "territory": {
+          "active": "average",
+          "inactive": "average"
+        },
+        "fertility": {
+          "active": "normal",
+          "inactive": "normal"
+        },
+        "tolerance": {
+          "active": "none",
+          "inactive": "none"
+        },
+        "effect": {
+          "active": "none",
+          "inactive": "none"
+        },
+        "flowering": {
+          "active": "slowest",
+          "inactive": "slowest"
+        }
+      }
+    }
+  }
+}

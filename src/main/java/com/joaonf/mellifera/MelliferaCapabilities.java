@@ -36,5 +36,10 @@ public final class MelliferaCapabilities {
         // way to find the honey and the fluid never leaves the block.
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, MelliferaBlockEntities.SQUEEZER.get(),
             (squeezer, side) -> squeezer.tank());
+
+        // The Tank, on every face and in both directions -- a pipe fills it from one side and drains
+        // it from another, and which face does which is the plumbing's business, not the block's.
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, MelliferaBlockEntities.TANK.get(),
+            (tank, side) -> tank.tank());
     }
 }

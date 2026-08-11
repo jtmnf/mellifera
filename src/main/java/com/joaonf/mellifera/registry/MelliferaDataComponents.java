@@ -11,6 +11,7 @@ import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.fluids.SimpleFluidContent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -56,6 +57,18 @@ public final class MelliferaDataComponents {
     /// mid-session, which is exactly when a testing tool should not forget what it was set to.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> DEBUG_FULL_PRODUCTION =
         COMPONENTS.registerComponentType("debug_full_production", builder -> builder.persistent(Codec.BOOL));
+
+    /// What a broken Tank was holding, so putting it back down puts the fluid back too. See
+    /// TankBlockEntity -- the block entity contributes it, the block's loot table copies it onto the
+    /// dropped item, and TankBlockItem is what shows it on the tooltip.
+    ///
+    /// Synchronised as well as persisted, unlike the components above: the tooltip is drawn from the
+    /// client's copy of the stack, so a component the server keeps to itself would leave a full tank
+    /// in an inventory looking empty.
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<SimpleFluidContent>> TANK_CONTENTS =
+        COMPONENTS.registerComponentType("tank_contents", builder -> builder
+            .persistent(SimpleFluidContent.CODEC)
+            .networkSynchronized(SimpleFluidContent.STREAM_CODEC));
 
     private MelliferaDataComponents() {}
 

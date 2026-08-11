@@ -9,6 +9,8 @@ import com.joaonf.mellifera.block.SqueezerBlock;
 import com.joaonf.mellifera.block.HiveBlock;
 import com.joaonf.mellifera.block.InfuserBlock;
 import com.joaonf.mellifera.block.IsolatorBlock;
+import com.joaonf.mellifera.block.TankBlock;
+import com.joaonf.mellifera.item.TankBlockItem;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.BlockItem;
@@ -65,6 +67,26 @@ public final class MelliferaBlocks {
             .sound(SoundType.STONE));
 
     public static final DeferredItem<BlockItem> SQUEEZER_ITEM = ITEMS.registerSimpleBlockItem(SQUEEZER);
+
+    // Sixteen buckets of anything, behind glass. Same tier and material as the machines it stands
+    // next to -- it is the same workshop -- but noOcclusion, which is not decoration: a block whose
+    // texture has a hole in it still hides its neighbours' faces unless it says otherwise, and the
+    // fluid TankRenderer draws inside it is one of the things that would be hidden.
+    public static final DeferredBlock<TankBlock> TANK = BLOCKS.registerBlock(
+        "tank",
+        TankBlock::new,
+        p -> p.mapColor(MapColor.METAL)
+            .requiresCorrectToolForDrops()
+            .strength(3.5F)
+            .noOcclusion()
+            .sound(SoundType.STONE));
+
+    // Not registerSimpleBlockItem: a tank keeps what is in it when it is broken, and TankBlockItem
+    // is what says so on the tooltip. See TankBlockEntity.collectImplicitComponents.
+    public static final DeferredItem<TankBlockItem> TANK_ITEM = ITEMS.registerItem(
+        "tank",
+        p -> new TankBlockItem(TANK.get(), p),
+        p -> p.useBlockDescriptionPrefix());
 
     // Genetics rather than production: pulls a bee's traits out one at a time into serums.
     // Same tier and material as the centrifuge -- they are the same kind of machine.

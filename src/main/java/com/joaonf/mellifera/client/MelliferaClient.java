@@ -48,9 +48,13 @@ public class MelliferaClient {
     // The bees flying around a working apiary. A block entity renderer rather than the particle
     // this used to be, because a particle can only ever be a textured quad and these are the
     // vanilla bee model -- see HiveBeeRenderer.
+    // The fluid behind a Tank's glass. Same reason as the bees: what has to be drawn is decided at
+    // runtime -- which fluid, and how much of it -- and a baked model is decided at load. See
+    // TankRenderer.
     @SubscribeEvent
     static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerBlockEntityRenderer(MelliferaBlockEntities.APIARY.get(), HiveBeeRenderer::new);
+        event.registerBlockEntityRenderer(MelliferaBlockEntities.TANK.get(), TankRenderer::new);
     }
 
     // Lets the comb and serum item JSONs reference "mellifera:bee_color" in their "tints"

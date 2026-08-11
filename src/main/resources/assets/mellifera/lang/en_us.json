@@ -317,5 +317,8 @@
   "gui.mellifera.squeezer.tank": "%s / %s mB",
   "gui.mellifera.jei.squeezer": "Squeezing",
   "gui.mellifera.jei.squeezer.amount": "%s mB per drop",
-  "gui.mellifera.jei.squeezer.rate": "%s drops to a bucket"
+  "gui.mellifera.jei.squeezer.rate": "%s drops to a bucket",
+  "block.mellifera.tank": "Tank",
+  "block.mellifera.tank.empty": "Empty",
+  "block.mellifera.tank.contents": "%s: %s / %s mB"
 }

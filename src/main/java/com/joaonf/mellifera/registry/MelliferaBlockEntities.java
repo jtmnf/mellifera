@@ -6,6 +6,7 @@ import com.joaonf.mellifera.block.CentrifugeBlockEntity;
 import com.joaonf.mellifera.block.SqueezerBlockEntity;
 import com.joaonf.mellifera.block.InfuserBlockEntity;
 import com.joaonf.mellifera.block.IsolatorBlockEntity;
+import com.joaonf.mellifera.block.TankBlockEntity;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -25,6 +26,9 @@ public final class MelliferaBlockEntities {
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SqueezerBlockEntity>> SQUEEZER =
         TYPES.register("squeezer", () -> new BlockEntityType<>(SqueezerBlockEntity::new, MelliferaBlocks.SQUEEZER.get()));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TankBlockEntity>> TANK =
+        TYPES.register("tank", () -> new BlockEntityType<>(TankBlockEntity::new, MelliferaBlocks.TANK.get()));
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<IsolatorBlockEntity>> ISOLATOR =
         TYPES.register("isolator", () -> new BlockEntityType<>(IsolatorBlockEntity::new, MelliferaBlocks.ISOLATOR.get()));

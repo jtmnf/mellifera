@@ -43,6 +43,7 @@ public final class MelliferaCreativeTabs {
                 output.accept(MelliferaBlocks.ISOLATOR_ITEM.get());
                 output.accept(MelliferaBlocks.INFUSER_ITEM.get());
                 output.accept(MelliferaBlocks.SQUEEZER_ITEM.get());
+                output.accept(MelliferaBlocks.TANK_ITEM.get());
                 output.accept(MelliferaFluids.HONEY_BUCKET.get());
 
                 output.accept(MelliferaItems.BEE_GUIDE.get());

@@ -11,6 +11,7 @@ import com.joaonf.mellifera.bee.BeeStacks;
 import com.joaonf.mellifera.bee.Foraging;
 import com.joaonf.mellifera.bee.FrameType;
 import com.joaonf.mellifera.bee.ToleranceAllele;
+import com.joaonf.mellifera.block.ApiaryBlock;
 import com.joaonf.mellifera.block.BeeHousingBlockEntity;
 import com.joaonf.mellifera.item.FrameItem;
 import com.joaonf.mellifera.registry.MelliferaBeeSpecies;
@@ -30,8 +31,12 @@ import net.minecraft.world.level.Level;
 /// A hive that is doing nothing and a hive that is doing something slowly look identical from
 /// outside, and the apiary now has four reasons to be one or the other: no queen, a queen out of
 /// her temperature band, nothing in flower within her territory, and foragers in for the night
-/// or the rain. Only the first two stop it. The other two swing production by a factor of ten,
-/// which is far too much to leave a player to infer from a comb arriving late.
+/// or the rain. All four stop it. Thin forage -- some flowers, not enough -- is the only state
+/// that merely slows it.
+///
+/// Four ways to be idle and no way to tell them apart is what this panel exists to fix. It is
+/// also what makes stopping affordable at all: a hive may sit dead for a reason a player cannot
+/// see only if something on screen will name the reason.
 ///
 /// So the closed tab is a single verdict -- a cross if something has stopped it, a bang if
 /// something is slowing it, a tick if neither -- and opening it lists the checks, each a short
@@ -56,10 +61,10 @@ public class WorkPanel extends SideTab {
 
     /// Three outcomes, not two.
     ///
-    /// A hive with three flowers in reach is not broken and is not fine either: it works, at a
-    /// quarter speed, and a cross would send the player looking for a fault that is not there
-    /// while a tick would leave them wondering why the comb is slow. WARN is the state the mod
-    /// gained the day production started depending on the neighbourhood.
+    /// A hive with three flowers in reach is not broken and is not fine either: it works, slowly,
+    /// and a cross would send the player looking for a fault that is not there while a tick would
+    /// leave them wondering why the comb is slow. WARN is the state the mod gained the day
+    /// production started depending on the neighbourhood.
     ///
     /// Only BAD counts against the tab's verdict -- see refresh.
     public enum Status {
@@ -218,7 +223,12 @@ public class WorkPanel extends SideTab {
         ToleranceAllele tolerance = genome.tolerance().active();
         float low = species.minCelsius() - tolerance.widenBelow();
         float high = species.maxCelsius() + tolerance.widenAbove();
-        float here = EnvironmentTemperature.celsius(level, menu.apiaryPos());
+        // The same sum the hive does, off the same blockstate: ambient plus whatever the block
+        // itself is worth. Printing the ambient figure while the hive judged another one is the
+        // one thing this panel exists to stop.
+        float ventilation = ApiaryBlock.ventilation(level.getBlockState(menu.apiaryPos()));
+        float here = EnvironmentTemperature.celsius(level, ApiaryBlock.climatePosition(level, menu.apiaryPos()))
+            + ventilation;
 
         boolean ok = here >= low && here <= high;
         checks.add(new Check(
@@ -228,22 +238,31 @@ public class WorkPanel extends SideTab {
                 : here < low ? "gui.mellifera.work.climate_cold" : "gui.mellifera.work.climate_hot"),
             Component.translatable("gui.mellifera.work.climate_range",
                 Math.round(here), Math.round(low), Math.round(high))));
+
+        // Its own line rather than a silently different number. A player who sees 6°C where the
+        // thermometer says 8 deserves to be told which two degrees moved and why.
+        if (ventilation != 0.0F) {
+            checks.add(new Check(Status.OK,
+                Component.translatable("gui.mellifera.work.ventilated"),
+                Component.translatable("gui.mellifera.work.ventilated_by", Math.round(ventilation))));
+        }
     }
 
-    /// The two things that decide how fast a working hive works: what there is to forage, and
+    /// The two things that decide whether nectar is coming in: what there is to forage, and
     /// whether anyone is out foraging it.
     ///
-    /// Neither can stop a hive, so neither is ever BAD. Between them they swing production by a
-    /// factor of ten, which is far too much to leave a player to infer from a comb arriving late.
+    /// Both are stops. Nothing in reach and the hive is idle, and so is one whose foragers are in
+    /// for the night or the rain -- see BeeHousingBlockEntity.serverTick. Thin forage is the one
+    /// state that only slows it, because less of a good thing is not the same as a thing being
+    /// wrong, and WARN is what that difference looks like.
     private void forage(List<Check> checks, Level level) {
         int flowers = menu.flowers();
         int wanted = BeeHousingBlockEntity.FLOWERS_FOR_FULL_SPEED;
-        boolean enough = flowers >= wanted;
         checks.add(new Check(
-            enough ? Status.OK : Status.WARN,
-            Component.translatable(enough
-                ? "gui.mellifera.work.forage_ok"
-                : "gui.mellifera.work.forage_poor"),
+            flowers == 0 ? Status.BAD : flowers >= wanted ? Status.OK : Status.WARN,
+            Component.translatable(flowers == 0
+                ? "gui.mellifera.work.forage_none"
+                : flowers >= wanted ? "gui.mellifera.work.forage_ok" : "gui.mellifera.work.forage_poor"),
             Component.translatable("gui.mellifera.work.forage_count", flowers, wanted)));
 
         // Asked of the client's own world, which is where the answer lives: the hive syncs
@@ -251,7 +270,7 @@ public class WorkPanel extends SideTab {
         // call the foragers themselves are gated on -- see BeeHousingBlockEntity.showsBees.
         boolean flying = Foraging.flying(level, menu.apiaryPos());
         checks.add(new Check(
-            flying ? Status.OK : Status.WARN,
+            flying ? Status.OK : Status.BAD,
             Component.translatable(flying
                 ? "gui.mellifera.work.foragers_out"
                 : "gui.mellifera.work.foragers_in"),

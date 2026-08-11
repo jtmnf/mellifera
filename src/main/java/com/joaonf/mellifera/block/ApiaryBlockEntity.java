@@ -124,6 +124,21 @@ public class ApiaryBlockEntity extends BeeHousingBlockEntity {
         return level == null || ApiaryBlock.isController(level, worldPosition);
     }
 
+    /// Over the top of the whole column, not one block up: the block above the controller of a
+    /// three-high tower is another Apiary. See ApiaryBlock.climatePosition.
+    @Override
+    protected BlockPos climatePosition() {
+        return level == null ? super.climatePosition() : ApiaryBlock.climatePosition(level, worldPosition);
+    }
+
+    /// An Apiary on scaffolding is a hive on a trestle, with air moving under it, and it runs
+    /// cooler for it. See ApiaryBlock.VENTILATION_CELSIUS for how much and why that is a decision
+    /// rather than a bonus.
+    @Override
+    protected float temperatureOffset() {
+        return ApiaryBlock.ventilation(getBlockState());
+    }
+
     /// Puts the hive's activity on the block, so it reads as working from further away than the
     /// foragers are drawn.
     ///

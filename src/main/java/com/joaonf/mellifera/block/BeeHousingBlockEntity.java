@@ -122,28 +122,23 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
     private static final int FORAGE_INTERVAL_TICKS = 200;
     private static final int FORAGE_VERTICAL_RANGE = 4;
 
-    /// Flowers within territory needed for a hive to work at full speed, and what it drops to
-    /// with none at all.
-    ///
-    /// Not zero. A hive that stops dead in a desert is a hive a player reports as broken -- there
-    /// is nothing on the block, in the window or in the tooltip that would tell them why -- and
-    /// the mod already has a way to say "not here", which is the climate band. This says
-    /// something quieter and more useful: a hive works wherever you put it, and works properly
-    /// where there is something to work.
+    /// Flowers within territory needed for a hive to work at full speed.
     ///
     /// Twelve is about one flower per twenty columns at the smallest territory (radius 4, 81
     /// columns), which is a garden bed rather than a meadow. Deliberately reachable by hand: the
     /// point is to reward planting, not to gate the mod behind biome luck.
-    public static final int FLOWERS_FOR_FULL_SPEED = 12;
-    private static final float BARREN_SPEED = 0.25F;
-
-    /// What a hive keeps doing while its foragers are in for the night, or for the rain.
     ///
-    /// A real colony does not stop when the light goes: it ripens nectar, builds comb and feeds
-    /// brood on what came in during the day. So this is a slowdown and not a stop, and it is the
-    /// same number whether the reason is dusk or weather, because from inside the hive it is the
-    /// same reason -- nothing new is coming in.
-    private static final float SHELTERING_SPEED = 0.4F;
+    /// None at all is not a slow hive, it is a stopped one -- see serverTick. That was the other
+    /// way round until the Status panel could say why, which was the only thing making a dead
+    /// hive indistinguishable from a broken mod.
+    public static final int FLOWERS_FOR_FULL_SPEED = 12;
+
+    /// The slowest a hive with *some* forage runs, at one flower in range.
+    ///
+    /// The floor for a hive that is working badly, not for one that is not working at all --
+    /// nothing in reach stops it outright, and so does dusk, and so does rain (see serverTick).
+    /// This is only the shape of the curve between one flower and enough of them.
+    private static final float SPARSE_SPEED = 0.15F;
 
     private static final int[] NO_SLOTS = new int[0];
 
@@ -254,6 +249,18 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
     /// Blocks of reach added on top of the genome's TerritoryAllele.
     protected int territoryBonus() {
         return 0;
+    }
+
+    /// Degrees this housing adds to, or takes off, the ambient temperature before judging it
+    /// against the queen's band. Zero unless the housing itself does something to the air.
+    protected float temperatureOffset() {
+        return 0.0F;
+    }
+
+    /// Where this housing's climate is read. The block above it by default, because the housing's
+    /// own block is opaque and EnvironmentTemperature would see no sky from inside it.
+    protected BlockPos climatePosition() {
+        return worldPosition.above();
     }
 
     /// Multiplies how fast the production timer fills, stacking with installed frames.
@@ -367,14 +374,25 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
         BeeGenome ownGenome = queenData.own();
         BeeSpecies species = MelliferaBeeSpecies.get(ownGenome.species().active());
 
-        boolean producing = housing.ignoresClimate() || housing.inClimate(level, pos, ownGenome, species);
+        // Surveyed before the gate, not inside it, because a hive that has stopped for want of
+        // flowers is exactly the hive that has to notice the ones planted in front of it.
+        housing.surveyForage(level, pos, housing.territoryRadius(ownGenome));
+
+        // Every condition is a gate, not a discount: a hive with nothing to forage, or with its
+        // foragers in for the night or the rain, stops. Nothing is coming in, so nothing comes
+        // out. The one thing that still scales rather than stops is *how much* forage there is,
+        // because thin forage is less of a good thing rather than a thing being wrong.
+        boolean climate = housing.ignoresClimate() || housing.inClimate(level, pos, ownGenome, species);
+        boolean producing = climate
+            && housing.flowersInRange > 0
+            && Foraging.flying(level, pos);
         housing.syncActivity(level, pos, state, producing, species.primaryColor(), housing.territoryRadius(ownGenome));
 
         if (producing) {
             housing.progress++;
             float speed = housing.frameSpeedMultiplier()
                 * housing.housingSpeedMultiplier()
-                * housing.forageSpeedMultiplier(level, pos, ownGenome);
+                * housing.forageSpeedMultiplier();
             int threshold = Math.max(1, Math.round(housing.progressTotal / speed));
             boolean forced = housing.forceCycle || housing.forceDeath;
             if ((forced || housing.progress >= threshold) && housing.producePulse(ownGenome, level.getRandom())) {
@@ -417,7 +435,10 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
 
         climateCooldown = CLIMATE_INTERVAL_TICKS;
 
-        float celsius = EnvironmentTemperature.celsius(level, pos);
+        // The housing's own contribution goes on the *measurement*, not on the band: a ventilated
+        // hive is a cooler place, it is not a queen who has learnt to like heat. Widening the band
+        // instead would have been indistinguishable here and wrong everywhere the number is shown.
+        float celsius = EnvironmentTemperature.celsius(level, climatePosition()) + temperatureOffset();
         ToleranceAllele tolerance = genome.tolerance().active();
         climateOk = celsius >= species.minCelsius() - tolerance.widenBelow()
             && celsius <= species.maxCelsius() + tolerance.widenAbove();
@@ -927,22 +948,18 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
         effect.effect().apply((ServerLevel) level, pos, territoryRadius(genome));
     }
 
-    /// How much of full speed this hive's surroundings are worth right now.
+    /// How much of full speed this hive's surroundings are worth.
     ///
-    /// Two things, multiplied, and both of them are about whether nectar is coming in: how much
-    /// there is to forage, and whether anyone is out foraging it. Neither can reach zero -- see
-    /// BARREN_SPEED and SHELTERING_SPEED -- so the timer always moves and the threshold below can
-    /// never divide by it.
+    /// Only reached when the hive is producing at all, which means there is at least one flower
+    /// in range -- so this never returns zero and the threshold below can never divide by it.
+    /// Everything that can stop a hive is a gate in serverTick, not a number here.
     ///
     /// This is what makes the foragers mean something. Before it, a hive in a desert and a hive
     /// in a meadow produced identically, and the bees a player watched fly out to real flowers
     /// were pure decoration over a simulation that had never heard of flowers.
-    private float forageSpeedMultiplier(Level level, BlockPos pos, BeeGenome genome) {
-        surveyForage(level, pos, territoryRadius(genome));
-
+    private float forageSpeedMultiplier() {
         float flowers = Math.min(1.0F, (float) flowersInRange / FLOWERS_FOR_FULL_SPEED);
-        float site = BARREN_SPEED + (1.0F - BARREN_SPEED) * flowers;
-        return Foraging.flying(level, pos) ? site : site * SHELTERING_SPEED;
+        return SPARSE_SPEED + (1.0F - SPARSE_SPEED) * flowers;
     }
 
     /// Counts what a forager would fly to, over the same box the flowering pass works.

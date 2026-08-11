@@ -172,6 +172,54 @@ public class ApiaryBlock extends BaseEntityBlock {
     /// agree without having to be made to.
     public static final BooleanProperty WORKING = BooleanProperty.create("working");
 
+    /// Degrees a hive loses by standing on a trestle instead of on the ground.
+    ///
+    /// Air moves under a raised hive, and a beekeeper puts one on a stand for that as much as for
+    /// their own back. Two degrees is worth two steps of ToleranceAllele, so it can carry a queen
+    /// over the top of her band without ever standing in for her genome.
+    ///
+    /// Deliberately a cost as well as a gift. Two degrees off is what saves a hive in a desert
+    /// (38 C) and what sinks one in a snowy plains (-2 C), so a stand is a decision about where
+    /// you are rather than something to build under every hive.
+    ///
+    /// For scale: EnvironmentTemperature's lapse rate is 0.09 C per block, so raising a hive one
+    /// block genuinely does cool it -- by nine hundredths of a degree. Calling ventilation worth
+    /// two whole degrees is an abstraction, and an honest one: it is the airflow that matters,
+    /// not the height.
+    public static final float VENTILATION_CELSIUS = -2.0F;
+
+    /// The temperature shift this hive's own block is worth. Zero unless it is on a stand.
+    ///
+    /// Static and taking a state rather than living on the block entity, because both sides need
+    /// it and only one of them has a block entity: the Status panel reads it off the client's own
+    /// copy of the blockstate so the figure it prints is the figure the hive is judged by.
+    public static float ventilation(BlockState state) {
+        return state.hasProperty(STAND) && state.getValue(STAND) ? VENTILATION_CELSIUS : 0.0F;
+    }
+
+    /// Where a hive's climate is measured: the air over the top of its column.
+    ///
+    /// Not the hive's own block. EnvironmentTemperature reads sky exposure as the sky light at
+    /// the position it is given, and the position of an Apiary is inside an opaque block, where
+    /// sky light is zero -- so every hive in the world was being judged as though it stood in a
+    /// cave, pulled 65% of the way to CAVE_CELSIUS whatever the surface above it was doing. A
+    /// hive in a desert read as mild and a hive on a glacier read as mild, which is the one
+    /// outcome a mod that gates species on climate cannot have.
+    ///
+    /// The whole column, not one block up: on a three-high tower the block above the controller
+    /// is another Apiary, just as opaque and just as dark.
+    ///
+    /// A hive under a roof still reads as sheltered, and should -- the air above it genuinely is
+    /// indoor air. What changes is that being a hive stops counting as being indoors.
+    public static BlockPos climatePosition(BlockGetter level, BlockPos pos) {
+        BlockPos.MutableBlockPos cursor = controllerOf(level, pos).mutable();
+        while (isApiary(level, cursor)) {
+            cursor.move(Direction.UP);
+        }
+
+        return cursor.immutable();
+    }
+
     public ApiaryBlock(Properties properties) {
         super(properties);
         registerDefaultState(stateDefinition.any()

@@ -20,7 +20,7 @@ Climate is a real constraint, not flavour. A Tropical line will not work in a tu
 
 Queens drop combs; the **Centrifuge** turns those into honey, wax, propolis, phosphor and the resource drops of the deeper branches. The **Squeezer** presses honey drops into liquid honey, the **Tank** holds it, and the **Carpenter** spends it building the frames - which is where every special frame is made, and where a worn one is repaired.
 
-The **Engine** burns that same honey, or peat, into 40 FE a tick, and the **Cable** carries it to the machines. So an apiary can power itself, and no machine needs power to run: Forge Energy makes them eight times faster, and any tech mod that provides it works just as well.
+The **Engine** burns that same honey, or peat, into 40 FE a tick, the **Capacitor** banks what nothing is asking for yet, and the **Energy Pipe** and **Fluid Pipe** carry power and liquid to where they are wanted - the fluid one in glass, so a working run reads as one from across the room. So an apiary can power itself, and no machine needs power to run: Forge Energy makes them eight times faster, and any tech mod that provides it works just as well.
 
 ## Bees of your own
 

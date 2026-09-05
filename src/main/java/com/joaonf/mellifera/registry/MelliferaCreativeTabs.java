@@ -45,8 +45,10 @@ public final class MelliferaCreativeTabs {
                 output.accept(MelliferaBlocks.SQUEEZER_ITEM.get());
                 output.accept(MelliferaBlocks.CARPENTER_ITEM.get());
                 output.accept(MelliferaBlocks.ENGINE_ITEM.get());
-                output.accept(MelliferaBlocks.CABLE_ITEM.get());
                 output.accept(MelliferaBlocks.CAPACITOR_ITEM.get());
+                // The two runs together, because they are one idea with two contents and a player
+                // looking for either is looking for both.
+                output.accept(MelliferaBlocks.CABLE_ITEM.get());
                 output.accept(MelliferaBlocks.PIPE_ITEM.get());
                 output.accept(MelliferaBlocks.TANK_ITEM.get());
                 output.accept(MelliferaFluids.HONEY_BUCKET.get());

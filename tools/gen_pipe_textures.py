@@ -17,8 +17,9 @@ thick with glass inside it. A frame has no direction. Every face of every piece 
 window whichever way it is turned, a corner reads as a corner, and the liquid behind it shows through
 all of them.
 
-FOUR SHEETS. `pipe` is the shell. `pipe_fluid` is the liquid inside it, drawn colourless so it can be
-tinted at runtime to whatever is going through -- see PipeFluidTintSource. `pipe_collar_draw` and
+FIVE SHEETS. `pipe` is the shell, whose windows are holes. `pipe_liner` is the dark inside seen
+through them when the pipe is idle. `pipe_fluid` is the liquid, drawn colourless so it can be tinted
+at runtime to whatever is going through -- see PipeFluidTintSource. `pipe_collar_draw` and
 `pipe_collar_feed` are the brass and steel rings that say which way a joint works.
 
 THE CELLS the models cut out of these sheets, which must stay in step with the UVs there:
@@ -37,11 +38,17 @@ SIZE = 16
 # The two windows, as (left, top, size).
 CELLS = ((5, 5, 6), (0, 5, 6))
 
-# The glass in the middle of a frame. Faint, because what matters is what is behind it -- but not so
-# faint that an empty pipe has no face at all.
-GLASS = (0x9E, 0xB4, 0xBC)
-GLASS_ALPHA = 30
-GLASS_SPEC_ALPHA = 90
+# The window in the middle of a frame is a hole, not a pane.
+#
+# It was glass at alpha 30 and the liquid behind it never appeared, through three attempts at making
+# the glass fainter and the sleeve fatter. A hole cannot be argued with: there is nothing in front of
+# the liquid to render, blend, sort or tint away. What keeps an empty pipe from being see-through is
+# the liner behind it -- a dark tube that is always there, drawn in solid geometry, which the liquid
+# covers when there is any.
+HOLE = (0, 0, 0, 0)
+
+# The liner: the inside of the pipe, seen through the window when nothing is going through.
+LINER = (0x22, 0x20, 0x1E)
 
 # The liquid, from the lit top of the round down to its floor. Four rows, which is what a one-pixel
 # frame leaves of a six-pixel cell.
@@ -85,10 +92,7 @@ def shell():
     for left, top, size in CELLS:
         for y in range(top + 1, top + size - 1):
             for x in range(left + 1, left + size - 1):
-                # A highlight along the first glass row, so the window reads as glass rather than as
-                # a hole cut in the casing.
-                lit = y == top + 1
-                image[y, x] = rgba(GLASS, GLASS_SPEC_ALPHA if lit else GLASS_ALPHA)
+                image[y, x] = HOLE
 
         frame(image, left, top, size)
 
@@ -114,6 +118,23 @@ def fluid():
     return image
 
 
+def liner():
+    """The inside of the pipe: what the window shows when there is nothing going through.
+
+    Dark and plain on purpose. It is a backdrop, and anything with a pattern on it would compete with
+    the liquid that is meant to be the thing you notice.
+    """
+    image = np.zeros((SIZE, SIZE, 4), np.uint8)
+
+    for left, top, size in CELLS:
+        for row in range(size):
+            for column in range(size):
+                shade = 1.0 - row * 0.06
+                image[top + row, left + column] = rgba(tuple(int(c * shade) for c in LINER))
+
+    return image
+
+
 def collar(brass):
     """The ring where a pipe clamps onto a machine, in two colours.
 
@@ -135,7 +156,7 @@ def collar(brass):
 
 
 def generate(out):
-    for name, image in (("pipe", shell()), ("pipe_fluid", fluid()),
+    for name, image in (("pipe", shell()), ("pipe_fluid", fluid()), ("pipe_liner", liner()),
                         ("pipe_collar_draw", collar(True)), ("pipe_collar_feed", collar(False))):
         Image.fromarray(image).save("%s/%s.png" % (out, name))
         print("%s/%s.png  16x16  still" % (out, name))

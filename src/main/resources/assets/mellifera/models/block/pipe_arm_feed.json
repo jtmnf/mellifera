@@ -8,9 +8,69 @@
       "force_translucent": true,
       "sprite": "mellifera:block/pipe"
     },
-    "collar": "mellifera:block/pipe_collar_feed"
+    "collar": "mellifera:block/pipe_collar_feed",
+    "liner": "mellifera:block/pipe_liner"
   },
   "elements": [
+    {
+      "from": [
+        5.6,
+        5.6,
+        0
+      ],
+      "to": [
+        10.4,
+        10.4,
+        5.6
+      ],
+      "faces": {
+        "west": {
+          "uv": [
+            0,
+            5,
+            6,
+            11
+          ],
+          "texture": "#liner"
+        },
+        "east": {
+          "uv": [
+            0,
+            5,
+            6,
+            11
+          ],
+          "texture": "#liner"
+        },
+        "up": {
+          "uv": [
+            0,
+            5,
+            6,
+            11
+          ],
+          "texture": "#liner"
+        },
+        "down": {
+          "uv": [
+            0,
+            5,
+            6,
+            11
+          ],
+          "texture": "#liner"
+        },
+        "north": {
+          "uv": [
+            5,
+            5,
+            11,
+            11
+          ],
+          "texture": "#liner"
+        }
+      }
+    },
     {
       "from": [
         5,

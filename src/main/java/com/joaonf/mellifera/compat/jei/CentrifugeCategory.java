@@ -11,7 +11,6 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
 
@@ -22,8 +21,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 public class CentrifugeCategory implements IRecipeCategory<CentrifugeJeiRecipe> {
-    public static final RecipeType<CentrifugeJeiRecipe> TYPE =
-        new RecipeType<>(Identifier.fromNamespaceAndPath(Mellifera.MODID, "centrifuge"), CentrifugeJeiRecipe.class);
+    public static final IRecipeType<CentrifugeJeiRecipe> TYPE =
+        IRecipeType.create(Identifier.fromNamespaceAndPath(Mellifera.MODID, "centrifuge"), CentrifugeJeiRecipe.class);
 
     private static final int WIDTH = 160;
     private static final int HEIGHT = 52;
@@ -69,11 +68,11 @@ public class CentrifugeCategory implements IRecipeCategory<CentrifugeJeiRecipe> 
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, CentrifugeJeiRecipe recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, 4, SLOT_Y).addItemStack(recipe.input());
+        builder.addSlot(RecipeIngredientRole.INPUT, 4, SLOT_Y).add(recipe.input());
 
         List<ItemStack> outputs = recipe.outputs();
         for (int i = 0; i < outputs.size(); i++) {
-            builder.addSlot(RecipeIngredientRole.OUTPUT, GRID_X + i * PITCH, SLOT_Y).addItemStack(outputs.get(i));
+            builder.addSlot(RecipeIngredientRole.OUTPUT, GRID_X + i * PITCH, SLOT_Y).add(outputs.get(i));
         }
     }
 

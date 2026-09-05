@@ -11,7 +11,6 @@ import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
 
@@ -28,8 +27,8 @@ import net.minecraft.world.item.ItemStack;
 /// worth and the rate it comes out at, which are the two numbers a player is comparing when they
 /// decide whether to plumb honey in or carry peat home.
 public class EngineCategory implements IRecipeCategory<EngineJeiRecipe> {
-    public static final RecipeType<EngineJeiRecipe> TYPE =
-        new RecipeType<>(Identifier.fromNamespaceAndPath(Mellifera.MODID, "engine"), EngineJeiRecipe.class);
+    public static final IRecipeType<EngineJeiRecipe> TYPE =
+        IRecipeType.create(Identifier.fromNamespaceAndPath(Mellifera.MODID, "engine"), EngineJeiRecipe.class);
 
     private static final int WIDTH = 160;
     private static final int HEIGHT = 42;
@@ -84,9 +83,9 @@ public class EngineCategory implements IRecipeCategory<EngineJeiRecipe> {
         if (recipe.isFluid()) {
             builder.addSlot(RecipeIngredientRole.INPUT, INPUT_X, SLOT_Y)
                 .setFluidRenderer(EngineBlockEntity.HONEY_DRAUGHT_MB, false, FLUID_WIDTH, FLUID_HEIGHT)
-                .addIngredient(NeoForgeTypes.FLUID_STACK, recipe.honey());
+                .add(NeoForgeTypes.FLUID_STACK, recipe.honey());
         } else {
-            builder.addSlot(RecipeIngredientRole.INPUT, INPUT_X, SLOT_Y).addItemStack(recipe.fuel());
+            builder.addSlot(RecipeIngredientRole.INPUT, INPUT_X, SLOT_Y).add(recipe.fuel());
         }
     }
 

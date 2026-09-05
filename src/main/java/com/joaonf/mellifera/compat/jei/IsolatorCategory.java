@@ -10,7 +10,6 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
 
@@ -31,8 +30,8 @@ import net.minecraft.world.item.Items;
 /// One row per chromosome, because that is what the machine really does: a bee yields all eight,
 /// one bottle and one run each, and the run is the same length whichever gene is up.
 public class IsolatorCategory implements IRecipeCategory<GeneticsJeiRecipe> {
-    public static final RecipeType<GeneticsJeiRecipe> TYPE =
-        new RecipeType<>(Identifier.fromNamespaceAndPath(Mellifera.MODID, "isolator"), GeneticsJeiRecipe.class);
+    public static final IRecipeType<GeneticsJeiRecipe> TYPE =
+        IRecipeType.create(Identifier.fromNamespaceAndPath(Mellifera.MODID, "isolator"), GeneticsJeiRecipe.class);
 
     private static final int WIDTH = 160;
     private static final int HEIGHT = 42;
@@ -82,8 +81,8 @@ public class IsolatorCategory implements IRecipeCategory<GeneticsJeiRecipe> {
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, GeneticsJeiRecipe recipe, IFocusGroup focuses) {
         builder.addSlot(RecipeIngredientRole.INPUT, BEE_X, SLOT_Y).addItemStacks(recipe.bees());
-        builder.addSlot(RecipeIngredientRole.INPUT, BOTTLE_X, SLOT_Y).addItemStack(new ItemStack(Items.GLASS_BOTTLE));
-        builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, SLOT_Y).addItemStack(recipe.serum());
+        builder.addSlot(RecipeIngredientRole.INPUT, BOTTLE_X, SLOT_Y).add(new ItemStack(Items.GLASS_BOTTLE));
+        builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, SLOT_Y).add(recipe.serum());
     }
 
     @Override

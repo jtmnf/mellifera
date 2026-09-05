@@ -11,7 +11,6 @@ import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
 
@@ -32,8 +31,8 @@ import net.minecraft.world.item.ItemStack;
 /// The honey is spelled out in millibuckets beside the tank for the same reason the Squeezer's page
 /// does it: a fluid icon says nothing about 250 versus 1000.
 public class CarpenterCategory implements IRecipeCategory<CarpenterJeiRecipe> {
-    public static final RecipeType<CarpenterJeiRecipe> TYPE =
-        new RecipeType<>(Identifier.fromNamespaceAndPath(Mellifera.MODID, "carpenter"), CarpenterJeiRecipe.class);
+    public static final IRecipeType<CarpenterJeiRecipe> TYPE =
+        IRecipeType.create(Identifier.fromNamespaceAndPath(Mellifera.MODID, "carpenter"), CarpenterJeiRecipe.class);
 
     private static final int WIDTH = 160;
     private static final int HEIGHT = 46;
@@ -96,19 +95,19 @@ public class CarpenterCategory implements IRecipeCategory<CarpenterJeiRecipe> {
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, CarpenterJeiRecipe recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, FRAME_X, FRAME_Y).addItemStack(recipe.frame());
+        builder.addSlot(RecipeIngredientRole.INPUT, FRAME_X, FRAME_Y).add(recipe.frame());
 
         // Declared even when empty, so the repair rows show the slot the machine really wants left
         // alone rather than a hole where a slot should be.
         if (!recipe.isRepair()) {
-            builder.addSlot(RecipeIngredientRole.INPUT, INGREDIENT_X, INGREDIENT_Y).addItemStack(recipe.ingredient());
+            builder.addSlot(RecipeIngredientRole.INPUT, INGREDIENT_X, INGREDIENT_Y).add(recipe.ingredient());
         }
 
         builder.addSlot(RecipeIngredientRole.INPUT, FLUID_X, FLUID_Y)
             .setFluidRenderer(GAUGE_MB, false, FLUID_WIDTH, FLUID_HEIGHT)
-            .addIngredient(NeoForgeTypes.FLUID_STACK, recipe.honey());
+            .add(NeoForgeTypes.FLUID_STACK, recipe.honey());
 
-        builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y).addItemStack(recipe.result());
+        builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, OUTPUT_Y).add(recipe.result());
     }
 
     @Override

@@ -11,7 +11,6 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
 
@@ -32,8 +31,8 @@ import net.minecraft.world.item.ItemStack;
 /// place rather than consuming it (see InfuserBlockEntity), which is the one thing about this
 /// machine that is genuinely surprising and therefore worth showing rather than describing.
 public class InfuserCategory implements IRecipeCategory<GeneticsJeiRecipe> {
-    public static final RecipeType<GeneticsJeiRecipe> TYPE =
-        new RecipeType<>(Identifier.fromNamespaceAndPath(Mellifera.MODID, "infuser"), GeneticsJeiRecipe.class);
+    public static final IRecipeType<GeneticsJeiRecipe> TYPE =
+        IRecipeType.create(Identifier.fromNamespaceAndPath(Mellifera.MODID, "infuser"), GeneticsJeiRecipe.class);
 
     private static final int WIDTH = 160;
     private static final int HEIGHT = 42;
@@ -84,9 +83,9 @@ public class InfuserCategory implements IRecipeCategory<GeneticsJeiRecipe> {
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, GeneticsJeiRecipe recipe, IFocusGroup focuses) {
         builder.addSlot(RecipeIngredientRole.INPUT, BEE_X, SLOT_Y).addItemStacks(recipe.bees());
-        builder.addSlot(RecipeIngredientRole.INPUT, SERUM_X, SLOT_Y).addItemStack(recipe.serum());
+        builder.addSlot(RecipeIngredientRole.INPUT, SERUM_X, SLOT_Y).add(recipe.serum());
         builder.addSlot(RecipeIngredientRole.INPUT, POLLEN_X, SLOT_Y)
-            .addItemStack(new ItemStack(MelliferaItems.POLLEN.get()));
+            .add(new ItemStack(MelliferaItems.POLLEN.get()));
         builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, SLOT_Y).addItemStacks(recipe.bees());
     }
 

@@ -12,7 +12,6 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
 
@@ -23,8 +22,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 public class ApiaryProductionCategory implements IRecipeCategory<ApiaryProductionRecipe> {
-    public static final RecipeType<ApiaryProductionRecipe> TYPE =
-        new RecipeType<>(Identifier.fromNamespaceAndPath(Mellifera.MODID, "apiary_production"), ApiaryProductionRecipe.class);
+    public static final IRecipeType<ApiaryProductionRecipe> TYPE =
+        IRecipeType.create(Identifier.fromNamespaceAndPath(Mellifera.MODID, "apiary_production"), ApiaryProductionRecipe.class);
 
     private static final int WIDTH = 160;
     private static final int HEIGHT = 52;
@@ -74,7 +73,7 @@ public class ApiaryProductionCategory implements IRecipeCategory<ApiaryProductio
 
         List<ItemStack> outputs = recipe.outputs();
         for (int i = 0; i < outputs.size(); i++) {
-            builder.addSlot(RecipeIngredientRole.OUTPUT, GRID_X + i * PITCH, SLOT_Y).addItemStack(outputs.get(i));
+            builder.addSlot(RecipeIngredientRole.OUTPUT, GRID_X + i * PITCH, SLOT_Y).add(outputs.get(i));
         }
     }
 

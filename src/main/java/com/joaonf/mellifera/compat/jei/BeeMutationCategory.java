@@ -9,7 +9,6 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
 
@@ -20,8 +19,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 public class BeeMutationCategory implements IRecipeCategory<BeeMutationRecipe> {
-    public static final RecipeType<BeeMutationRecipe> TYPE =
-        new RecipeType<>(Identifier.fromNamespaceAndPath(Mellifera.MODID, "bee_mutation"), BeeMutationRecipe.class);
+    public static final IRecipeType<BeeMutationRecipe> TYPE =
+        IRecipeType.create(Identifier.fromNamespaceAndPath(Mellifera.MODID, "bee_mutation"), BeeMutationRecipe.class);
 
     private static final int WIDTH = 160;
     private static final int HEIGHT = 62;

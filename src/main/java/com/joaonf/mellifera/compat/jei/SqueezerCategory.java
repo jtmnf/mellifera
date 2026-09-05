@@ -11,7 +11,6 @@ import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeType;
 
@@ -28,8 +27,8 @@ import net.minecraft.world.item.ItemStack;
 /// player looks. It is also the one page in this mod whose output is a fluid, which is why the amount is
 /// spelled out beside it: a bucket-shaped icon says nothing about 250 versus 1000.
 public class SqueezerCategory implements IRecipeCategory<SqueezerJeiRecipe> {
-    public static final RecipeType<SqueezerJeiRecipe> TYPE =
-        new RecipeType<>(Identifier.fromNamespaceAndPath(Mellifera.MODID, "squeezer"), SqueezerJeiRecipe.class);
+    public static final IRecipeType<SqueezerJeiRecipe> TYPE =
+        IRecipeType.create(Identifier.fromNamespaceAndPath(Mellifera.MODID, "squeezer"), SqueezerJeiRecipe.class);
 
     private static final int WIDTH = 160;
     private static final int HEIGHT = 42;
@@ -80,10 +79,10 @@ public class SqueezerCategory implements IRecipeCategory<SqueezerJeiRecipe> {
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, SqueezerJeiRecipe recipe, IFocusGroup focuses) {
-        builder.addSlot(RecipeIngredientRole.INPUT, INPUT_X, SLOT_Y).addItemStack(recipe.input());
+        builder.addSlot(RecipeIngredientRole.INPUT, INPUT_X, SLOT_Y).add(recipe.input());
         builder.addSlot(RecipeIngredientRole.OUTPUT, OUTPUT_X, SLOT_Y)
             .setFluidRenderer(SqueezerBlockEntity.BUCKET_MB, false, FLUID_WIDTH, FLUID_HEIGHT)
-            .addIngredient(NeoForgeTypes.FLUID_STACK, recipe.output());
+            .add(NeoForgeTypes.FLUID_STACK, recipe.output());
     }
 
     @Override

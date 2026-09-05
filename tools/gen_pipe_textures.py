@@ -1,4 +1,4 @@
-"""Generates the textures for the Pipe.
+"""Generates the textures for the Fluid Pipe.
 
     python tools/gen_pipe_textures.py src/main/resources/assets/mellifera/textures/block
     python tools/gen_pipe_textures.py <textures> <preview-dir>
@@ -6,18 +6,24 @@
 Not part of the Gradle build, and kept for the same reason as every other generator here: the PNGs
 it writes are otherwise unmaintainable binary blobs.
 
-TWO SHEETS, because the pipe is two pieces of geometry: `pipe` is the shell, and `pipe_fluid` is the
-liquid inside it. The shell is iron with a sight glass down the middle of it -- two rows of window in
-six rows of round -- and the model marks that texture force_translucent so the glass part renders as
-glass rather than as a hole. Enough casing to read as plumbing from across a room, enough window to
-watch the honey move.
+FRAMED WINDOWS, NOT BANDS, which is the third attempt and the first one that survives a corner. The
+earlier two drew the shell as rows: metal along the top and bottom of the round, glass between them.
+That reads on a straight run and falls apart the moment the run turns, because "top" and "bottom"
+are directions and a junction has none -- the core between two arms at right angles shows those bands
+crossways, so the casing lands over the window and the pipe goes dark exactly where it bends.
 
-The liquid sheet is deliberately colourless -- a white with the round shaded into it. It is tinted at
-runtime by whatever is going through, which is what lets one texture carry this mod's honey and
-another mod's lava without either being drawn here. See PipeFluidTintSource.
+So the sheet is drawn as *cells*: one for the junction and one for an arm, each a metal frame a pixel
+thick with glass inside it. A frame has no direction. Every face of every piece is the same framed
+window whichever way it is turned, a corner reads as a corner, and the liquid behind it shows through
+all of them.
 
-WHICH WAY THE SHEET RUNS is the Cable's rule and for the Cable's reason: a side face maps the length
-of the pipe along the texture's X, so the round of it is rows and anything circling it is columns.
+FOUR SHEETS. `pipe` is the shell. `pipe_fluid` is the liquid inside it, drawn colourless so it can be
+tinted at runtime to whatever is going through -- see PipeFluidTintSource. `pipe_collar_draw` and
+`pipe_collar_feed` are the brass and steel rings that say which way a joint works.
+
+THE CELLS the models cut out of these sheets, which must stay in step with the UVs there:
+  the junction  columns 5-10, rows 5-10
+  an arm        columns 0-5,  rows 5-10
 """
 import sys
 
@@ -28,34 +34,18 @@ from gen_machine_textures import IRON, RIVET, RIVET_DARK
 
 SIZE = 16
 
-# The round of the pipe, six rows deep as the Cable's is, aligned to the window the models cut.
-ROUND = (3, 2, 2, 1, 1, 0)
-WINDOW_TOP = 5
+# The two windows, as (left, top, size).
+CELLS = ((5, 5, 6), (0, 5, 6))
 
-STEEL = (IRON.shadow, IRON.mid, IRON.light, IRON.spec)
-
-# The glass. Barely there: a cold tint over what is behind it, and a highlight along the top of the
-# round.
-#
-# Twice tuned, both times downward. At alpha 54 the honey behind it came out olive -- glass that
-# changes the colour of what is in it is a filter, not a window. And the highlight sat at 132, which
-# on a six-pixel pipe is a solid white bar across a third of the only clear part: what was meant to
-# say "there is glass here" was saying "there is nothing to see here".
+# The glass in the middle of a frame. Faint, because what matters is what is behind it -- but not so
+# faint that an empty pipe has no face at all.
 GLASS = (0x9E, 0xB4, 0xBC)
-GLASS_ALPHA = 16
-GLASS_SPEC_ALPHA = 56
+GLASS_ALPHA = 30
+GLASS_SPEC_ALPHA = 90
 
-# The skeleton: metal along the top and bottom of the round, a brass band at each end of the sheet
-# where a section bolts to the next, and a window between them.
-#
-# The window is two rows of the six, not four. Four was the first instinct -- more glass, more to see
-# -- and it was wrong twice over: a pipe that is mostly transparent has no silhouette, so a run of it
-# read as a faint smear rather than as plumbing, and a wide band of near-invisible glass makes the
-# thin line of liquid inside it look like a mistake rather than a fill. Two rows of window in four of
-# casing is a pipe with a sight glass, which is the thing this is meant to be.
-RAIL_ROWS = (0, 1, 4, 5)
-WINDOW_ROWS = (2, 3)
-BAND_COLUMNS = (0, 15)
+# The liquid, from the lit top of the round down to its floor. Four rows, which is what a one-pixel
+# frame leaves of a six-pixel cell.
+LIQUID = (0xFF, 0xE2, 0xC0, 0x98)
 
 
 def rgba(color, alpha=255):
@@ -66,29 +56,41 @@ def tone(index, ramp):
     return ramp[min(len(ramp) - 1, max(0, index))]
 
 
-def offset_at(y):
-    return (y - WINDOW_TOP) % len(ROUND)
+def frame(image, left, top, size):
+    """One cell of casing: lit along its top and left, in shadow along its bottom and right.
+
+    The same light every other block in this mod is lit by, applied to a ring rather than to a row,
+    which is what lets it read the same way whichever face it lands on.
+    """
+    right = left + size - 1
+    bottom = top + size - 1
+
+    for i in range(size):
+        image[top, left + i] = rgba(IRON.light)
+        image[bottom, left + i] = rgba(IRON.shadow)
+        image[top + i, left] = rgba(IRON.light)
+        image[top + i, right] = rgba(IRON.shadow)
+
+    # The corners, in the family's own brass.
+    image[top, left] = rgba(RIVET)
+    image[top, right] = rgba(RIVET_DARK)
+    image[bottom, left] = rgba(RIVET_DARK)
+    image[bottom, right] = rgba(RIVET_DARK)
 
 
 def shell():
-    """The glass and the metal that holds it."""
+    """The casing and its glass, one framed cell per piece of the pipe."""
     image = np.zeros((SIZE, SIZE, 4), np.uint8)
 
-    for y in range(SIZE):
-        offset = offset_at(y)
+    for left, top, size in CELLS:
+        for y in range(top + 1, top + size - 1):
+            for x in range(left + 1, left + size - 1):
+                # A highlight along the first glass row, so the window reads as glass rather than as
+                # a hole cut in the casing.
+                lit = y == top + 1
+                image[y, x] = rgba(GLASS, GLASS_SPEC_ALPHA if lit else GLASS_ALPHA)
 
-        for x in range(SIZE):
-            if offset in RAIL_ROWS:
-                # Solid metal: the casing is what gives the pipe its silhouette, and it is the only
-                # part of the shell that is not see-through.
-                image[y, x] = rgba(tone(ROUND[offset], STEEL))
-            elif x in BAND_COLUMNS:
-                image[y, x] = rgba(RIVET if offset < 3 else RIVET_DARK)
-            elif offset == WINDOW_ROWS[0]:
-                # The lit edge of the glass, right under the casing.
-                image[y, x] = rgba(GLASS, GLASS_SPEC_ALPHA)
-            else:
-                image[y, x] = rgba(GLASS, GLASS_ALPHA)
+        frame(image, left, top, size)
 
     return image
 
@@ -97,18 +99,17 @@ def fluid():
     """The liquid inside, white so it can be tinted to any fluid."""
     image = np.zeros((SIZE, SIZE, 4), np.uint8)
 
-    for y in range(SIZE):
-        offset = offset_at(y)
-        # The same round as the shell, so the liquid looks like a body inside a tube rather than a
-        # flat card behind it. Brightest under the shell's lit edge, darkest along its floor.
-        level = (0xFF, 0xE4, 0xC8, 0xA8, 0x8C, 0x70)[offset]
+    for left, top, size in CELLS:
+        for row in range(size):
+            # Shaded down the cell like a body of liquid seen from the side, and painted across the
+            # whole cell rather than only the window: the sleeve is wider than the window, so its
+            # edges sit behind the frame and must not be a different colour there.
+            level = LIQUID[min(len(LIQUID) - 1, max(0, row - 1))]
 
-        for x in range(SIZE):
-            # A slow ripple along the length. One tone, one pixel: at this size anything more reads
-            # as dirt in the pipe.
-            ripple = 12 if (x + offset) % 5 == 0 else 0
-            value = min(255, level + ripple)
-            image[y, x] = (value, value, value, 255)
+            for column in range(size):
+                ripple = 10 if (column + row) % 5 == 0 else 0
+                value = min(255, level + ripple)
+                image[top + row, left + column] = (value, value, value, 255)
 
     return image
 
@@ -120,60 +121,57 @@ def collar(brass):
     a run says which end is which without clicking anything. The Cable has one collar because power
     only ever travels one way through it; fluid does not, so this one has to be read.
     """
-    ramp = (RIVET_DARK, RIVET, (0xE6, 0xC0, 0x74)) if brass else STEEL[:3] + (IRON.spec,)
+    ramp = (RIVET_DARK, RIVET, (0xE6, 0xC0, 0x74)) if brass else (IRON.shadow, IRON.mid, IRON.light)
 
     image = np.zeros((SIZE, SIZE, 4), np.uint8)
     for y in range(SIZE):
         for x in range(SIZE):
-            # A groove every fourth pixel around the ring, which is what keeps it from reading as a
-            # painted stripe.
-            shade = ROUND[offset_at(y)] - (1 if x % 4 == 3 else 0)
-            image[y, x] = rgba(tone(shade - 1, ramp))
+            # A groove every fourth pixel around the ring, which keeps a plain band from reading as a
+            # painted stripe, and the ring lit from its top like everything else here.
+            shade = (2, 2, 1, 1, 0, 0)[y % 6] - (1 if x % 4 == 3 else 0)
+            image[y, x] = rgba(tone(shade, ramp))
 
     return image
 
 
 def generate(out):
-    Image.fromarray(collar(True)).save("%s/pipe_collar_draw.png" % out)
-    print("%s/pipe_collar_draw.png  16x16  still" % out)
-
-    Image.fromarray(collar(False)).save("%s/pipe_collar_feed.png" % out)
-    print("%s/pipe_collar_feed.png  16x16  still" % out)
-
-    Image.fromarray(shell()).save("%s/pipe.png" % out)
-    print("%s/pipe.png  16x16  still" % out)
-
-    Image.fromarray(fluid()).save("%s/pipe_fluid.png" % out)
-    print("%s/pipe_fluid.png  16x16  still" % out)
+    for name, image in (("pipe", shell()), ("pipe_fluid", fluid()),
+                        ("pipe_collar_draw", collar(True)), ("pipe_collar_feed", collar(False))):
+        Image.fromarray(image).save("%s/%s.png" % (out, name))
+        print("%s/%s.png  16x16  still" % (out, name))
 
 
-def preview(textures, out, scale_to=12):
-    """The two sheets, and the run they build: glass over honey-coloured liquid.
+def preview(textures, out, scale_to=14):
+    """Both cells, empty and with liquid behind them, at the size the models actually show them.
 
-    The liquid is shown tinted the way the game will tint it, since untinted white says nothing
-    about whether the two sheets work together.
+    The liquid is tinted the way the game will tint it: white says nothing about whether the two
+    sheets work together.
     """
     HONEY = (0xE0, 0xA5, 0x26)
 
     shell_sheet = Image.open("%s/pipe.png" % textures).convert("RGBA")
     fluid_sheet = Image.open("%s/pipe_fluid.png" % textures).convert("RGBA")
+    rings = [Image.open("%s/pipe_collar_%s.png" % (textures, kind)).convert("RGBA")
+             for kind in ("draw", "feed")]
 
     tinted = Image.fromarray(
         (np.array(fluid_sheet, np.float32) * np.array([*[c / 255.0 for c in HONEY], 1.0], np.float32))
         .astype(np.uint8))
-
     over = Image.alpha_composite(tinted, shell_sheet)
 
-    top, bottom = WINDOW_TOP, WINDOW_TOP + len(ROUND)
-    run = over.crop((0, top, SIZE, bottom))
+    tiles = []
+    for left, top, size in CELLS:
+        box = (left, top, left + size, top + size)
+        tiles.append(shell_sheet.crop(box))
+        tiles.append(over.crop(box))
 
-    tiles = [shell_sheet, tinted, over]
-    scaled = [t.resize((SIZE * scale_to, SIZE * scale_to), Image.NEAREST) for t in tiles]
-    scaled.append(run.resize((run.width * scale_to, run.height * scale_to), Image.NEAREST))
+    tiles += [ring.crop((0, 0, 2, 6)) for ring in rings]
 
+    scaled = [t.resize((t.width * scale_to, t.height * scale_to), Image.NEAREST) for t in tiles]
     width = sum(t.width for t in scaled) + 4 * (len(scaled) + 1)
-    canvas = Image.new("RGBA", (width, SIZE * scale_to + 8), (46, 44, 42, 255))
+    height = max(t.height for t in scaled) + 8
 
+    canvas = Image.new("RGBA", (width, height), (46, 44, 42, 255))
     cursor = 4
     for tile in scaled:
         canvas.paste(tile, (cursor, 4), tile)

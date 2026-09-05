@@ -64,6 +64,11 @@ public class PipeBlockEntity extends BlockEntity {
     /// The Cable's own figure, and for the same reason -- see CableBlockEntity.
     private static final int MAX_NODES = 256;
 
+    /// How long the glass keeps showing liquid after the last drop actually moved. A second, which
+    /// is long enough to bridge a machine's own pauses and short enough that a run whose source has
+    /// run dry stops looking busy while you watch it.
+    private static final int FLOW_LINGER = 20;
+
     /// Millibuckets a ticking pipe draws per tick. A bucket every second, which keeps up with a
     /// Squeezer running on full power and is slow enough that a tank empties visibly.
     public static final int TRANSFER_MB = 50;
@@ -80,6 +85,10 @@ public class PipeBlockEntity extends BlockEntity {
     /// every tick, reports that it moved something, and shows as flowing forever.
     private @Nullable BlockPos drawingFrom;
 
+    /// Ticks of flow left to show. See FLOW_LINGER; not saved, because a pipe reloaded from disk has
+    /// nothing going through it until something moves again.
+    private int linger;
+
     public PipeBlockEntity(BlockPos pos, BlockState state) {
         super(MelliferaBlockEntities.PIPE.get(), pos, state);
     }
@@ -95,17 +104,28 @@ public class PipeBlockEntity extends BlockEntity {
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, PipeBlockEntity pipe) {
         if (MachineSignal.switchedOff(level, pos)) {
+            pipe.linger = 0;
             pipe.stopFlowing(level);
             return;
         }
 
         ResourceStack<FluidResource> moved = pipe.draw(level, pos, state);
-        if (moved == null) {
-            pipe.stopFlowing(level);
+        if (moved != null) {
+            pipe.linger = FLOW_LINGER;
+            pipe.showFlowing(level, moved.resource());
             return;
         }
 
-        pipe.showFlowing(level, moved.resource());
+        // Nothing moved this tick, which is not the same as nothing moving. A Squeezer hands over
+        // what it has and then makes more; a tank being emptied gives out in bursts as the machine
+        // at the far end takes it. Without the linger the glass would strobe on and off at those
+        // gaps and the run would look broken rather than busy.
+        if (pipe.linger > 0) {
+            pipe.linger--;
+            return;
+        }
+
+        pipe.stopFlowing(level);
     }
 
     /// Draws from each machine this pipe is clamped to on a DRAW joint, into the rest of the run.

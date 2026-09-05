@@ -16,56 +16,56 @@
         11
       ],
       "faces": {
-        "down": {
-          "uv": [
-            5,
-            5,
-            11,
-            11
-          ],
-          "texture": "#cable"
-        },
-        "up": {
-          "uv": [
-            5,
-            5,
-            11,
-            11
-          ],
-          "texture": "#cable"
-        },
         "north": {
           "uv": [
+            4,
             5,
-            5,
-            11,
+            10,
             11
           ],
           "texture": "#cable"
         },
         "south": {
           "uv": [
+            4,
             5,
-            5,
-            11,
+            10,
             11
           ],
           "texture": "#cable"
         },
         "west": {
           "uv": [
+            4,
             5,
-            5,
-            11,
+            10,
             11
           ],
           "texture": "#cable"
         },
         "east": {
           "uv": [
+            4,
             5,
+            10,
+            11
+          ],
+          "texture": "#cable"
+        },
+        "up": {
+          "uv": [
+            4,
             5,
-            11,
+            10,
+            11
+          ],
+          "texture": "#cable"
+        },
+        "down": {
+          "uv": [
+            4,
+            5,
+            10,
             11
           ],
           "texture": "#cable"

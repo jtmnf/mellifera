@@ -1,4 +1,5 @@
 {
+  "parent": "minecraft:block/block",
   "textures": {
     "particle": "mellifera:block/cable",
     "cable": "mellifera:block/cable"
@@ -16,42 +17,6 @@
         16
       ],
       "faces": {
-        "down": {
-          "uv": [
-            5,
-            0,
-            11,
-            16
-          ],
-          "texture": "#cable"
-        },
-        "up": {
-          "uv": [
-            5,
-            0,
-            11,
-            16
-          ],
-          "texture": "#cable"
-        },
-        "north": {
-          "uv": [
-            5,
-            5,
-            11,
-            11
-          ],
-          "texture": "#cable"
-        },
-        "south": {
-          "uv": [
-            5,
-            5,
-            11,
-            11
-          ],
-          "texture": "#cable"
-        },
         "west": {
           "uv": [
             0,
@@ -66,6 +31,44 @@
             0,
             5,
             16,
+            11
+          ],
+          "texture": "#cable"
+        },
+        "up": {
+          "uv": [
+            0,
+            5,
+            16,
+            11
+          ],
+          "texture": "#cable",
+          "rotation": 90
+        },
+        "down": {
+          "uv": [
+            0,
+            5,
+            16,
+            11
+          ],
+          "texture": "#cable",
+          "rotation": 90
+        },
+        "north": {
+          "uv": [
+            4,
+            5,
+            10,
+            11
+          ],
+          "texture": "#cable"
+        },
+        "south": {
+          "uv": [
+            4,
+            5,
+            10,
             11
           ],
           "texture": "#cable"

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "working=false": {
+      "model": "mellifera:block/carpenter"
+    },
+    "working=true": {
+      "model": "mellifera:block/carpenter_on"
+    }
+  }
+}

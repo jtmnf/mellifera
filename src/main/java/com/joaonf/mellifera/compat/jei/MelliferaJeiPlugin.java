@@ -8,11 +8,13 @@ import com.joaonf.mellifera.Mellifera;
 import com.joaonf.mellifera.bee.BeeMutation;
 import com.joaonf.mellifera.bee.QueenGenomeData;
 import com.joaonf.mellifera.bee.BeeProgression;
+import com.joaonf.mellifera.bee.CarpenterRecipe;
 import com.joaonf.mellifera.bee.CentrifugeRecipe;
 import com.joaonf.mellifera.client.ApiaryScreen;
 import com.joaonf.mellifera.registry.MelliferaBeeMutations;
 import com.joaonf.mellifera.registry.MelliferaBeeSpecies;
 import com.joaonf.mellifera.registry.MelliferaBlocks;
+import com.joaonf.mellifera.registry.MelliferaCarpenterRecipes;
 import com.joaonf.mellifera.registry.MelliferaCentrifugeRecipes;
 import com.joaonf.mellifera.registry.MelliferaDataComponents;
 import com.joaonf.mellifera.item.FrameItem;
@@ -103,7 +105,10 @@ public class MelliferaJeiPlugin implements IModPlugin {
             new BeeMutationCategory(guiHelper),
             new ApiaryProductionCategory(guiHelper),
             new CentrifugeCategory(guiHelper),
-            new SqueezerCategory(guiHelper));
+            new SqueezerCategory(guiHelper),
+            new CarpenterCategory(guiHelper),
+            new IsolatorCategory(guiHelper),
+            new InfuserCategory(guiHelper));
     }
 
     @Override
@@ -133,7 +138,39 @@ public class MelliferaJeiPlugin implements IModPlugin {
 
         registration.addRecipes(SqueezerCategory.TYPE, List.of(SqueezerJeiRecipe.of()));
 
+        registerCarpenterRecipes(registration);
+
+        // The genetics bench. Both machines work off a bee's genome rather than off a recipe, so
+        // neither has anything JEI could discover; the eight rows apiece are the eight chromosomes.
+        registration.addRecipes(IsolatorCategory.TYPE, GeneticsJeiRecipe.all());
+        registration.addRecipes(InfuserCategory.TYPE, GeneticsJeiRecipe.all());
+
         registerAnvilRecipes(registration);
+    }
+
+    /// Every frame the Carpenter can make, and every frame it can repair.
+    ///
+    /// Both halves have to be here. The seven special frames stopped being bench crafts when the
+    /// machine took them over, so JEI can no longer find them by itself; and repair is not a recipe
+    /// in any registry at all, it is a branch inside the block entity. Neither would be discoverable
+    /// in game otherwise.
+    ///
+    /// Built by walking the machine's own table rather than listing rows here, so a frame added to
+    /// MelliferaCarpenterRecipes appears on this page without anybody remembering to come back.
+    private static void registerCarpenterRecipes(IRecipeRegistration registration) {
+        List<CarpenterJeiRecipe> rows = new ArrayList<>();
+
+        for (CarpenterRecipe recipe : MelliferaCarpenterRecipes.all()) {
+            rows.add(CarpenterJeiRecipe.of(recipe));
+        }
+
+        // One repair row per frame, so pressing U on a worn frame of any kind finds the machine that
+        // makes it whole. Same list the anvil rows below walk.
+        for (DeferredItem<FrameItem> frame : MelliferaItems.ALL_FRAMES) {
+            rows.add(CarpenterJeiRecipe.repair(frame.get()));
+        }
+
+        registration.addRecipes(CarpenterCategory.TYPE, rows);
     }
 
     /// Frame + ender pearl on an anvil makes a frame permanent (see MelliferaAnvilRecipes).
@@ -178,5 +215,8 @@ public class MelliferaJeiPlugin implements IModPlugin {
         registration.addCraftingStation(ApiaryProductionCategory.TYPE, MelliferaBlocks.APIARY_ITEM.get());
         registration.addCraftingStation(CentrifugeCategory.TYPE, MelliferaBlocks.CENTRIFUGE_ITEM.get());
         registration.addCraftingStation(SqueezerCategory.TYPE, MelliferaBlocks.SQUEEZER_ITEM.get());
+        registration.addCraftingStation(CarpenterCategory.TYPE, MelliferaBlocks.CARPENTER_ITEM.get());
+        registration.addCraftingStation(IsolatorCategory.TYPE, MelliferaBlocks.ISOLATOR_ITEM.get());
+        registration.addCraftingStation(InfuserCategory.TYPE, MelliferaBlocks.INFUSER_ITEM.get());
     }
 }

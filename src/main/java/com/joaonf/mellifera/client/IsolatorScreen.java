@@ -24,10 +24,9 @@ public class IsolatorScreen extends AbstractContainerScreen<IsolatorMenu> {
 
     // Inset 1px inside the groove baked into the background, which spans (51,44)-(82,49) and is
     // centred in the gap between the bee column and the output bay.
-    private static final int BAR_X = 46;
-    private static final int BAR_Y = 45;
-    private static final int BAR_WIDTH = 30;
-    private static final int BAR_HEIGHT = 4;
+    /// The inside of the drive track painted into the background, generated from the same table
+    /// that paints it -- see tools/gen_machine_guis.py.
+    private static final MachineGeometry.Rect TRACK = MachineGeometry.ISOLATOR_TRACK;
 
     /// Four pixels under the groove, and it has to move with it. It is a caption for the bar, so it
     /// reads as one thing with it; six pixels down and it drifted into the output rows' band instead.
@@ -56,7 +55,7 @@ public class IsolatorScreen extends AbstractContainerScreen<IsolatorMenu> {
 
         graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, x, y, 0.0F, 0.0F, imageWidth, imageHeight, imageWidth, imageHeight);
 
-        EnergyStrip.render(graphics, x, y, menu.energy());
+        EnergyColumn.render(graphics, x, y, menu.energy());
 
         renderProgressBar(graphics, x, y);
         renderStage(graphics, x, y);
@@ -70,10 +69,10 @@ public class IsolatorScreen extends AbstractContainerScreen<IsolatorMenu> {
             return;
         }
 
-        int filled = Math.round(BAR_WIDTH * Math.min(1.0F, (float) menu.progress() / total));
+        int filled = Math.round(TRACK.width() * Math.min(1.0F, (float) menu.progress() / total));
         if (filled > 0) {
             int color = 0xFF000000 | BeeTrait.ALL[Math.floorMod(menu.cursor(), BeeTrait.ALL.length)].liquidColor();
-            graphics.fill(x + BAR_X, y + BAR_Y, x + BAR_X + filled, y + BAR_Y + BAR_HEIGHT, color);
+            graphics.fill(x + TRACK.x(), y + TRACK.y(), x + TRACK.x() + filled, y + TRACK.y() + TRACK.height(), color);
         }
     }
 
@@ -84,7 +83,7 @@ public class IsolatorScreen extends AbstractContainerScreen<IsolatorMenu> {
 
         // Centred on the groove at the size it is actually drawn. Centring the unscaled width and
         // scaling afterwards would leave the label sitting right of the thing it labels.
-        float textX = x + BAR_X + BAR_WIDTH / 2.0F - font.width(text) * STAGE_LABEL_SCALE / 2.0F;
+        float textX = x + TRACK.x() + TRACK.width() / 2.0F - font.width(text) * STAGE_LABEL_SCALE / 2.0F;
 
         graphics.pose().pushMatrix();
         graphics.pose().translate(textX, y + STAGE_LABEL_Y);
@@ -116,9 +115,9 @@ public class IsolatorScreen extends AbstractContainerScreen<IsolatorMenu> {
 
         super.extractContents(graphics, mouseX, mouseY, partial);
 
-        if (EnergyStrip.isHovered(x, y, mouseX, mouseY)) {
+        if (EnergyColumn.isHovered(x, y, mouseX, mouseY)) {
             graphics.setComponentTooltipForNextFrame(font,
-                EnergyStrip.tooltip(menu.energy(), IsolatorBlockEntity.FE_PER_TICK), mouseX, mouseY);
+                EnergyColumn.tooltip(menu.energy(), IsolatorBlockEntity.FE_PER_TICK), mouseX, mouseY);
         }
     }
 }

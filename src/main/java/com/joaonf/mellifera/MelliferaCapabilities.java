@@ -32,6 +32,14 @@ public final class MelliferaCapabilities {
         event.registerBlockEntity(Capabilities.Energy.BLOCK, MelliferaBlockEntities.SQUEEZER.get(),
             (squeezer, side) -> squeezer.energy());
 
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, MelliferaBlockEntities.CARPENTER.get(),
+            (carpenter, side) -> carpenter.energy());
+
+        // The Carpenter's tank, which is an input rather than an output: this is where a pipe from a
+        // Tank puts the honey the machine spends.
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, MelliferaBlockEntities.CARPENTER.get(),
+            (carpenter, side) -> carpenter.tank());
+
         // The Squeezer's tank, which is the whole reason the machine exists: without this a pipe has no
         // way to find the honey and the fluid never leaves the block.
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, MelliferaBlockEntities.SQUEEZER.get(),

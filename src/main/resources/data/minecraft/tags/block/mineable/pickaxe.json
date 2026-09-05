@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
+    "mellifera:carpenter",
     "mellifera:centrifuge",
     "mellifera:isolator",
     "mellifera:tank"

@@ -265,24 +265,54 @@ public class WorkPanel extends SideTab {
                 : flowers >= wanted ? "gui.mellifera.work.forage_ok" : "gui.mellifera.work.forage_poor"),
             Component.translatable("gui.mellifera.work.forage_count", flowers, wanted)));
 
-        // Asked of the client's own world, which is where the answer lives: the hive syncs
-        // nothing about the hour or the weather because both sides can already see them. Same
-        // call the foragers themselves are gated on -- see BeeHousingBlockEntity.showsBees.
-        boolean flying = Foraging.flying(level, menu.apiaryPos());
+        // Asked of the client's own world, which is where the answer lives: the hive syncs nothing
+        // about the hour or the weather because both sides can already see them. The frames that
+        // lift those stops are in slots this window is already showing, so the whole verdict can
+        // still be reached here -- see BeeHousingBlockEntity.foragersOut, which is the same sum.
+        Foraging.Grounding grounding = Foraging.grounding(level, menu.apiaryPos());
+        boolean lit = hasFrame(FrameType.LUMINOUS);
+        boolean sheltered = hasFrame(FrameType.CANOPY);
+        boolean out = grounding.liftedBy(lit, sheltered);
+
         checks.add(new Check(
-            flying ? Status.OK : Status.BAD,
-            Component.translatable(flying
+            out ? Status.OK : Status.BAD,
+            Component.translatable(out
                 ? "gui.mellifera.work.foragers_out"
                 : "gui.mellifera.work.foragers_in"),
-            flying ? null : Component.translatable(level.isRaining()
+            foragerDetail(grounding, out, lit, sheltered)));
+    }
+
+    /// Why they are in, or what is keeping them out.
+    ///
+    /// A working hive at midnight has something worth saying too: the frame doing it. Without that
+    /// line the panel would read exactly the same at noon, and the one frame whose whole job is
+    /// invisible would stay invisible.
+    private static @Nullable Component foragerDetail(Foraging.Grounding grounding, boolean out, boolean lit, boolean sheltered) {
+        if (!out) {
+            return Component.translatable(grounding.rain()
                 ? "gui.mellifera.work.foragers_rain"
-                : "gui.mellifera.work.foragers_dark")));
+                : grounding.night() ? "gui.mellifera.work.foragers_dark" : "gui.mellifera.work.foragers_in");
+        }
+
+        if (grounding.rain() && sheltered) {
+            return Component.translatable("gui.mellifera.work.foragers_canopy");
+        }
+
+        if (grounding.night() && lit) {
+            return Component.translatable("gui.mellifera.work.foragers_luminous");
+        }
+
+        return null;
+    }
+
+    private boolean hasFrame(FrameType type) {
+        return menu.frameSlots().stream()
+            .map(Slot::getItem)
+            .anyMatch(stack -> stack.getItem() instanceof FrameItem frame && frame.type() == type);
     }
 
     private boolean insulated() {
-        return menu.frameSlots().stream()
-            .map(Slot::getItem)
-            .anyMatch(stack -> stack.getItem() instanceof FrameItem frame && frame.type() == FrameType.INSULATION);
+        return hasFrame(FrameType.INSULATION);
     }
 
     /// Closed, the tab is the verdict and nothing else: a tick or a cross, big enough to read

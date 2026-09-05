@@ -46,6 +46,15 @@ public enum BeeTrait implements StringRepresentable {
         return name;
     }
 
+    /// The chromosome's own name, with no value attached.
+    ///
+    /// A key of its own rather than reusing tooltip.mellifera.bee.<trait>, which is "Speed: %s" and
+    /// needs a value to say anything. The JEI pages for the Isolator and the Infuser are about the
+    /// gene rather than about one bee's copy of it, so they have nothing to put in that slot.
+    public Component label() {
+        return Component.translatable("trait.mellifera." + name);
+    }
+
     /// Packed 0xRRGGBB, multiplied over the serum's white liquid mask.
     public int liquidColor() {
         return liquidColor;

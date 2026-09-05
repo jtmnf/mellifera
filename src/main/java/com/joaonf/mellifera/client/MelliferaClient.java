@@ -43,6 +43,7 @@ public class MelliferaClient {
         event.register(MelliferaMenus.SQUEEZER.get(), SqueezerScreen::new);
         event.register(MelliferaMenus.ISOLATOR.get(), IsolatorScreen::new);
         event.register(MelliferaMenus.INFUSER.get(), InfuserScreen::new);
+        event.register(MelliferaMenus.CARPENTER.get(), CarpenterScreen::new);
     }
 
     // The bees flying around a working apiary. A block entity renderer rather than the particle

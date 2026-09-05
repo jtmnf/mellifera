@@ -2,6 +2,7 @@ package com.joaonf.mellifera.registry;
 
 import com.joaonf.mellifera.Mellifera;
 import com.joaonf.mellifera.menu.ApiaryMenu;
+import com.joaonf.mellifera.menu.CarpenterMenu;
 import com.joaonf.mellifera.menu.CentrifugeMenu;
 import com.joaonf.mellifera.menu.SqueezerMenu;
 import com.joaonf.mellifera.menu.InfuserMenu;
@@ -40,6 +41,11 @@ public final class MelliferaMenus {
     // ContainerData.
     public static final DeferredHolder<MenuType<?>, MenuType<InfuserMenu>> INFUSER =
         TYPES.register("infuser", () -> IMenuTypeExtension.create(InfuserMenu::new));
+
+    // And again: the carpenter screen reads its progress, its buffer and its tank out of
+    // ContainerData.
+    public static final DeferredHolder<MenuType<?>, MenuType<CarpenterMenu>> CARPENTER =
+        TYPES.register("carpenter", () -> IMenuTypeExtension.create(CarpenterMenu::new));
 
     private MelliferaMenus() {}
 

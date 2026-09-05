@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.joaonf.mellifera.Mellifera;
 import com.joaonf.mellifera.block.ApiaryBlock;
+import com.joaonf.mellifera.block.CarpenterBlock;
 import com.joaonf.mellifera.block.CentrifugeBlock;
 import com.joaonf.mellifera.block.SqueezerBlock;
 import com.joaonf.mellifera.block.HiveBlock;
@@ -87,6 +88,20 @@ public final class MelliferaBlocks {
         "tank",
         p -> new TankBlockItem(TANK.get(), p),
         p -> p.useBlockDescriptionPrefix());
+
+    // Works honey into frames. Same tier and material as the rest -- it is the fifth machine on the
+    // same bench -- and the same dim light while running, so a working row of them reads across a
+    // dark workshop.
+    public static final DeferredBlock<CarpenterBlock> CARPENTER = BLOCKS.registerBlock(
+        "carpenter",
+        CarpenterBlock::new,
+        p -> p.mapColor(MapColor.METAL)
+            .requiresCorrectToolForDrops()
+            .strength(3.5F)
+            .lightLevel(state -> state.getValue(CarpenterBlock.WORKING) ? 7 : 0)
+            .sound(SoundType.STONE));
+
+    public static final DeferredItem<BlockItem> CARPENTER_ITEM = ITEMS.registerSimpleBlockItem(CARPENTER);
 
     // Genetics rather than production: pulls a bee's traits out one at a time into serums.
     // Same tier and material as the centrifuge -- they are the same kind of machine.

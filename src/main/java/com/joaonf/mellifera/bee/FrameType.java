@@ -16,7 +16,7 @@ public enum FrameType {
     /// It buys output rather than speed because speed already has an answer -- the
     /// Accelerator -- and two frames that both make the hive "go faster" would be one frame
     /// with two names. This one makes each pulse worth more instead.
-    PRODUCTIVITY("productivity", 0.0F, 0.02F, 1.0F, Inheritance.RANDOM, false, false, false, 0.15F),
+    PRODUCTIVITY("productivity", 0.0F, 0.02F, 1.0F, Inheritance.RANDOM, false, false, false, 0.15F, false, false),
 
     /// Four times the production rate on its own. The plain Productivity frame's +15% is a
     /// nudge; this is the answer to an apiary that still takes minutes per cycle.
@@ -24,24 +24,24 @@ public enum FrameType {
     /// Wears fast on purpose -- ten pulses and it is gone, so at full speed it burns out in
     /// well under one queen. It is meant as a burst, unless you spend an ender pearl on an
     /// anvil to make it permanent (see MelliferaAnvilRecipes).
-    ACCELERATOR("accelerator", 3.0F, 0.10F, 1.0F, Inheritance.RANDOM, false, false, false, 0.0F),
+    ACCELERATOR("accelerator", 3.0F, 0.10F, 1.0F, Inheritance.RANDOM, false, false, false, 0.0F, false, false),
 
     /// Offspring always inherit each parent's *expressed* allele instead of a coin flip
     /// between its two. Purifies a line: what you can see is what gets passed on.
-    DOMINANT("dominant", 0.0F, 0.04F, 1.0F, Inheritance.ACTIVE, false, false, false, 0.0F),
+    DOMINANT("dominant", 0.0F, 0.04F, 1.0F, Inheritance.ACTIVE, false, false, false, 0.0F, false, false),
 
     /// The mirror image: offspring always inherit each parent's *hidden* allele. Surfaces
     /// whatever a bee has been quietly carrying, which is the only way to deliberately pull
     /// a recessive species back out of a line.
-    RECESSIVE("recessive", 0.0F, 0.04F, 1.0F, Inheritance.INACTIVE, false, false, false, 0.0F),
+    RECESSIVE("recessive", 0.0F, 0.04F, 1.0F, Inheritance.INACTIVE, false, false, false, 0.0F, false, false),
 
     /// Multiplies every mutation roll. Chances stay capped at 1.0, so this shortens the
     /// grind without ever guaranteeing a result.
-    MUTAGENIC("mutagenic", 0.0F, 0.08F, 4.0F, Inheritance.RANDOM, false, false, false, 0.0F),
+    MUTAGENIC("mutagenic", 0.0F, 0.08F, 4.0F, Inheritance.RANDOM, false, false, false, 0.0F, false, false),
 
     /// Ends the queen after a single production cycle, whatever her lifespan says. For
     /// running a cross quickly when you only care about the brood.
-    TERMINATOR("terminator", 0.0F, 0.25F, 1.0F, Inheritance.RANDOM, true, false, false, 0.0F),
+    TERMINATOR("terminator", 0.0F, 0.25F, 1.0F, Inheritance.RANDOM, true, false, false, 0.0F, false, false),
 
     /// Shelters the queen from the climate entirely: the housing works whatever the local
     /// temperature, so a Tropical line runs in a tundra and a Wintry one in a desert.
@@ -55,7 +55,22 @@ public enum FrameType {
     /// Wears slowly on purpose. It has no effect on output at all -- it only removes a
     /// gate -- and a frame you have to keep replacing to stop production dying entirely is
     /// a chore rather than a decision.
-    INSULATION("insulation", 0.0F, 0.015F, 1.0F, Inheritance.RANDOM, false, false, true, 0.0F),
+    INSULATION("insulation", 0.0F, 0.015F, 1.0F, Inheritance.RANDOM, false, false, true, 0.0F, false, false),
+
+    /// Keeps the foragers out after dusk. The hive works the night shift.
+    ///
+    /// One of the two frames for the conditions a player could otherwise do nothing about: the
+    /// clock and the weather stop every hive in the world flat, and until these existed the only
+    /// answer was to wait. Split from Canopy rather than one frame covering both, because the cost
+    /// of these is the slot they occupy -- one frame lifting every stop would be strictly better
+    /// than Productivity and Mutagenic put together, and nobody would run anything else.
+    ///
+    /// Wears at the Insulation frame's rate and for the same reason: it removes a gate and adds no
+    /// output, so a frame that had to be replaced constantly would be a chore rather than a choice.
+    LUMINOUS("luminous", 0.0F, 0.015F, 1.0F, Inheritance.RANDOM, false, false, false, 0.0F, true, false),
+
+    /// The same for rain. A hive under a Canopy frame works through a storm.
+    CANOPY("canopy", 0.0F, 0.015F, 1.0F, Inheritance.RANDOM, false, false, false, 0.0F, false, true),
 
     /// Keeps the hive running by itself: when the queen dies, her replacement princess goes
     /// straight back into the queen slot and one of her drones into the drone slot, so the
@@ -65,7 +80,7 @@ public enum FrameType {
     /// there (or the slot is empty) -- siblings from one brood are independent mutation
     /// rolls and can differ, and silently pairing a bee you did not choose would undo the
     /// breeding. Anything that doesn't match goes to the output like normal.
-    AUTOMATION("automation", 0.0F, 0.05F, 1.0F, Inheritance.RANDOM, false, true, false, 0.0F);
+    AUTOMATION("automation", 0.0F, 0.05F, 1.0F, Inheritance.RANDOM, false, true, false, 0.0F, false, false);
 
     /// Which allele of a parent's pair an offspring inherits.
     public enum Inheritance {
@@ -83,10 +98,12 @@ public enum FrameType {
     private final boolean automates;
     private final boolean insulates;
     private final float combBonus;
+    private final boolean lightsNight;
+    private final boolean shelters;
 
     FrameType(String name, float speedBonus, float wearPerPulse, float mutationMultiplier,
               Inheritance inheritance, boolean terminates, boolean automates, boolean insulates,
-              float combBonus) {
+              float combBonus, boolean lightsNight, boolean shelters) {
         this.name = name;
         this.speedBonus = speedBonus;
         this.wearPerPulse = wearPerPulse;
@@ -96,6 +113,8 @@ public enum FrameType {
         this.automates = automates;
         this.insulates = insulates;
         this.combBonus = combBonus;
+        this.lightsNight = lightsNight;
+        this.shelters = shelters;
     }
 
     public String frameName() {
@@ -132,6 +151,16 @@ public enum FrameType {
     /// True if this frame lets the housing work outside the species' temperature band.
     public boolean insulates() {
         return insulates;
+    }
+
+    /// True if this frame keeps the foragers working after dusk.
+    public boolean lightsNight() {
+        return lightsNight;
+    }
+
+    /// True if this frame keeps them working through rain.
+    public boolean shelters() {
+        return shelters;
     }
 
     /// Fraction of an extra production pass this frame is worth. Frames add up, so three

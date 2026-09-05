@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "#": "mellifera:beeswax",
+    "S": "minecraft:smooth_stone",
+    "P": "minecraft:sticky_piston"
+  },
+  "pattern": [
+    "I#I",
+    "SPS",
+    "I#I"
+  ],
+  "result": {
+    "id": "mellifera:carpenter"
+  }
+}

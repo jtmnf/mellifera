@@ -23,7 +23,7 @@ import net.minecraft.world.item.Items;
 
 /// The Squeezer's window: a drop on the left, an arrow, and the tank on the right.
 ///
-/// The tank is drawn rather than painted, for the same reason the energy strip is (see EnergyStrip):
+/// The tank level is drawn rather than painted, for the same reason the energy cells are (see EnergyColumn):
 /// its level moves, so the art would only ever be the empty vessel, and a vessel drawn in code cannot
 /// drift out of step with the numbers filling it.
 public class SqueezerScreen extends AbstractContainerScreen<SqueezerMenu> {
@@ -33,26 +33,14 @@ public class SqueezerScreen extends AbstractContainerScreen<SqueezerMenu> {
     private static final int WIDTH = 176;
     private static final int HEIGHT = 176;
 
-    /// The groove between the drop and the tank, matching the Centrifuge's bar in size so the two
-    /// machines animate alike.
-    private static final int BAR_X = 52;
-    private static final int BAR_Y = 46;
-    private static final int BAR_WIDTH = 30;
-    private static final int BAR_HEIGHT = 4;
+    /// The insides of the track and the tank painted into the background, generated from the same
+    /// table that paints them -- see tools/gen_machine_guis.py.
+    private static final MachineGeometry.Rect TRACK = MachineGeometry.SQUEEZER_TRACK;
+    private static final MachineGeometry.Rect TANK = MachineGeometry.SQUEEZER_TANK;
     private static final int BAR_FILL = 0xFFE0A526;
 
-    /// The tank, on the right of the machine panel: 24 wide, the height of the panel's interior less a
-    /// margin, so it reads as the vessel the machine fills rather than as a second gauge.
-    /// Centred in the footprint the Centrifuge's output bay occupies in the shared art -- measured, not
-    /// assumed: x 98..151, y 20..73. Guessing that box is exactly how the first attempt left three
-    /// painted slots showing beside the tank.
-    private static final int TANK_X = 113;
-    private static final int TANK_Y = 22;
-    private static final int TANK_WIDTH = 24;
-    private static final int TANK_HEIGHT = 50;
-
     /// The plate the bucket bay sits on, past the right edge. Drawn rather than painted, because there is
-    /// no texture out there at all -- the same reason the energy strip draws its own.
+    /// no texture out there at all -- the same reason the energy cells draw their own plate.
     private static final int BAY_PLATE_X = 176;
     private static final int BAY_PLATE_Y = 22;
     private static final int BAY_PLATE_WIDTH = 26;
@@ -79,7 +67,7 @@ public class SqueezerScreen extends AbstractContainerScreen<SqueezerMenu> {
 
         graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, x, y, 0.0F, 0.0F, imageWidth, imageHeight, imageWidth, imageHeight);
 
-        EnergyStrip.render(graphics, x, y, menu.energy());
+        EnergyColumn.render(graphics, x, y, menu.energy());
         renderBucketBay(graphics, x, y);
         renderProgressBar(graphics, x, y);
         renderTank(graphics, x, y);
@@ -91,9 +79,9 @@ public class SqueezerScreen extends AbstractContainerScreen<SqueezerMenu> {
             return;
         }
 
-        int filled = Math.round(BAR_WIDTH * Math.min(1.0F, (float) menu.progress() / total));
+        int filled = Math.round(TRACK.width() * Math.min(1.0F, (float) menu.progress() / total));
         if (filled > 0) {
-            graphics.fill(x + BAR_X, y + BAR_Y, x + BAR_X + filled, y + BAR_Y + BAR_HEIGHT, BAR_FILL);
+            graphics.fill(x + TRACK.x(), y + TRACK.y(), x + TRACK.x() + filled, y + TRACK.y() + TRACK.height(), BAR_FILL);
         }
     }
 
@@ -104,9 +92,7 @@ public class SqueezerScreen extends AbstractContainerScreen<SqueezerMenu> {
     /// look like itself, and it meant the colour had to be kept in step with the fluid's by hand. Reading
     /// the sprite means the tank animates with the fluid and follows a resource pack over it.
     private void renderTank(GuiGraphicsExtractor graphics, int x, int y) {
-        SideTab.insetRect(graphics, x + TANK_X - 1, y + TANK_Y - 1, TANK_WIDTH + 2, TANK_HEIGHT + 2);
-
-        int filled = Math.round(TANK_HEIGHT * Math.min(1.0F, (float) menu.fluid() / SqueezerBlockEntity.TANK_CAPACITY));
+        int filled = Math.round(TANK.height() * Math.min(1.0F, (float) menu.fluid() / SqueezerBlockEntity.TANK_CAPACITY));
         if (menu.fluid() > 0 && filled == 0) {
             filled = 1;
         }
@@ -115,16 +101,16 @@ public class SqueezerScreen extends AbstractContainerScreen<SqueezerMenu> {
             return;
         }
 
-        int left = x + TANK_X;
-        int bottom = y + TANK_Y + TANK_HEIGHT;
+        int left = x + TANK.x();
+        int bottom = y + TANK.y() + TANK.height();
         TextureAtlasSprite sprite = honeySprite();
 
         if (sprite == null) {
             // Before the atlas is built there is nothing to read; a flat fill for one frame beats a hole.
-            graphics.fill(left, bottom - filled, left + TANK_WIDTH, bottom, HONEY_TOP);
+            graphics.fill(left, bottom - filled, left + TANK.width(), bottom, HONEY_TOP);
         } else {
-            for (int offsetX = 0; offsetX < TANK_WIDTH; offsetX += TILE) {
-                int tileWidth = Math.min(TILE, TANK_WIDTH - offsetX);
+            for (int offsetX = 0; offsetX < TANK.width(); offsetX += TILE) {
+                int tileWidth = Math.min(TILE, TANK.width() - offsetX);
 
                 for (int tileBottom = bottom; tileBottom > bottom - filled; tileBottom -= TILE) {
                     int tileHeight = Math.min(TILE, tileBottom - (bottom - filled));
@@ -142,7 +128,7 @@ public class SqueezerScreen extends AbstractContainerScreen<SqueezerMenu> {
             }
         }
 
-        graphics.fill(left, bottom - filled, left + TANK_WIDTH, bottom - filled + 1, HONEY_TOP);
+        graphics.fill(left, bottom - filled, left + TANK.width(), bottom - filled + 1, HONEY_TOP);
     }
 
     /// The still sprite the fluid is rendered with in the world, or null before the atlas exists.
@@ -165,6 +151,9 @@ public class SqueezerScreen extends AbstractContainerScreen<SqueezerMenu> {
 
     /// The bay's plate and the two cells in it. The items themselves are real Slots and the base class
     /// draws them; this is only the furniture they sit in.
+    /// The bay keeps SideTab's dark chrome, and deliberately: it hangs off the window's edge like the
+    /// Apiary's tabs do, so it is a panel standing on the screen rather than a well pressed into
+    /// wood. Everything inside the window is painted -- see tools/gen_machine_guis.py.
     private void renderBucketBay(GuiGraphicsExtractor graphics, int x, int y) {
         SideTab.raisedPanel(graphics, x + BAY_PLATE_X, y + BAY_PLATE_Y,
             BAY_PLATE_WIDTH, BAY_PLATE_HEIGHT, SideTab.Side.RIGHT);
@@ -173,8 +162,8 @@ public class SqueezerScreen extends AbstractContainerScreen<SqueezerMenu> {
     }
 
     private boolean overTank(int x, int y, int mouseX, int mouseY) {
-        return mouseX >= x + TANK_X && mouseX < x + TANK_X + TANK_WIDTH
-            && mouseY >= y + TANK_Y && mouseY < y + TANK_Y + TANK_HEIGHT;
+        return mouseX >= x + TANK.x() && mouseX < x + TANK.x() + TANK.width()
+            && mouseY >= y + TANK.y() && mouseY < y + TANK.y() + TANK.height();
     }
 
     /// Neither the strip nor the tank is a slot, so nothing draws their tooltips for us. Hooking
@@ -207,9 +196,9 @@ public class SqueezerScreen extends AbstractContainerScreen<SqueezerMenu> {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        if (EnergyStrip.isHovered(x, y, mouseX, mouseY)) {
+        if (EnergyColumn.isHovered(x, y, mouseX, mouseY)) {
             graphics.setComponentTooltipForNextFrame(font,
-                EnergyStrip.tooltip(menu.energy(), SqueezerBlockEntity.FE_PER_TICK), mouseX, mouseY);
+                EnergyColumn.tooltip(menu.energy(), SqueezerBlockEntity.FE_PER_TICK), mouseX, mouseY);
             return;
         }
 

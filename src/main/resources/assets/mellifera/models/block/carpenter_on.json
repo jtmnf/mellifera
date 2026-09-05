@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "mellifera:block/carpenter_top_on",
+    "bottom": "mellifera:block/carpenter_bottom",
+    "side": "mellifera:block/carpenter_on"
+  }
+}

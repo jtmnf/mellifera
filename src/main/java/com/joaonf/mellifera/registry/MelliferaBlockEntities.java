@@ -2,6 +2,7 @@ package com.joaonf.mellifera.registry;
 
 import com.joaonf.mellifera.Mellifera;
 import com.joaonf.mellifera.block.ApiaryBlockEntity;
+import com.joaonf.mellifera.block.CarpenterBlockEntity;
 import com.joaonf.mellifera.block.CentrifugeBlockEntity;
 import com.joaonf.mellifera.block.SqueezerBlockEntity;
 import com.joaonf.mellifera.block.InfuserBlockEntity;
@@ -29,6 +30,9 @@ public final class MelliferaBlockEntities {
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<TankBlockEntity>> TANK =
         TYPES.register("tank", () -> new BlockEntityType<>(TankBlockEntity::new, MelliferaBlocks.TANK.get()));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CarpenterBlockEntity>> CARPENTER =
+        TYPES.register("carpenter", () -> new BlockEntityType<>(CarpenterBlockEntity::new, MelliferaBlocks.CARPENTER.get()));
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<IsolatorBlockEntity>> ISOLATOR =
         TYPES.register("isolator", () -> new BlockEntityType<>(IsolatorBlockEntity::new, MelliferaBlocks.ISOLATOR.get()));

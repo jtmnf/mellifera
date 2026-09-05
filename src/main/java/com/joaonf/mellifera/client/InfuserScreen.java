@@ -23,10 +23,9 @@ public class InfuserScreen extends AbstractContainerScreen<InfuserMenu> {
 
     // Inset 1px inside the groove baked into the background, which spans (51,44)-(82,49) and is
     // centred in the gap between the bee column and the serum bay.
-    private static final int BAR_X = 46;
-    private static final int BAR_Y = 45;
-    private static final int BAR_WIDTH = 30;
-    private static final int BAR_HEIGHT = 4;
+    /// The inside of the drive track painted into the background, generated from the same table
+    /// that paints it -- see tools/gen_machine_guis.py.
+    private static final MachineGeometry.Rect TRACK = MachineGeometry.INFUSER_TRACK;
 
     /// Honey, because that is what is being pushed into the bee.
     private static final int BAR_FILL = 0xFFE0A526;
@@ -65,7 +64,7 @@ public class InfuserScreen extends AbstractContainerScreen<InfuserMenu> {
 
         graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, x, y, 0.0F, 0.0F, imageWidth, imageHeight, imageWidth, imageHeight);
 
-        EnergyStrip.render(graphics, x, y, menu.energy());
+        EnergyColumn.render(graphics, x, y, menu.energy());
 
         renderProgressBar(graphics, x, y);
         renderCharges(graphics, x, y);
@@ -77,9 +76,9 @@ public class InfuserScreen extends AbstractContainerScreen<InfuserMenu> {
             return;
         }
 
-        int filled = Math.round(BAR_WIDTH * Math.min(1.0F, (float) menu.progress() / total));
+        int filled = Math.round(TRACK.width() * Math.min(1.0F, (float) menu.progress() / total));
         if (filled > 0) {
-            graphics.fill(x + BAR_X, y + BAR_Y, x + BAR_X + filled, y + BAR_Y + BAR_HEIGHT, BAR_FILL);
+            graphics.fill(x + TRACK.x(), y + TRACK.y(), x + TRACK.x() + filled, y + TRACK.y() + TRACK.height(), BAR_FILL);
         }
     }
 
@@ -116,9 +115,9 @@ public class InfuserScreen extends AbstractContainerScreen<InfuserMenu> {
 
         super.extractContents(graphics, mouseX, mouseY, partial);
 
-        if (EnergyStrip.isHovered(x, y, mouseX, mouseY)) {
+        if (EnergyColumn.isHovered(x, y, mouseX, mouseY)) {
             graphics.setComponentTooltipForNextFrame(font,
-                EnergyStrip.tooltip(menu.energy(), InfuserBlockEntity.FE_PER_TICK), mouseX, mouseY);
+                EnergyColumn.tooltip(menu.energy(), InfuserBlockEntity.FE_PER_TICK), mouseX, mouseY);
         }
     }
 }

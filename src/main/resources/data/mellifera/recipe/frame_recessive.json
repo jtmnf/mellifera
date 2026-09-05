@@ -1,6 +1,0 @@
-{
-  "type": "minecraft:crafting_shapeless",
-  "category": "misc",
-  "ingredients": ["mellifera:frame", "mellifera:pollen"],
-  "result": { "id": "mellifera:frame_recessive" }
-}

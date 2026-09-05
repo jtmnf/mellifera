@@ -43,6 +43,7 @@ public final class MelliferaCreativeTabs {
                 output.accept(MelliferaBlocks.ISOLATOR_ITEM.get());
                 output.accept(MelliferaBlocks.INFUSER_ITEM.get());
                 output.accept(MelliferaBlocks.SQUEEZER_ITEM.get());
+                output.accept(MelliferaBlocks.CARPENTER_ITEM.get());
                 output.accept(MelliferaBlocks.TANK_ITEM.get());
                 output.accept(MelliferaFluids.HONEY_BUCKET.get());
 
@@ -58,6 +59,8 @@ public final class MelliferaCreativeTabs {
                 output.accept(MelliferaItems.FRAME_TERMINATOR.get());
                 output.accept(MelliferaItems.FRAME_AUTOMATION.get());
                 output.accept(MelliferaItems.FRAME_INSULATION.get());
+                output.accept(MelliferaItems.FRAME_LUMINOUS.get());
+                output.accept(MelliferaItems.FRAME_CANOPY.get());
 
                 output.accept(MelliferaItems.HONEY_DROP.get());
                 output.accept(MelliferaItems.HONEYDEW.get());

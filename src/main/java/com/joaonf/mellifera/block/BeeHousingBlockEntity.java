@@ -281,6 +281,17 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
     /// Alveary gone it lives on an Insulation frame instead, which means it can be added to
     /// and taken out of any hive, and costs one of the three frame slots for as long as it
     /// is in.
+    /// Whether the foragers are out: vanilla's own hours and weather, less whatever the installed
+    /// frames lift.
+    ///
+    /// The frames answer one cause each -- Luminous the dark, Canopy the rain -- so a hive with
+    /// both works around the clock and one with neither keeps the hours every vanilla beehive
+    /// keeps. See Foraging.Grounding, which is where the two causes are told apart.
+    private boolean foragersOut(Level level, BlockPos pos) {
+        return Foraging.grounding(level, pos)
+            .liftedBy(anyFrame(FrameType::lightsNight), anyFrame(FrameType::shelters));
+    }
+
     private boolean ignoresClimate() {
         return anyFrame(FrameType::insulates);
     }
@@ -385,7 +396,7 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
         boolean climate = housing.ignoresClimate() || housing.inClimate(level, pos, ownGenome, species);
         boolean producing = climate
             && housing.flowersInRange > 0
-            && Foraging.flying(level, pos);
+            && housing.foragersOut(level, pos);
         housing.syncActivity(level, pos, state, producing, species.primaryColor(), housing.territoryRadius(ownGenome));
 
         if (producing) {
@@ -411,7 +422,15 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
         }
 
         housing.tickEffect(level, pos, ownGenome);
-        housing.tickFlowering(level, pos, ownGenome);
+
+        // Only while the hive is actually working. Flowering is the foragers pollinating what they
+        // fly over, so it cannot happen when there is nothing to forage, when they are in for the
+        // night or the rain, or when the queen is out of her climate band -- the same conditions
+        // that stop combs coming out. It used to sit outside this gate and needed only a mated
+        // queen, so a hive that had been stopped for hours went on gardening.
+        if (producing) {
+            housing.tickFlowering(level, pos, ownGenome);
+        }
     }
 
     /// Whether the temperature here is inside this queen's band, resampled once a second rather
@@ -491,16 +510,17 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
     /// all (a three-high apiary has three of them -- see ApiaryBlockEntity.canRun), and are bees
     /// flying at this hour and in this weather.
     ///
-    /// That last one costs nothing to sync because it is not synced: Foraging.flying reads an
-    /// environment attribute, and the time of day and the weather are things the client already
-    /// knows. Server and client reach the same answer by asking the same question of the same
-    /// world, which is the only arrangement in which the bees a player watches cannot contradict
-    /// the hive they belong to.
+    /// The hours used to be asked here too, by reading the same environment attribute the server
+    /// reads -- the client knows the time and the weather, so both sides reached the same answer
+    /// for free. They no longer would: a Luminous or Canopy frame lifts that stop, and the frames
+    /// are inventory, which is deliberately not sent to everyone in render distance. So the
+    /// question is not asked twice any more. `working` already carries the server's whole verdict,
+    /// hours and frames included, and a hive working the night shift should have bees out of it.
     ///
     /// Everything past this point is drawn from the two synced cosmetic fields below and from
     /// blocks the client already has; there is no inventory and no genome on this side.
     public boolean showsBees() {
-        return working && canRun() && level != null && Foraging.flying(level, worldPosition);
+        return working && canRun() && level != null;
     }
 
     /// The producing species' colour, for tinting those bees. Meaningless unless showsBees().
@@ -1000,6 +1020,11 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
     /// Nudges a random crop/sapling within territory toward its next growth stage, the same
     /// way bonemeal would. Attempt count scales with FloweringAllele; radius and cadence
     /// don't, so the trait stays legible as "how often it helps" rather than "how far."
+    ///
+    /// Only called while the hive is working, and only ever touches blocks that grow themselves --
+    /// see the two guards in the loop and the one at the call site. Without either of them this is
+    /// not a flowering pass, it is a hive turning its territory into a flower meadow whether or not
+    /// anybody is home.
     private void tickFlowering(Level level, BlockPos pos, BeeGenome genome) {
         floweringCooldown--;
         if (floweringCooldown > 0) {
@@ -1023,8 +1048,24 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
                 pos.getZ() + random.nextInt(-radius, radius + 1));
 
             BlockState state = level.getBlockState(cursor);
-            if (state.getBlock() instanceof BonemealableBlock bonemealable
-                && bonemealable.isValidBonemealTarget(level, cursor, state)
+            if (!(state.getBlock() instanceof BonemealableBlock bonemealable)) {
+                continue;
+            }
+
+            // Growers only. A NEIGHBOR_SPREADER is a block that answers bonemeal by covering the
+            // ground around it rather than by growing itself -- a grass block is the one that
+            // matters, and it is also the commonest block in a hive's territory. Its
+            // isBonemealSuccess is a flat true and its performBonemeal makes 128 placement
+            // attempts, scattering short grass and the biome's own flower features, so a single
+            // hit laid down a patch of meadow. Four of those every five seconds is what a hive
+            // was doing to the field around it.
+            //
+            // Nothing about that was the intent above: a crop or a sapling moving one stage on is.
+            if (bonemealable.getType() == BonemealableBlock.Type.NEIGHBOR_SPREADER) {
+                continue;
+            }
+
+            if (bonemealable.isValidBonemealTarget(level, cursor, state)
                 && bonemealable.isBonemealSuccess(level, random, cursor, state)) {
                 bonemealable.performBonemeal(serverLevel, random, cursor, state);
             }

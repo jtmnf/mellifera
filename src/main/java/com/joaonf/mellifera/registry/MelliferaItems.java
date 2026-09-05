@@ -50,6 +50,10 @@ public final class MelliferaItems {
         ITEMS.registerItem("frame_automation", p -> new FrameItem(FrameType.AUTOMATION, p));
     public static final DeferredItem<FrameItem> FRAME_INSULATION =
         ITEMS.registerItem("frame_insulation", p -> new FrameItem(FrameType.INSULATION, p));
+    public static final DeferredItem<FrameItem> FRAME_LUMINOUS =
+        ITEMS.registerItem("frame_luminous", p -> new FrameItem(FrameType.LUMINOUS, p));
+    public static final DeferredItem<FrameItem> FRAME_CANOPY =
+        ITEMS.registerItem("frame_canopy", p -> new FrameItem(FrameType.CANOPY, p));
 
     // Centrifuge output. Plain items with no behaviour of their own -- what makes them
     // worth having is the recipes they feed (see MelliferaCentrifugeRecipes). Names and roles
@@ -108,7 +112,8 @@ public final class MelliferaItems {
     /// cannot silently miss a newly added type.
     public static final java.util.List<DeferredItem<FrameItem>> ALL_FRAMES = java.util.List.of(
         FRAME, FRAME_ACCELERATOR, FRAME_DOMINANT, FRAME_RECESSIVE,
-        FRAME_MUTAGENIC, FRAME_TERMINATOR, FRAME_AUTOMATION, FRAME_INSULATION);
+        FRAME_MUTAGENIC, FRAME_TERMINATOR, FRAME_AUTOMATION, FRAME_INSULATION,
+        FRAME_LUMINOUS, FRAME_CANOPY);
 
     private MelliferaItems() {}
 

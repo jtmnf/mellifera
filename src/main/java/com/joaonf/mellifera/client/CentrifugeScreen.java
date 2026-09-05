@@ -18,12 +18,9 @@ public class CentrifugeScreen extends AbstractContainerScreen<CentrifugeMenu> {
     private static final int WIDTH = 176;
     private static final int HEIGHT = 176;
 
-    // Inset 1px inside the groove baked into the background, which spans (56,45)-(93,50) and is
-    // centred in the gap between the input and the output bay.
-    private static final int BAR_X = 52;
-    private static final int BAR_Y = 46;
-    private static final int BAR_WIDTH = 36;
-    private static final int BAR_HEIGHT = 4;
+    /// The inside of the drive track painted into the background, generated from the same table
+    /// that paints it -- see tools/gen_machine_guis.py.
+    private static final MachineGeometry.Rect TRACK = MachineGeometry.CENTRIFUGE_TRACK;
     private static final int BAR_FILL = 0xFFE0A526;
 
     public CentrifugeScreen(CentrifugeMenu menu, Inventory inventory, Component title) {
@@ -39,7 +36,7 @@ public class CentrifugeScreen extends AbstractContainerScreen<CentrifugeMenu> {
 
         graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, x, y, 0.0F, 0.0F, imageWidth, imageHeight, imageWidth, imageHeight);
 
-        EnergyStrip.render(graphics, x, y, menu.energy());
+        EnergyColumn.render(graphics, x, y, menu.energy());
 
         renderProgressBar(graphics, x, y);
     }
@@ -51,9 +48,9 @@ public class CentrifugeScreen extends AbstractContainerScreen<CentrifugeMenu> {
             return;
         }
 
-        int filled = Math.round(BAR_WIDTH * Math.min(1.0F, (float) menu.progress() / total));
+        int filled = Math.round(TRACK.width() * Math.min(1.0F, (float) menu.progress() / total));
         if (filled > 0) {
-            graphics.fill(x + BAR_X, y + BAR_Y, x + BAR_X + filled, y + BAR_Y + BAR_HEIGHT, BAR_FILL);
+            graphics.fill(x + TRACK.x(), y + TRACK.y(), x + TRACK.x() + filled, y + TRACK.y() + TRACK.height(), BAR_FILL);
         }
     }
 
@@ -67,9 +64,9 @@ public class CentrifugeScreen extends AbstractContainerScreen<CentrifugeMenu> {
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        if (EnergyStrip.isHovered(x, y, mouseX, mouseY)) {
+        if (EnergyColumn.isHovered(x, y, mouseX, mouseY)) {
             graphics.setComponentTooltipForNextFrame(font,
-                EnergyStrip.tooltip(menu.energy(), CentrifugeBlockEntity.FE_PER_TICK), mouseX, mouseY);
+                EnergyColumn.tooltip(menu.energy(), CentrifugeBlockEntity.FE_PER_TICK), mouseX, mouseY);
         }
     }
 }

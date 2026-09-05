@@ -1,0 +1,74 @@
+{
+  "textures": {
+    "particle": "mellifera:block/pipe_fluid",
+    "fluid": "mellifera:block/pipe_fluid"
+  },
+  "elements": [
+    {
+      "from": [
+        6,
+        6,
+        0
+      ],
+      "to": [
+        10,
+        10,
+        6
+      ],
+      "faces": {
+        "west": {
+          "uv": [
+            0,
+            6,
+            6,
+            10
+          ],
+          "texture": "#fluid",
+          "tintindex": 0
+        },
+        "east": {
+          "uv": [
+            0,
+            6,
+            6,
+            10
+          ],
+          "texture": "#fluid",
+          "tintindex": 0
+        },
+        "up": {
+          "uv": [
+            0,
+            6,
+            6,
+            10
+          ],
+          "texture": "#fluid",
+          "rotation": 90,
+          "tintindex": 0
+        },
+        "down": {
+          "uv": [
+            0,
+            6,
+            6,
+            10
+          ],
+          "texture": "#fluid",
+          "rotation": 90,
+          "tintindex": 0
+        },
+        "north": {
+          "uv": [
+            6,
+            6,
+            10,
+            10
+          ],
+          "texture": "#fluid",
+          "tintindex": 0
+        }
+      }
+    }
+  ]
+}

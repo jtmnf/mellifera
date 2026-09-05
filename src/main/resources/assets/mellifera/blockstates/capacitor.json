@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "charge=0": {
+      "model": "mellifera:block/capacitor_0"
+    },
+    "charge=1": {
+      "model": "mellifera:block/capacitor_1"
+    },
+    "charge=2": {
+      "model": "mellifera:block/capacitor_2"
+    },
+    "charge=3": {
+      "model": "mellifera:block/capacitor_3"
+    },
+    "charge=4": {
+      "model": "mellifera:block/capacitor_4"
+    }
+  }
+}

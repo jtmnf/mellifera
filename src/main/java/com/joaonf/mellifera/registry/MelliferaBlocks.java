@@ -6,12 +6,14 @@ import com.joaonf.mellifera.Mellifera;
 import com.joaonf.mellifera.block.ApiaryBlock;
 import com.joaonf.mellifera.block.CarpenterBlock;
 import com.joaonf.mellifera.block.CableBlock;
+import com.joaonf.mellifera.block.CapacitorBlock;
 import com.joaonf.mellifera.block.CentrifugeBlock;
 import com.joaonf.mellifera.block.EngineBlock;
 import com.joaonf.mellifera.block.SqueezerBlock;
 import com.joaonf.mellifera.block.HiveBlock;
 import com.joaonf.mellifera.block.InfuserBlock;
 import com.joaonf.mellifera.block.IsolatorBlock;
+import com.joaonf.mellifera.block.PipeBlock;
 import com.joaonf.mellifera.block.TankBlock;
 import com.joaonf.mellifera.item.TankBlockItem;
 
@@ -104,6 +106,31 @@ public final class MelliferaBlocks {
             .sound(SoundType.STONE));
 
     public static final DeferredItem<BlockItem> CARPENTER_ITEM = ITEMS.registerSimpleBlockItem(CARPENTER);
+
+    // The Cable's twin, for fluid. Glass rather than iron, because the point of it is that you
+    // can see what is going through -- see PipeBlockEntity.
+    public static final DeferredBlock<PipeBlock> PIPE = BLOCKS.registerBlock(
+        "pipe",
+        PipeBlock::new,
+        p -> p.mapColor(MapColor.TERRACOTTA_ORANGE)
+            .requiresCorrectToolForDrops()
+            .strength(1.0F)
+            .noOcclusion()
+            .sound(SoundType.COPPER));
+
+    public static final DeferredItem<BlockItem> PIPE_ITEM = ITEMS.registerSimpleBlockItem(PIPE);
+
+    // Where the power waits. No light of its own: the charge is painted on its face rather than
+    // thrown across the room, because a bank of these should read as a bank of gauges.
+    public static final DeferredBlock<CapacitorBlock> CAPACITOR = BLOCKS.registerBlock(
+        "capacitor",
+        CapacitorBlock::new,
+        p -> p.mapColor(MapColor.METAL)
+            .requiresCorrectToolForDrops()
+            .strength(3.5F)
+            .sound(SoundType.STONE));
+
+    public static final DeferredItem<BlockItem> CAPACITOR_ITEM = ITEMS.registerSimpleBlockItem(CAPACITOR);
 
     // The wire between the two. Copper and wax rather than iron and stone: it is the one thing
     // here that is not a machine, and it should not read as one at a distance.

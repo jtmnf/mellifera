@@ -4,11 +4,13 @@ import com.joaonf.mellifera.Mellifera;
 import com.joaonf.mellifera.block.ApiaryBlockEntity;
 import com.joaonf.mellifera.block.CarpenterBlockEntity;
 import com.joaonf.mellifera.block.CableBlockEntity;
+import com.joaonf.mellifera.block.CapacitorBlockEntity;
 import com.joaonf.mellifera.block.CentrifugeBlockEntity;
 import com.joaonf.mellifera.block.EngineBlockEntity;
 import com.joaonf.mellifera.block.SqueezerBlockEntity;
 import com.joaonf.mellifera.block.InfuserBlockEntity;
 import com.joaonf.mellifera.block.IsolatorBlockEntity;
+import com.joaonf.mellifera.block.PipeBlockEntity;
 import com.joaonf.mellifera.block.TankBlockEntity;
 
 import net.minecraft.core.registries.Registries;
@@ -35,6 +37,13 @@ public final class MelliferaBlockEntities {
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CarpenterBlockEntity>> CARPENTER =
         TYPES.register("carpenter", () -> new BlockEntityType<>(CarpenterBlockEntity::new, MelliferaBlocks.CARPENTER.get()));
+
+    // Ticks only where it touches a machine, which PipeBlock.getTicker decides from the state.
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<PipeBlockEntity>> PIPE =
+        TYPES.register("pipe", () -> new BlockEntityType<>(PipeBlockEntity::new, MelliferaBlocks.PIPE.get()));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CapacitorBlockEntity>> CAPACITOR =
+        TYPES.register("capacitor", () -> new BlockEntityType<>(CapacitorBlockEntity::new, MelliferaBlocks.CAPACITOR.get()));
 
     // Never ticks: it exists only to hang the energy capability on. See CableBlockEntity.
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CableBlockEntity>> CABLE =

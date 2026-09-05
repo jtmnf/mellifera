@@ -1,0 +1,241 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "mellifera:block/pipe_core"
+      }
+    },
+    {
+      "when": {
+        "flowing": "true"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_core_fluid"
+      }
+    },
+    {
+      "when": {
+        "north": "pipe"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm"
+      }
+    },
+    {
+      "when": {
+        "north": "pipe",
+        "flowing": "true"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm_fluid"
+      }
+    },
+    {
+      "when": {
+        "north": "plug"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm_plug"
+      }
+    },
+    {
+      "when": {
+        "north": "plug",
+        "flowing": "true"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm_fluid"
+      }
+    },
+    {
+      "when": {
+        "east": "pipe"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "east": "pipe",
+        "flowing": "true"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm_fluid",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "east": "plug"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm_plug",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "east": "plug",
+        "flowing": "true"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm_fluid",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "south": "pipe"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "south": "pipe",
+        "flowing": "true"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm_fluid",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "south": "plug"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm_plug",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "south": "plug",
+        "flowing": "true"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm_fluid",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "west": "pipe"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "west": "pipe",
+        "flowing": "true"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm_fluid",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "west": "plug"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm_plug",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "west": "plug",
+        "flowing": "true"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm_fluid",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "up": "pipe"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "up": "pipe",
+        "flowing": "true"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm_fluid",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "up": "plug"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm_plug",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "up": "plug",
+        "flowing": "true"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm_fluid",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "down": "pipe"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm",
+        "x": 90
+      }
+    },
+    {
+      "when": {
+        "down": "pipe",
+        "flowing": "true"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm_fluid",
+        "x": 90
+      }
+    },
+    {
+      "when": {
+        "down": "plug"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm_plug",
+        "x": 90
+      }
+    },
+    {
+      "when": {
+        "down": "plug",
+        "flowing": "true"
+      },
+      "apply": {
+        "model": "mellifera:block/pipe_arm_fluid",
+        "x": 90
+      }
+    }
+  ]
+}

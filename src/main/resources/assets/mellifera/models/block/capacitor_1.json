@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "mellifera:block/capacitor_top_1",
+    "bottom": "mellifera:block/capacitor_bottom",
+    "side": "mellifera:block/capacitor_1"
+  }
+}

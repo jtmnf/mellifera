@@ -6,6 +6,7 @@ import com.joaonf.mellifera.Mellifera;
 import com.joaonf.mellifera.client.color.ApiaryItemTintSource;
 import com.joaonf.mellifera.client.color.ApiaryTintSource;
 import com.joaonf.mellifera.client.color.BeeTintSource;
+import com.joaonf.mellifera.client.color.PipeFluidTintSource;
 import com.joaonf.mellifera.client.color.SerumTintSource;
 import com.joaonf.mellifera.client.special.AnimatedSpecialItemModel;
 import com.joaonf.mellifera.client.special.BeePortraitRenderState;
@@ -77,6 +78,10 @@ public class MelliferaClient {
     @SubscribeEvent
     static void onRegisterBlockTintSources(RegisterColorHandlersEvent.BlockTintSources event) {
         event.register(List.of(new ApiaryTintSource()), MelliferaBlocks.APIARY.get());
+
+        // The liquid inside a Pipe, which is drawn white and tinted to whatever is going through.
+        // See PipeFluidTintSource.
+        event.register(List.of(new PipeFluidTintSource()), MelliferaBlocks.PIPE.get());
     }
 
     // Lets drone/princess/queen item JSONs ask for "mellifera:bee" as their special model.

@@ -2,11 +2,13 @@
   "replace": false,
   "values": [
     "mellifera:cable",
+    "mellifera:capacitor",
     "mellifera:carpenter",
     "mellifera:centrifuge",
     "mellifera:engine",
     "mellifera:infuser",
     "mellifera:isolator",
+    "mellifera:pipe",
     "mellifera:squeezer",
     "mellifera:tank"
   ]

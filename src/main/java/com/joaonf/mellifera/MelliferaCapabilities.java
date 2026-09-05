@@ -35,6 +35,16 @@ public final class MelliferaCapabilities {
         event.registerBlockEntity(Capabilities.Energy.BLOCK, MelliferaBlockEntities.CARPENTER.get(),
             (carpenter, side) -> carpenter.energy());
 
+        // The pipe, on all six faces. Like the cable it stores nothing: what is inserted is handed
+        // on to the tanks behind it, in the caller's own transaction.
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, MelliferaBlockEntities.PIPE.get(),
+            (pipe, side) -> pipe.conduit());
+
+        // The capacitor, which is the only block here open at both ends: a cable may fill it and a
+        // cable may empty it. See MachineBattery for the one thing it will not do.
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, MelliferaBlockEntities.CAPACITOR.get(),
+            (capacitor, side) -> capacitor.energy());
+
         // The cable, on all six faces. It stores nothing -- what is inserted here is handed
         // straight on to the machines behind it, in the caller's own transaction.
         event.registerBlockEntity(Capabilities.Energy.BLOCK, MelliferaBlockEntities.CABLE.get(),

@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -285,6 +286,32 @@ public class PipeBlockEntity extends BlockEntity {
         if (state.getValue(PipeBlock.FLOWING) != flowing) {
             level.setBlock(worldPosition, state.setValue(PipeBlock.FLOWING, flowing), Block.UPDATE_ALL);
         }
+    }
+
+    /// What this pipe thinks is going on, for the Debug Stick.
+    ///
+    /// A run that shows no liquid has two possible faults and they look identical from outside: it
+    /// is not moving anything, or it is moving something and not drawing it. This says which. The
+    /// joints tell you whether anything is even pointed the right way, the tank count says whether
+    /// the search reaches a destination, and flowing plus the fluid are what the model is being
+    /// asked to draw.
+    public String debugReport() {
+        BlockState state = getBlockState();
+
+        StringBuilder joints = new StringBuilder();
+        for (Direction side : Direction.values()) {
+            PipeBlock.Connection connection = state.getValue(PipeBlock.propertyFor(side));
+            if (connection != PipeBlock.Connection.NONE) {
+                joints.append(side.getName().charAt(0)).append('=').append(connection.getSerializedName()).append(' ');
+            }
+        }
+
+        return "%sflowing=%s carried=%s tanks=%d linger=%d".formatted(
+            joints.isEmpty() ? "no joints " : joints,
+            state.getValue(PipeBlock.FLOWING),
+            carried.isEmpty() ? "-" : BuiltInRegistries.FLUID.getKey(carried.getFluid()),
+            reachableTanks().size(),
+            linger);
     }
 
     /// The handler the pipe exposes on all six faces: a conduit, exactly as the Cable's is.

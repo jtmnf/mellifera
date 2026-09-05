@@ -4,6 +4,7 @@ import java.util.function.Consumer;
 
 import com.joaonf.mellifera.block.BeeHousingBlockEntity;
 import com.joaonf.mellifera.block.CentrifugeBlockEntity;
+import com.joaonf.mellifera.block.PipeBlockEntity;
 import com.joaonf.mellifera.registry.MelliferaDataComponents;
 
 import net.minecraft.ChatFormatting;
@@ -100,6 +101,16 @@ public class DebugStickItem extends Item {
             } else {
                 housing.debugCycle();
                 say(player, "item.mellifera.debug_stick.cycle");
+            }
+
+            return InteractionResult.CONSUME;
+        }
+
+        if (blockEntity instanceof PipeBlockEntity pipe) {
+            // Not an action: a reading. A pipe showing no liquid is either moving nothing or moving
+            // something without saying so, and those look the same from outside.
+            if (player != null) {
+                player.sendOverlayMessage(Component.literal(pipe.debugReport()));
             }
 
             return InteractionResult.CONSUME;

@@ -110,7 +110,7 @@ public class DebugStickItem extends Item {
             // Not an action: a reading. A pipe showing no liquid is either moving nothing or moving
             // something without saying so, and those look the same from outside.
             if (player != null) {
-                player.sendOverlayMessage(Component.literal(pipe.debugReport()));
+                player.sendOverlayMessage(Component.literal(pipe.debugProbe(level, context.getClickedPos())));
             }
 
             return InteractionResult.CONSUME;

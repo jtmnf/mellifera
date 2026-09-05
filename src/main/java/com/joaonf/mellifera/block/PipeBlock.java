@@ -171,20 +171,24 @@ public class PipeBlock extends BaseEntityBlock {
         return new PipeBlockEntity(pos, state);
     }
 
-    /// Only the pipes that touch something worth drawing from tick, which the block state already
-    /// knows. A long run costs one ticking block entity at each end and nothing in between.
+    /// Every pipe ticks, and a pipe with nothing to draw from returns on its first line.
+    ///
+    /// This used to hand out a ticker only to pipes whose state said they touched a machine, which
+    /// is cheaper and rests on Vanilla re-asking for the ticker whenever the state changes. It does
+    /// -- LevelChunk.setBlockState calls updateBlockEntityTicker on the existing block entity -- but
+    /// resting a whole feature on that while the feature does not work is how a bug hides behind an
+    /// optimisation. The check moved into the tick, where it can be read.
     @Override
     public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide() || !touchesMachine(state)) {
-            return null;
-        }
-
-        return createTickerHelper(type, MelliferaBlockEntities.PIPE.get(), PipeBlockEntity::serverTick);
+        return level.isClientSide()
+            ? null
+            : createTickerHelper(type, MelliferaBlockEntities.PIPE.get(), PipeBlockEntity::serverTick);
     }
 
-    private static boolean touchesMachine(BlockState state) {
+    /// Whether any joint on this pipe is one worth drawing from.
+    public static boolean draws(BlockState state) {
         for (EnumProperty<Connection> property : BY_DIRECTION.values()) {
-            if (state.getValue(property).isMachine()) {
+            if (state.getValue(property) == Connection.DRAW) {
                 return true;
             }
         }

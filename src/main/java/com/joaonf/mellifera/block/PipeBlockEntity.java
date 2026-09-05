@@ -37,6 +37,7 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.resource.ResourceStack;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 /// A length of pipe: the Cable's twin, for fluid.
@@ -107,6 +108,11 @@ public class PipeBlockEntity extends BlockEntity {
         if (MachineSignal.switchedOff(level, pos)) {
             pipe.linger = 0;
             pipe.stopFlowing(level);
+            return;
+        }
+
+        if (!PipeBlock.draws(state)) {
+            // Nothing on this pipe is pointed at a machine to take from. Most of a run is like this.
             return;
         }
 
@@ -295,6 +301,66 @@ public class PipeBlockEntity extends BlockEntity {
     /// joints tell you whether anything is even pointed the right way, the tank count says whether
     /// the search reaches a destination, and flowing plus the fluid are what the model is being
     /// asked to draw.
+    /// The same reading, plus one live attempt at the whole chain.
+    ///
+    /// A pipe that shows nothing has a chain behind it -- a joint pointed the right way, a
+    /// capability on the machine, something in that machine to take, somewhere for it to go -- and
+    /// any link of it failing looks identical from outside. So this walks the chain and says where
+    /// it stops, then actually tries to draw and reports what moved.
+    public String debugProbe(Level level, BlockPos pos) {
+        BlockState state = getBlockState();
+        StringBuilder out = new StringBuilder(joints(state));
+
+        for (Direction side : Direction.values()) {
+            if (state.getValue(PipeBlock.propertyFor(side)) != PipeBlock.Connection.DRAW) {
+                continue;
+            }
+
+            ResourceHandler<FluidResource> source =
+                level.getCapability(Capabilities.Fluid.BLOCK, pos.relative(side), side.getOpposite());
+            if (source == null) {
+                out.append("src=none ");
+                continue;
+            }
+
+            FluidResource held = source.getResource(0);
+            if (held.isEmpty()) {
+                out.append("src=empty ");
+                continue;
+            }
+
+            int available;
+            try (Transaction probe = Transaction.open(null)) {
+                available = source.extract(held, TRANSFER_MB, probe);
+            }
+
+            out.append("src=").append(available).append("mB ");
+        }
+
+        ResourceStack<FluidResource> moved = draw(level, pos, state);
+        if (moved != null) {
+            linger = FLOW_LINGER;
+            showFlowing(level, moved.resource());
+        }
+
+        return out.append("tanks=").append(reachableTanks().size())
+            .append(" moved=").append(moved == null ? 0 : moved.amount())
+            .append(" flowing=").append(getBlockState().getValue(PipeBlock.FLOWING))
+            .toString();
+    }
+
+    private static String joints(BlockState state) {
+        StringBuilder joints = new StringBuilder();
+        for (Direction side : Direction.values()) {
+            PipeBlock.Connection connection = state.getValue(PipeBlock.propertyFor(side));
+            if (connection != PipeBlock.Connection.NONE) {
+                joints.append(side.getName().charAt(0)).append('=').append(connection.getSerializedName()).append(' ');
+            }
+        }
+
+        return joints.isEmpty() ? "no joints " : joints.toString();
+    }
+
     public String debugReport() {
         BlockState state = getBlockState();
 

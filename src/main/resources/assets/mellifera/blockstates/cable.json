@@ -7,7 +7,7 @@
     },
     {
       "when": {
-        "north": "true"
+        "north": "pipe"
       },
       "apply": {
         "model": "mellifera:block/cable_arm"
@@ -15,7 +15,15 @@
     },
     {
       "when": {
-        "east": "true"
+        "north": "plug"
+      },
+      "apply": {
+        "model": "mellifera:block/cable_arm_plug"
+      }
+    },
+    {
+      "when": {
+        "east": "pipe"
       },
       "apply": {
         "model": "mellifera:block/cable_arm",
@@ -24,7 +32,16 @@
     },
     {
       "when": {
-        "south": "true"
+        "east": "plug"
+      },
+      "apply": {
+        "model": "mellifera:block/cable_arm_plug",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "south": "pipe"
       },
       "apply": {
         "model": "mellifera:block/cable_arm",
@@ -33,7 +50,16 @@
     },
     {
       "when": {
-        "west": "true"
+        "south": "plug"
+      },
+      "apply": {
+        "model": "mellifera:block/cable_arm_plug",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "west": "pipe"
       },
       "apply": {
         "model": "mellifera:block/cable_arm",
@@ -42,7 +68,16 @@
     },
     {
       "when": {
-        "up": "true"
+        "west": "plug"
+      },
+      "apply": {
+        "model": "mellifera:block/cable_arm_plug",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "up": "pipe"
       },
       "apply": {
         "model": "mellifera:block/cable_arm",
@@ -51,10 +86,28 @@
     },
     {
       "when": {
-        "down": "true"
+        "up": "plug"
+      },
+      "apply": {
+        "model": "mellifera:block/cable_arm_plug",
+        "x": 270
+      }
+    },
+    {
+      "when": {
+        "down": "pipe"
       },
       "apply": {
         "model": "mellifera:block/cable_arm",
+        "x": 90
+      }
+    },
+    {
+      "when": {
+        "down": "plug"
+      },
+      "apply": {
+        "model": "mellifera:block/cable_arm_plug",
         "x": 90
       }
     }

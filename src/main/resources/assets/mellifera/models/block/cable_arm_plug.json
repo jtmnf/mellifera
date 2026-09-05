@@ -1,5 +1,4 @@
 {
-  "parent": "minecraft:block/block",
   "textures": {
     "particle": "mellifera:block/cable",
     "cable": "mellifera:block/cable",
@@ -15,14 +14,14 @@
       "to": [
         11,
         11,
-        16
+        5
       ],
       "faces": {
         "west": {
           "uv": [
             0,
             5,
-            16,
+            6,
             11
           ],
           "texture": "#cable"
@@ -31,7 +30,7 @@
           "uv": [
             0,
             5,
-            16,
+            6,
             11
           ],
           "texture": "#cable"
@@ -40,7 +39,7 @@
           "uv": [
             0,
             5,
-            16,
+            6,
             11
           ],
           "texture": "#cable",
@@ -50,7 +49,7 @@
           "uv": [
             0,
             5,
-            16,
+            6,
             11
           ],
           "texture": "#cable",
@@ -115,68 +114,8 @@
             12,
             12
           ],
-          "texture": "#collar"
-        }
-      }
-    },
-    {
-      "from": [
-        4,
-        4,
-        14
-      ],
-      "to": [
-        12,
-        12,
-        16
-      ],
-      "faces": {
-        "west": {
-          "uv": [
-            0,
-            4,
-            2,
-            12
-          ],
-          "texture": "#collar"
-        },
-        "east": {
-          "uv": [
-            0,
-            4,
-            2,
-            12
-          ],
-          "texture": "#collar"
-        },
-        "up": {
-          "uv": [
-            0,
-            4,
-            2,
-            12
-          ],
           "texture": "#collar",
-          "rotation": 90
-        },
-        "down": {
-          "uv": [
-            0,
-            4,
-            2,
-            12
-          ],
-          "texture": "#collar",
-          "rotation": 90
-        },
-        "south": {
-          "uv": [
-            4,
-            4,
-            12,
-            12
-          ],
-          "texture": "#collar"
+          "cullface": "north"
         }
       }
     }

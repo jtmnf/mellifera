@@ -18,54 +18,54 @@
       "faces": {
         "north": {
           "uv": [
-            4,
             5,
-            10,
+            5,
+            11,
             11
           ],
           "texture": "#cable"
         },
         "south": {
           "uv": [
-            4,
             5,
-            10,
+            5,
+            11,
             11
           ],
           "texture": "#cable"
         },
         "west": {
           "uv": [
-            4,
             5,
-            10,
+            5,
+            11,
             11
           ],
           "texture": "#cable"
         },
         "east": {
           "uv": [
-            4,
             5,
-            10,
+            5,
+            11,
             11
           ],
           "texture": "#cable"
         },
         "up": {
           "uv": [
-            4,
             5,
-            10,
+            5,
+            11,
             11
           ],
           "texture": "#cable"
         },
         "down": {
           "uv": [
-            4,
             5,
-            10,
+            5,
+            11,
             11
           ],
           "texture": "#cable"

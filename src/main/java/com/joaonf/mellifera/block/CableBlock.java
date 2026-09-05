@@ -23,8 +23,8 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -41,14 +41,40 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 public class CableBlock extends BaseEntityBlock {
     public static final MapCodec<CableBlock> CODEC = simpleCodec(CableBlock::new);
 
-    public static final BooleanProperty NORTH = BlockStateProperties.NORTH;
-    public static final BooleanProperty EAST = BlockStateProperties.EAST;
-    public static final BooleanProperty SOUTH = BlockStateProperties.SOUTH;
-    public static final BooleanProperty WEST = BlockStateProperties.WEST;
-    public static final BooleanProperty UP = BlockStateProperties.UP;
-    public static final BooleanProperty DOWN = BlockStateProperties.DOWN;
+    /// What a cable found on one side, and so which model that arm gets.
+    ///
+    /// Three values rather than a boolean, because the two kinds of joint do not look alike. A cable
+    /// meeting a cable is one pipe carrying on through a junction; a cable meeting a machine is a
+    /// duct clamped onto it, and it wears the brass collar that says so. One flag cannot tell those
+    /// apart, and a run beaded with a flange at every block boundary reads as a chain rather than as
+    /// a pipe.
+    public enum Connection implements StringRepresentable {
+        NONE("none"),
+        /// Another cable: the pipe carries straight on, no collar.
+        PIPE("pipe"),
+        /// Anything else that takes Forge Energy: the collar goes on.
+        PLUG("plug");
 
-    private static final Map<Direction, BooleanProperty> BY_DIRECTION = Map.of(
+        private final String name;
+
+        Connection(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return name;
+        }
+    }
+
+    public static final EnumProperty<Connection> NORTH = EnumProperty.create("north", Connection.class);
+    public static final EnumProperty<Connection> EAST = EnumProperty.create("east", Connection.class);
+    public static final EnumProperty<Connection> SOUTH = EnumProperty.create("south", Connection.class);
+    public static final EnumProperty<Connection> WEST = EnumProperty.create("west", Connection.class);
+    public static final EnumProperty<Connection> UP = EnumProperty.create("up", Connection.class);
+    public static final EnumProperty<Connection> DOWN = EnumProperty.create("down", Connection.class);
+
+    private static final Map<Direction, EnumProperty<Connection>> BY_DIRECTION = Map.of(
         Direction.NORTH, NORTH,
         Direction.EAST, EAST,
         Direction.SOUTH, SOUTH,
@@ -65,12 +91,12 @@ public class CableBlock extends BaseEntityBlock {
     public CableBlock(Properties properties) {
         super(properties);
         registerDefaultState(stateDefinition.any()
-            .setValue(NORTH, false)
-            .setValue(EAST, false)
-            .setValue(SOUTH, false)
-            .setValue(WEST, false)
-            .setValue(UP, false)
-            .setValue(DOWN, false));
+            .setValue(NORTH, Connection.NONE)
+            .setValue(EAST, Connection.NONE)
+            .setValue(SOUTH, Connection.NONE)
+            .setValue(WEST, Connection.NONE)
+            .setValue(UP, Connection.NONE)
+            .setValue(DOWN, Connection.NONE));
         this.shapes = makeShapes();
     }
 
@@ -80,8 +106,8 @@ public class CableBlock extends BaseEntityBlock {
 
         return getShapeForEachState(state -> {
             VoxelShape shape = core;
-            for (Map.Entry<Direction, BooleanProperty> entry : BY_DIRECTION.entrySet()) {
-                if (state.getValue(entry.getValue())) {
+            for (Map.Entry<Direction, EnumProperty<Connection>> entry : BY_DIRECTION.entrySet()) {
+                if (state.getValue(entry.getValue()) != Connection.NONE) {
                     shape = Shapes.or(shape, arms.get(entry.getKey()));
                 }
             }
@@ -113,9 +139,9 @@ public class CableBlock extends BaseEntityBlock {
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockState state = defaultBlockState();
-        for (Map.Entry<Direction, BooleanProperty> entry : BY_DIRECTION.entrySet()) {
+        for (Map.Entry<Direction, EnumProperty<Connection>> entry : BY_DIRECTION.entrySet()) {
             state = state.setValue(entry.getValue(),
-                connects(context.getLevel(), context.getClickedPos(), entry.getKey()));
+                connection(context.getLevel(), context.getClickedPos(), entry.getKey()));
         }
 
         return state;
@@ -128,33 +154,34 @@ public class CableBlock extends BaseEntityBlock {
         BlockState state, LevelReader level, ScheduledTickAccess ticks, BlockPos pos,
         Direction toNeighbour, BlockPos neighbourPos, BlockState neighbourState, RandomSource random
     ) {
-        return state.setValue(BY_DIRECTION.get(toNeighbour), connects(level, pos, toNeighbour));
+        return state.setValue(BY_DIRECTION.get(toNeighbour), connection(level, pos, toNeighbour));
     }
 
-    /// Whether there is anything that side worth reaching for.
+    /// What there is that side, and so what the arm should look like.
     ///
     /// Asking the capability is the honest test, and it is the one that gets another mod's machine
     /// right without this mod knowing anything about it. It needs a Level, though, and a shape
     /// update can arrive with only a LevelReader -- during worldgen, or inside a structure being
     /// placed. There the fallback is "does it have a block entity at all": too generous by a chest,
     /// and the arm is corrected the first time a real block update reaches it.
-    private static boolean connects(LevelReader reader, BlockPos pos, Direction side) {
+    private static Connection connection(LevelReader reader, BlockPos pos, Direction side) {
         BlockPos neighbour = pos.relative(side);
         BlockState state = reader.getBlockState(neighbour);
 
         if (state.is(MelliferaBlocks.CABLE.get())) {
-            return true;
+            return Connection.PIPE;
         }
 
         if (!state.hasBlockEntity()) {
-            return false;
+            return Connection.NONE;
         }
 
-        if (reader instanceof Level level) {
-            return level.getCapability(Capabilities.Energy.BLOCK, neighbour, side.getOpposite()) != null;
+        if (reader instanceof Level level
+            && level.getCapability(Capabilities.Energy.BLOCK, neighbour, side.getOpposite()) == null) {
+            return Connection.NONE;
         }
 
-        return true;
+        return Connection.PLUG;
     }
 
     /// A cable is scenery with a job: nothing about it should stop light or suffocate anything

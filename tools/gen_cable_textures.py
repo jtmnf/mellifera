@@ -1,129 +1,157 @@
-"""Generates the texture for the Cable.
+"""Generates the textures for the Cable.
 
     python tools/gen_cable_textures.py src/main/resources/assets/mellifera/textures/block
     python tools/gen_cable_textures.py <textures> <preview-dir>   # also writes preview_cable.png
 
-Not part of the Gradle build, and kept for the same reason as every other generator here: the PNG it
-writes is otherwise an unmaintainable binary blob.
+Not part of the Gradle build, and kept for the same reason as every other generator here: the PNGs
+it writes are otherwise unmaintainable binary blobs.
 
-WHICH WAY THE SHEET RUNS, which is what the first pass got wrong. A cable's side face maps the
-*length* of the wire along the texture's X and the way *across* it along Y. So the strands have to
-be rows and the wax has to be columns. Drawn the other way round -- strands down the sheet, bands
-across it, which is how one would draw a single wire on paper -- the bands came out running the
-length of the wire like painted racing stripes and the strands wound around it like a spring.
+WHY IT LOOKS LIKE THIS. The first pass drew the cable as copper braid, which was a fine wire and a
+stranger on this bench: the machines it plugs into are iron mechanisms in a wood chassis, bolted
+with brass, lit from the upper left. So the palette here is imported from gen_machine_textures
+rather than picked -- the same iron, the same brass -- and the cable is a machined conduit that
+happens to be six pixels thick rather than a length of flex.
 
-So: rows are the round of the wire, lit from above like every other texture in this mod, and the wax
-bands are columns crossing it. The models cut their windows out of this sheet accordingly, and
-cable_core deliberately takes a stretch with no band in it -- a six-pixel cube caught mid-band would
-read as a lump of wax with copper edges.
+TWO SHEETS. `cable` is the pipe: rolled iron with a bolt every so often along it. `cable_collar` is
+the flange where a cable takes hold of a machine, in brass, and it is a separate file because it is
+separate geometry -- a one-pixel rim standing proud of the pipe, the way a duct clamps onto a
+machine rather than merely touching it.
 
-The strands are the conductor and the bands are what stops it shorting on the machine it is bolted
-to. That is also the recipe, which is the point: a player who has seen the wire should be able to
-guess it is copper and wax before reading the book.
+WHICH WAY THE SHEET RUNS. A cable's side face maps the *length* of the pipe along the texture's X
+and the way *across* it along Y. So the round of the pipe is rows, repeating every six -- six being
+the thickness it is drawn at -- and anything meant to circle the pipe is columns. Drawn the other
+way round, which is how one would draw a wire on paper, the bolts came out as bands and the round
+as a spiral.
 """
 import sys
 
 import numpy as np
 from PIL import Image
 
+from gen_machine_textures import IRON, RIVET, RIVET_DARK
+
 SIZE = 16
 
-# Copper, darkest to brightest. Vanilla's own unoxidised copper block sits between the second and
-# third of these, so a cable run along a copper wall belongs there rather than glowing off it.
-COPPER = (
-    (0x6B, 0x38, 0x21),
-    (0x8E, 0x4C, 0x2C),
-    (0xB4, 0x63, 0x37),
-    (0xD1, 0x7E, 0x4C),
-)
+# The machines' own iron, darkest first, as a sequence so the round below can index it.
+STEEL = (IRON.shadow, IRON.mid, IRON.light, IRON.spec)
 
-# The mod's own beeswax, in the same three tones the frames and the comb are painted in.
-WAX = (
-    (0x8A, 0x6A, 0x2E),
-    (0xC9, 0xA0, 0x4E),
-    (0xE8, 0xC3, 0x4A),
-)
+# The machines' own brass, with one tone added above it for the lit edge of the flange. Brass is the
+# family signature -- four bolts on every machine face -- and the collar is where the cable joins in.
+BRASS = (RIVET_DARK, RIVET, (0xE6, 0xC0, 0x74))
 
-# How bright each row across the wire is, as an index into the ramps above.
-#
-# Six rows, because six pixels is how thick the wire is drawn and every face the models use takes a
-# six-row window: lit along the top, falling away to a dark underside. Repeated up the sheet so that
-# a window cut anywhere carries one whole round instead of the seam between two.
-#
-# The first pass repeated it every four rows, and a six-pixel window then showed one and a half
-# rounds -- which is not a wire, it is a stack of wires.
+# How bright each row across the pipe is, as an index into a ramp: a lit edge below the top, falling
+# away to a dark underside. Six rows because the pipe is drawn six pixels thick, repeated up the
+# sheet so a window cut anywhere carries one whole round rather than the seam between two.
+ROUND = (3, 2, 2, 1, 1, 0)
 
-# Which columns the wax wraps, and how wide. Placed so the windows the models use each catch what
-# they should: the arm's 0-5 catches one band, the inventory rod's full width catches three, and the
-# core's 4-10 catches none.
-BANDS = (1, 11)
-BAND_WIDTH = 2
-
-ROUND_PROFILE = (3, 3, 2, 2, 1, 0)
-
-# Where the window every model face uses starts, so the round below lines up with it exactly.
+# Where the window every model face uses starts, so the round lines up with it exactly.
 WINDOW_TOP = 5
 
-# A nick in the copper every seventh pixel *along* the wire. Lengthwise on purpose: anything drawn
-# across the wire that is not wax reads as another band, and two kinds of band is one too many.
-NICK_PITCH = 7
+# A bolt every eight pixels along the run, on the row below the pipe's lit edge. The same thing the
+# machines do with the four on each face: it is what makes a straight length read as built rather
+# than extruded.
+BOLT_PITCH = 8
+BOLT_ROW = 1
+
+# The seam of the rolled sheet, seen low on the pipe where the light has gone.
+SEAM_ROW = 4
 
 
 def rgba(color):
     return (color[0], color[1], color[2], 255)
 
 
-def clamp(index, ramp):
+def tone(index, ramp):
     return ramp[min(len(ramp) - 1, max(0, index))]
 
 
 def round_at(y):
-    """The round of the wire at this row, aligned so the models' window starts at its lit edge."""
-    return ROUND_PROFILE[(y - WINDOW_TOP) % len(ROUND_PROFILE)]
+    """The round of the pipe at this row, aligned to the window the models cut."""
+    return ROUND[(y - WINDOW_TOP) % len(ROUND)]
 
 
-def generate(out):
+def body():
+    """The pipe itself: iron, rolled, bolted."""
+    image = np.zeros((SIZE, SIZE, 4), np.uint8)
+
+    for y in range(SIZE):
+        offset = (y - WINDOW_TOP) % len(ROUND)
+
+        for x in range(SIZE):
+            shade = round_at(y)
+
+            # The closed seam: a broken line rather than a solid one, or it reads as something taped
+            # along the pipe instead of the pipe's own edge.
+            if offset == SEAM_ROW and x % 2 == 0:
+                shade -= 1
+
+            image[y, x] = rgba(tone(shade, STEEL))
+
+    for y in range(SIZE):
+        if (y - WINDOW_TOP) % len(ROUND) != BOLT_ROW:
+            continue
+
+        for x in range(3, SIZE, BOLT_PITCH):
+            image[y, x] = rgba(RIVET)
+            if y + 1 < SIZE:
+                image[y + 1, x] = rgba(RIVET_DARK)
+
+    return image
+
+
+def collar():
+    """The flange, in brass: what stands proud of the pipe where it clamps onto a machine.
+
+    Its own sheet because it is its own geometry -- a one-pixel rim around the pipe, two deep. The
+    rim is seen edge-on from every side, so it is grooved *across* rather than along: the ring goes
+    round the pipe, and that is the direction it has to read in.
+    """
     image = np.zeros((SIZE, SIZE, 4), np.uint8)
 
     for y in range(SIZE):
         for x in range(SIZE):
-            shade = round_at(y) - (1 if x % NICK_PITCH == 3 else 0)
-            image[y, x] = rgba(clamp(shade, COPPER))
+            # A darker groove every fourth pixel around the rim, which is what keeps a plain brass
+            # ring from reading as a painted stripe.
+            shade = round_at(y) - (1 if x % 4 == 3 else 0)
+            image[y, x] = rgba(tone(shade - 1, BRASS))
 
-    # The bands take the same round as the copper under them -- wax wrapped on a wire is lit by the
-    # same light -- so they read as something tied around it rather than a stripe laid over it. The
-    # trailing pixel of each is its shadowed side.
-    for band in BANDS:
-        for offset in range(BAND_WIDTH):
-            x = (band + offset) % SIZE
-            for y in range(SIZE):
-                shade = round_at(y) - 1 - (1 if offset == BAND_WIDTH - 1 else 0)
-                image[y, x] = rgba(clamp(shade, WAX))
+    return image
 
-    Image.fromarray(image).save("%s/cable.png" % out)
+
+def generate(out):
+    Image.fromarray(body()).save("%s/cable.png" % out)
     print("%s/cable.png  16x16  still" % out)
+
+    Image.fromarray(collar()).save("%s/cable_collar.png" % out)
+    print("%s/cable_collar.png  16x16  still" % out)
 
 
 def preview(textures, out, scale_to=12):
-    """The sheet, the two windows the models cut out of it, and a straight run built from both.
+    """Both sheets, and the straight run the models build out of them.
 
-    The core window is the one worth looking at twice. It is the only part of the wire visible where
-    two arms meet at a corner, and it is the one that must not carry a band.
+    The run is the only place this can actually be judged: pipe, junction, pipe, with the brass
+    flange at each end where it takes hold of a machine.
     """
-    sheet = Image.open("%s/cable.png" % textures).convert("RGB")
-    arm = sheet.crop((0, 5, 5, 11))
-    core = sheet.crop((4, 5, 10, 11))
+    pipe = Image.open("%s/cable.png" % textures).convert("RGB")
+    ring = Image.open("%s/cable_collar.png" % textures).convert("RGB")
 
-    # What a straight run actually looks like from the side: an arm, the junction, the next arm. The
-    # rhythm of the banding only exists here -- neither window shows it on its own.
-    run = Image.new("RGB", (arm.width * 2 + core.width, arm.height))
-    run.paste(arm.transpose(Image.FLIP_LEFT_RIGHT), (0, 0))
-    run.paste(core, (arm.width, 0))
-    run.paste(arm, (arm.width + core.width, 0))
+    top, bottom = WINDOW_TOP, WINDOW_TOP + len(ROUND)
+    arm = pipe.crop((0, top, 6, bottom))
+    core = pipe.crop((5, top, 11, bottom))
+    # The flange stands a pixel proud on each side, which is why it is cropped a row taller.
+    flange = ring.crop((0, top - 1, 2, bottom + 1))
 
-    tiles = [sheet.resize((SIZE * scale_to, SIZE * scale_to), Image.NEAREST)]
-    tiles += [w.resize((w.width * scale_to, w.height * scale_to), Image.NEAREST)
-              for w in (arm, core, run)]
+    run = Image.new("RGB", (flange.width * 2 + arm.width * 2 + core.width, flange.height), (46, 44, 42))
+    run.paste(flange, (0, 0))
+    run.paste(arm, (flange.width, 1))
+    run.paste(core, (flange.width + arm.width, 1))
+    run.paste(arm, (flange.width + arm.width + core.width, 1))
+    run.paste(flange, (flange.width + arm.width * 2 + core.width, 0))
+
+    tiles = [pipe.resize((SIZE * scale_to, SIZE * scale_to), Image.NEAREST),
+             ring.resize((SIZE * scale_to, SIZE * scale_to), Image.NEAREST)]
+    tiles += [tile.resize((tile.width * scale_to, tile.height * scale_to), Image.NEAREST)
+              for tile in (core, run)]
 
     width = sum(tile.width for tile in tiles) + 4 * (len(tiles) + 1)
     canvas = Image.new("RGB", (width, SIZE * scale_to + 8), (46, 44, 42))

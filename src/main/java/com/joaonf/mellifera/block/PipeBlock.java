@@ -276,10 +276,14 @@ public class PipeBlock extends BaseEntityBlock {
     /// starts as DRAW, the Carpenter and the Engine take honey and so start as FEED, and a Tank
     /// takes it too, which is why it starts as FEED and is the one a player most often turns round.
     private static boolean accepts(ResourceHandler<FluidResource> tank) {
-        FluidResource honey = FluidResource.of(MelliferaFluids.HONEY.get());
+        // Whatever it already holds, or honey if it holds nothing. Asking with honey alone was
+        // enough while honey was the only fluid the mod moved, and wrong the moment a pipe touches
+        // anybody else's machine.
+        FluidResource held = tank.size() > 0 ? tank.getResource(0) : FluidResource.EMPTY;
+        FluidResource probed = held.isEmpty() ? FluidResource.of(MelliferaFluids.HONEY.get()) : held;
 
         try (Transaction probe = Transaction.open(null)) {
-            return tank.insert(honey, 1, probe) > 0;
+            return tank.insert(probed, 1, probe) > 0;
         }
     }
 
@@ -303,15 +307,21 @@ public class PipeBlock extends BaseEntityBlock {
         ResourceHandler<FluidResource> tank =
             level.getCapability(Capabilities.Fluid.BLOCK, pos.relative(side), side.getOpposite());
 
-        if (tank == null || (wanted == Connection.FEED && !accepts(tank))) {
-            // Nothing to turn round: a machine that will not be filled cannot be fed, whatever the
-            // joint says.
-            say(player, "gui.mellifera.pipe.refused");
-            return InteractionResult.CONSUME;
-        }
-
         level.setBlock(pos, state.setValue(BY_DIRECTION.get(side), wanted), Block.UPDATE_ALL);
-        say(player, wanted == Connection.DRAW ? "gui.mellifera.pipe.draw" : "gui.mellifera.pipe.feed");
+
+        // Always turned, never refused. The direction is what the player wants this joint to do, and
+        // whether the machine plays along is the machine's business and may change: a tank that
+        // takes nothing right now is one that is full, or holds another fluid, or is an output today
+        // and something else after an update. An earlier version tested the machine first and said
+        // no, which left a joint on a Squeezer stuck as DRAW forever -- and the test it used offered
+        // honey, so a machine that only ever accepted water could never be fed at all.
+        //
+        // What is worth saying is when a joint has just been pointed at something that will not
+        // take, so the player is not left wondering why a run they just built does nothing.
+        boolean willing = wanted == Connection.DRAW || (tank != null && accepts(tank));
+        say(player, willing
+            ? (wanted == Connection.DRAW ? "gui.mellifera.pipe.draw" : "gui.mellifera.pipe.feed")
+            : "gui.mellifera.pipe.feed_unwilling");
 
         return InteractionResult.SUCCESS;
     }

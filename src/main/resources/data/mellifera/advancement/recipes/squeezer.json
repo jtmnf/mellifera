@@ -1,15 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_frame_materials": {
+    "has_piston": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
           {
-            "items": "mellifera:frame"
-          },
-          {
-            "items": "mellifera:silk_wisp"
+            "items": "minecraft:piston"
           }
         ]
       }
@@ -17,19 +14,19 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "mellifera:frame_insulation"
+        "recipe": "mellifera:squeezer"
       }
     }
   },
   "requirements": [
     [
       "has_the_recipe",
-      "has_frame_materials"
+      "has_piston"
     ]
   ],
   "rewards": {
     "recipes": [
-      "mellifera:frame_insulation"
+      "mellifera:squeezer"
     ]
   }
 }

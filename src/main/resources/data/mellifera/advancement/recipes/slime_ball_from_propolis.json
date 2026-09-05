@@ -1,15 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_frame_materials": {
+    "has_propolis": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
           {
-            "items": "mellifera:frame"
-          },
-          {
-            "items": "mellifera:pollen"
+            "items": "mellifera:propolis"
           }
         ]
       }
@@ -17,19 +14,19 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "mellifera:frame_recessive"
+        "recipe": "mellifera:slime_ball_from_propolis"
       }
     }
   },
   "requirements": [
     [
       "has_the_recipe",
-      "has_frame_materials"
+      "has_propolis"
     ]
   ],
   "rewards": {
     "recipes": [
-      "mellifera:frame_recessive"
+      "mellifera:slime_ball_from_propolis"
     ]
   }
 }

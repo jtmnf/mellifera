@@ -1,15 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_frame_materials": {
+    "has_ice_shard": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
           {
-            "items": "mellifera:frame"
-          },
-          {
-            "items": "mellifera:royal_jelly"
+            "items": "mellifera:ice_shard"
           }
         ]
       }
@@ -17,19 +14,19 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "mellifera:frame_dominant"
+        "recipe": "mellifera:ice_from_ice_shards"
       }
     }
   },
   "requirements": [
     [
       "has_the_recipe",
-      "has_frame_materials"
+      "has_ice_shard"
     ]
   ],
   "rewards": {
     "recipes": [
-      "mellifera:frame_dominant"
+      "mellifera:ice_from_ice_shards"
     ]
   }
 }

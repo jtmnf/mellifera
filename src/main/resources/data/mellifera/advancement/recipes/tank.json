@@ -1,15 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_frame_materials": {
+    "has_glass": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
           {
-            "items": "mellifera:frame"
-          },
-          {
-            "items": "mellifera:phosphor"
+            "items": "minecraft:glass"
           }
         ]
       }
@@ -17,19 +14,19 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "mellifera:frame_terminator"
+        "recipe": "mellifera:tank"
       }
     }
   },
   "requirements": [
     [
       "has_the_recipe",
-      "has_frame_materials"
+      "has_glass"
     ]
   ],
   "rewards": {
     "recipes": [
-      "mellifera:frame_terminator"
+      "mellifera:tank"
     ]
   }
 }

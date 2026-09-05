@@ -30,7 +30,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
-/// Presses honey drops into liquid honey: one input slot, one tank, no output slots.
+/// Presses honey drops and honeydew into liquid honey: one input slot, one tank, no output slots.
 ///
 /// The machine that makes this mod's honey usable by anything else. Drops are an item and items only
 /// travel by hopper; a tank of honey can be piped, stored, and drunk by any machine that wants a fluid
@@ -66,6 +66,15 @@ public class SqueezerBlockEntity extends BlockEntity implements WorldlyContainer
     /// it can run unattended for a while, not enough to be a substitute for a tank.
     public static final int MB_PER_DROP = 250;
     public static final int TANK_CAPACITY = 4_000;
+
+    /// Millibuckets per honeydew, which is half a drop.
+    ///
+    /// Honeydew was a centrifuge output with nothing to be for: every ordinary comb yields some and no
+    /// recipe in the mod took it back. It presses because it is the one other sweet liquid the bees
+    /// make, and it presses for half because it is the thin one -- eight to a bucket against a drop's
+    /// four, so a player pressing honeydew is using up a by-product rather than finding a better
+    /// source of honey than the honey.
+    public static final int MB_PER_HONEYDEW = 125;
 
     /// A bucket, in the same units. Vanilla's own figure, and the reason a drop is 250: four to fill one.
     public static final int BUCKET_MB = 1_000;
@@ -150,7 +159,8 @@ public class SqueezerBlockEntity extends BlockEntity implements WorldlyContainer
             squeezer.progress = 0;
             // Filled before the drop is spent, and only if it all fits: pressable() has already said
             // there is room, but the order is what guarantees a drop is never consumed for nothing.
-            if (squeezer.tank.fill(FluidResource.of(MelliferaFluids.HONEY.get()), MB_PER_DROP)) {
+            int mb = yieldOf(squeezer.items.get(SLOT_INPUT));
+            if (mb > 0 && squeezer.tank.fill(FluidResource.of(MelliferaFluids.HONEY.get()), mb)) {
                 squeezer.items.get(SLOT_INPUT).shrink(1);
             }
         }
@@ -212,10 +222,28 @@ public class SqueezerBlockEntity extends BlockEntity implements WorldlyContainer
         return true;
     }
 
-    /// A drop in the slot and room in the tank. Checked before any progress is spent, so a full tank
-    /// stalls a press rather than losing it.
+    /// What one of these is worth in the tank, or 0 for anything the machine does not press.
+    ///
+    /// The single place that answers it: the slot filter, the press and the JEI page all read this, so
+    /// a machine that accepts an item it cannot price, or a page that quotes a rate the machine does
+    /// not run, would take a deliberate effort to write.
+    public static int yieldOf(ItemStack stack) {
+        if (stack.is(MelliferaItems.HONEY_DROP.get())) {
+            return MB_PER_DROP;
+        }
+
+        if (stack.is(MelliferaItems.HONEYDEW.get())) {
+            return MB_PER_HONEYDEW;
+        }
+
+        return 0;
+    }
+
+    /// Something pressable in the slot and room in the tank for all of what it is worth. Checked before
+    /// any progress is spent, so a full tank stalls a press rather than losing it.
     private boolean pressable() {
-        return items.get(SLOT_INPUT).is(MelliferaItems.HONEY_DROP.get()) && tank.space() >= MB_PER_DROP;
+        int mb = yieldOf(items.get(SLOT_INPUT));
+        return mb > 0 && tank.space() >= mb;
     }
 
     /// See CentrifugeBlockEntity.setWorking -- same contract, same reason for the guard.
@@ -271,12 +299,12 @@ public class SqueezerBlockEntity extends BlockEntity implements WorldlyContainer
         setChanged();
     }
 
-    /// Honey drops and nothing else. Static so the *client* menu enforces the same rule -- the client
+    /// What the press has a price for, and nothing else. Static so the *client* menu enforces the same rule -- the client
     /// builds its menu over a plain SimpleContainer, which accepts anything, so a rule that lived only
     /// here would let an item visibly land in the slot and snap back a tick later.
     public static boolean isValidForSlot(int slot, ItemStack stack) {
         return switch (slot) {
-            case SLOT_INPUT -> stack.is(MelliferaItems.HONEY_DROP.get());
+            case SLOT_INPUT -> yieldOf(stack) > 0;
             case SLOT_BUCKET_IN -> stack.is(Items.BUCKET);
             // Nothing may be *placed* in the out slot; the machine is the only thing that fills it.
             default -> false;

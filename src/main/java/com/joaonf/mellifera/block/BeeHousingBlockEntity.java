@@ -273,14 +273,6 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
         return true;
     }
 
-    /// True when the queen is sheltered from the species' temperature band, letting a
-    /// Tropical line work in a tundra.
-    ///
-    /// A property of what is installed rather than of the building. This used to be the
-    /// Alveary's whole reason to exist and it was overridden to a constant there; with the
-    /// Alveary gone it lives on an Insulation frame instead, which means it can be added to
-    /// and taken out of any hive, and costs one of the three frame slots for as long as it
-    /// is in.
     /// Whether the foragers are out: vanilla's own hours and weather, less whatever the installed
     /// frames lift.
     ///
@@ -292,6 +284,14 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
             .liftedBy(anyFrame(FrameType::lightsNight), anyFrame(FrameType::shelters));
     }
 
+    /// True when the queen is sheltered from the species' temperature band, letting a
+    /// Tropical line work in a tundra.
+    ///
+    /// A property of what is installed rather than of the building. This used to be the
+    /// Alveary's whole reason to exist and it was overridden to a constant there; with the
+    /// Alveary gone it lives on an Insulation frame instead, which means it can be added to
+    /// and taken out of any hive, and costs one of the three frame slots for as long as it
+    /// is in.
     private boolean ignoresClimate() {
         return anyFrame(FrameType::insulates);
     }

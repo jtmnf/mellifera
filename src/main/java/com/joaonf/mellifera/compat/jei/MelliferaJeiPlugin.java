@@ -136,7 +136,7 @@ public class MelliferaJeiPlugin implements IModPlugin {
         }
         registration.addRecipes(CentrifugeCategory.TYPE, spins);
 
-        registration.addRecipes(SqueezerCategory.TYPE, List.of(SqueezerJeiRecipe.of()));
+        registration.addRecipes(SqueezerCategory.TYPE, SqueezerJeiRecipe.all());
 
         registerCarpenterRecipes(registration);
 

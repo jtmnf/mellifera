@@ -1,15 +1,12 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_frame_materials": {
+    "has_sticky_piston": {
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
           {
-            "items": "mellifera:frame"
-          },
-          {
-            "items": "mellifera:beeswax"
+            "items": "minecraft:sticky_piston"
           }
         ]
       }
@@ -17,19 +14,19 @@
     "has_the_recipe": {
       "trigger": "minecraft:recipe_unlocked",
       "conditions": {
-        "recipe": "mellifera:frame_automation"
+        "recipe": "mellifera:carpenter"
       }
     }
   },
   "requirements": [
     [
       "has_the_recipe",
-      "has_frame_materials"
+      "has_sticky_piston"
     ]
   ],
   "rewards": {
     "recipes": [
-      "mellifera:frame_automation"
+      "mellifera:carpenter"
     ]
   }
 }

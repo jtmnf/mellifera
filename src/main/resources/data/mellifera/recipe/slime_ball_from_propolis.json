@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "mellifera:propolis",
+    "mellifera:propolis",
+    "mellifera:propolis",
+    "mellifera:propolis"
+  ],
+  "result": {
+    "id": "minecraft:slime_ball"
+  }
+}

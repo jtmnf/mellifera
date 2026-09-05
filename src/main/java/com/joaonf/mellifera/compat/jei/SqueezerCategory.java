@@ -93,7 +93,7 @@ public class SqueezerCategory implements IRecipeCategory<SqueezerJeiRecipe> {
         graphics.text(font, Component.translatable("gui.mellifera.jei.squeezer.amount", recipe.output().getAmount()),
             TEXT_X, SLOT_Y + 4, TEXT_COLOR, false);
         graphics.text(font, Component.translatable("gui.mellifera.jei.squeezer.rate",
-                SqueezerBlockEntity.BUCKET_MB / SqueezerBlockEntity.MB_PER_DROP),
+                SqueezerBlockEntity.BUCKET_MB / recipe.output().getAmount()),
             TEXT_X, SLOT_Y + 16, TEXT_COLOR, false);
     }
 }

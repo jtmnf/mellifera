@@ -23,7 +23,12 @@ back into another bee, so a line can be built deliberately instead of by luck.
 
 The machines run on Forge Energy and work with any tech mod that provides it. Power is speed
 and not permission: every one of them runs by hand at an eighth of the rate, so nothing in the
-mod is gated behind having a generator.
+mod is gated behind having a generator. The Engine is the mod's own, and it burns what the bees
+make -- an apiary can power the Centrifuge that spins its combs.
+
+The honey a Squeezer makes has three ends: the Carpenter spends it on frames, the Engine burns
+it for power, and a bucket of it crafts into a Vanilla honey block, which is where the surplus
+goes.
 
 The machines
 ============
@@ -36,6 +41,10 @@ The machines
 - **Carpenter** -- the plain Frame plus one ingredient and some honey becomes a specialised
   frame; a worn frame with nothing beside it becomes a fresh one for a quarter of what it cost
   to build.
+- **Engine** -- burns liquid honey or peat and puts out 40 FE a tick, pushed into whatever is
+  next to it. A bucket of honey is 40,000 FE and a peat is 16,000, and it burns one fuel at a
+  time: honey first, since that is the one that arrives by pipe. It will not burn into a full
+  buffer, so an idle engine spends nothing.
 - **Isolator** -- a bee in, its eight genes out as Serums. The bee is used up.
 - **Infuser** -- a Serum and a bee in, that bee with the gene written into it out. Pollen
   powers the writing.

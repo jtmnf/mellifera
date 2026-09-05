@@ -116,6 +116,16 @@ public final class EnergyColumn {
             && mouseY >= top && mouseY < top + PLATE_HEIGHT;
     }
 
+    /// The same gauge read the other way round, for the one block that fills it instead of
+    /// emptying it. A generator has no unpowered mode to explain and no cost to state -- what a
+    /// player wants off an engine is what it is putting out.
+    public static List<Component> generatorTooltip(int stored, int perTick) {
+        return List.of(
+            Component.translatable("gui.mellifera.energy", stored, MachineEnergy.CAPACITY),
+            Component.translatable("gui.mellifera.energy.output", perTick)
+                .withStyle(style -> style.withColor(0xAAAAAA)));
+    }
+
     public static List<Component> tooltip(int stored, int perTick) {
         return List.of(
             Component.translatable("gui.mellifera.energy", stored, MachineEnergy.CAPACITY),

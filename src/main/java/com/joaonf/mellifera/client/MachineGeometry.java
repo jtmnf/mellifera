@@ -35,4 +35,8 @@ public final class MachineGeometry {
     // -- carpenter
     public static final Rect CARPENTER_TRACK = new Rect(51, 46, 30, 3);
     public static final Rect CARPENTER_TANK = new Rect(125, 25, 26, 45);
+
+    // -- engine
+    public static final Rect ENGINE_TRACK = new Rect(53, 46, 30, 3);
+    public static final Rect ENGINE_TANK = new Rect(113, 25, 26, 45);
 }

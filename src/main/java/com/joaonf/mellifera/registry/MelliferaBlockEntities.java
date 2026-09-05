@@ -4,6 +4,7 @@ import com.joaonf.mellifera.Mellifera;
 import com.joaonf.mellifera.block.ApiaryBlockEntity;
 import com.joaonf.mellifera.block.CarpenterBlockEntity;
 import com.joaonf.mellifera.block.CentrifugeBlockEntity;
+import com.joaonf.mellifera.block.EngineBlockEntity;
 import com.joaonf.mellifera.block.SqueezerBlockEntity;
 import com.joaonf.mellifera.block.InfuserBlockEntity;
 import com.joaonf.mellifera.block.IsolatorBlockEntity;
@@ -33,6 +34,9 @@ public final class MelliferaBlockEntities {
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CarpenterBlockEntity>> CARPENTER =
         TYPES.register("carpenter", () -> new BlockEntityType<>(CarpenterBlockEntity::new, MelliferaBlocks.CARPENTER.get()));
+
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EngineBlockEntity>> ENGINE =
+        TYPES.register("engine", () -> new BlockEntityType<>(EngineBlockEntity::new, MelliferaBlocks.ENGINE.get()));
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<IsolatorBlockEntity>> ISOLATOR =
         TYPES.register("isolator", () -> new BlockEntityType<>(IsolatorBlockEntity::new, MelliferaBlocks.ISOLATOR.get()));

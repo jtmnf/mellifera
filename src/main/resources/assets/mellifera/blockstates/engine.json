@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "working=false": {
+      "model": "mellifera:block/engine"
+    },
+    "working=true": {
+      "model": "mellifera:block/engine_on"
+    }
+  }
+}

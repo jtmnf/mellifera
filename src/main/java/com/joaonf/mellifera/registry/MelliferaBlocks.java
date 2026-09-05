@@ -6,6 +6,7 @@ import com.joaonf.mellifera.Mellifera;
 import com.joaonf.mellifera.block.ApiaryBlock;
 import com.joaonf.mellifera.block.CarpenterBlock;
 import com.joaonf.mellifera.block.CentrifugeBlock;
+import com.joaonf.mellifera.block.EngineBlock;
 import com.joaonf.mellifera.block.SqueezerBlock;
 import com.joaonf.mellifera.block.HiveBlock;
 import com.joaonf.mellifera.block.InfuserBlock;
@@ -102,6 +103,20 @@ public final class MelliferaBlocks {
             .sound(SoundType.STONE));
 
     public static final DeferredItem<BlockItem> CARPENTER_ITEM = ITEMS.registerSimpleBlockItem(CARPENTER);
+
+    // The only block here that makes power instead of spending it. Brighter than the rest when it
+    // runs -- 13 against the family's 7 -- because this one has a fire in it and a row of engines
+    // should light the room they are in.
+    public static final DeferredBlock<EngineBlock> ENGINE = BLOCKS.registerBlock(
+        "engine",
+        EngineBlock::new,
+        p -> p.mapColor(MapColor.METAL)
+            .requiresCorrectToolForDrops()
+            .strength(3.5F)
+            .lightLevel(state -> state.getValue(EngineBlock.WORKING) ? 13 : 0)
+            .sound(SoundType.STONE));
+
+    public static final DeferredItem<BlockItem> ENGINE_ITEM = ITEMS.registerSimpleBlockItem(ENGINE);
 
     // Genetics rather than production: pulls a bee's traits out one at a time into serums.
     // Same tier and material as the centrifuge -- they are the same kind of machine.

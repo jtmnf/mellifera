@@ -6,11 +6,6 @@ import com.joaonf.mellifera.Mellifera;
 import com.joaonf.mellifera.block.SqueezerBlockEntity;
 import com.joaonf.mellifera.menu.SqueezerMenu;
 
-import org.jspecify.annotations.Nullable;
-import com.joaonf.mellifera.registry.MelliferaFluids;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.FluidModel;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -47,13 +42,6 @@ public class SqueezerScreen extends AbstractContainerScreen<SqueezerMenu> {
     private static final int BAY_PLATE_HEIGHT = 46;
     private static final int BAY_FRAME_X = 180;
 
-    /// The meniscus, drawn over the fluid's own sprite so the surface reads as a line rather than as the
-    /// top of a texture that happens to stop.
-    private static final int HONEY_TOP = 0xFFFFC54B;
-
-    /// One tile of the fluid sprite, which is what a fluid texture is authored at.
-    private static final int TILE = 16;
-
     public SqueezerScreen(SqueezerMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, WIDTH, HEIGHT);
     }
@@ -70,7 +58,7 @@ public class SqueezerScreen extends AbstractContainerScreen<SqueezerMenu> {
         EnergyColumn.render(graphics, x, y, menu.energy());
         renderBucketBay(graphics, x, y);
         renderProgressBar(graphics, x, y);
-        renderTank(graphics, x, y);
+        HoneyGauge.render(graphics, x, y, TANK, menu.fluid(), SqueezerBlockEntity.TANK_CAPACITY);
     }
 
     private void renderProgressBar(GuiGraphicsExtractor graphics, int x, int y) {
@@ -85,69 +73,7 @@ public class SqueezerScreen extends AbstractContainerScreen<SqueezerMenu> {
         }
     }
 
-    /// The vessel and the honey in it, filling upward.
-    ///
-    /// The honey is the *fluid's own sprite*, tiled, not a coloured rectangle. It was a rectangle first,
-    /// and that was wrong twice over: it made the tank the one place in the game where this fluid did not
-    /// look like itself, and it meant the colour had to be kept in step with the fluid's by hand. Reading
-    /// the sprite means the tank animates with the fluid and follows a resource pack over it.
-    private void renderTank(GuiGraphicsExtractor graphics, int x, int y) {
-        int filled = Math.round(TANK.height() * Math.min(1.0F, (float) menu.fluid() / SqueezerBlockEntity.TANK_CAPACITY));
-        if (menu.fluid() > 0 && filled == 0) {
-            filled = 1;
-        }
 
-        if (filled <= 0) {
-            return;
-        }
-
-        int left = x + TANK.x();
-        int bottom = y + TANK.y() + TANK.height();
-        TextureAtlasSprite sprite = honeySprite();
-
-        if (sprite == null) {
-            // Before the atlas is built there is nothing to read; a flat fill for one frame beats a hole.
-            graphics.fill(left, bottom - filled, left + TANK.width(), bottom, HONEY_TOP);
-        } else {
-            for (int offsetX = 0; offsetX < TANK.width(); offsetX += TILE) {
-                int tileWidth = Math.min(TILE, TANK.width() - offsetX);
-
-                for (int tileBottom = bottom; tileBottom > bottom - filled; tileBottom -= TILE) {
-                    int tileHeight = Math.min(TILE, tileBottom - (bottom - filled));
-                    float u0 = sprite.getU0();
-                    float u1 = u0 + (sprite.getU1() - u0) * tileWidth / TILE;
-                    float v1 = sprite.getV1();
-                    // The clipped tile keeps the *bottom* of the sprite, so the cut lands at the surface.
-                    float v0 = v1 - (v1 - sprite.getV0()) * tileHeight / TILE;
-
-                    graphics.blit(sprite.atlasLocation(),
-                        left + offsetX, tileBottom - tileHeight,
-                        left + offsetX + tileWidth, tileBottom,
-                        u0, u1, v0, v1);
-                }
-            }
-        }
-
-        graphics.fill(left, bottom - filled, left + TANK.width(), bottom - filled + 1, HONEY_TOP);
-    }
-
-    /// The still sprite the fluid is rendered with in the world, or null before the atlas exists.
-    private static @Nullable TextureAtlasSprite honeySprite() {
-        Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.getModelManager() == null) {
-            return null;
-        }
-
-        try {
-            FluidModel model = minecraft.getModelManager()
-                .getFluidStateModelSet()
-                .get(MelliferaFluids.HONEY.get().defaultFluidState());
-            return model.stillMaterial().sprite();
-        } catch (RuntimeException notReadyYet) {
-            // getFluidStateModelSet throws until models have baked, which is one frame at worst.
-            return null;
-        }
-    }
 
     /// The bay's plate and the two cells in it. The items themselves are real Slots and the base class
     /// draws them; this is only the furniture they sit in.
@@ -162,8 +88,7 @@ public class SqueezerScreen extends AbstractContainerScreen<SqueezerMenu> {
     }
 
     private boolean overTank(int x, int y, int mouseX, int mouseY) {
-        return mouseX >= x + TANK.x() && mouseX < x + TANK.x() + TANK.width()
-            && mouseY >= y + TANK.y() && mouseY < y + TANK.y() + TANK.height();
+        return HoneyGauge.isHovered(x, y, TANK, mouseX, mouseY);
     }
 
     /// Neither the strip nor the tank is a slot, so nothing draws their tooltips for us. Hooking

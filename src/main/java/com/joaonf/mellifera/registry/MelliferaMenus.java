@@ -4,6 +4,7 @@ import com.joaonf.mellifera.Mellifera;
 import com.joaonf.mellifera.menu.ApiaryMenu;
 import com.joaonf.mellifera.menu.CarpenterMenu;
 import com.joaonf.mellifera.menu.CentrifugeMenu;
+import com.joaonf.mellifera.menu.EngineMenu;
 import com.joaonf.mellifera.menu.SqueezerMenu;
 import com.joaonf.mellifera.menu.InfuserMenu;
 import com.joaonf.mellifera.menu.IsolatorMenu;
@@ -46,6 +47,11 @@ public final class MelliferaMenus {
     // ContainerData.
     public static final DeferredHolder<MenuType<?>, MenuType<CarpenterMenu>> CARPENTER =
         TYPES.register("carpenter", () -> IMenuTypeExtension.create(CarpenterMenu::new));
+
+    // The engine window reads its firebox, its buffer and its tank out of ContainerData like the
+    // rest of them.
+    public static final DeferredHolder<MenuType<?>, MenuType<EngineMenu>> ENGINE =
+        TYPES.register("engine", () -> IMenuTypeExtension.create(EngineMenu::new));
 
     private MelliferaMenus() {}
 

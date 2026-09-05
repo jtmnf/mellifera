@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_piston": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:piston"
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "mellifera:engine"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_piston"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "mellifera:engine"
+    ]
+  }
+}

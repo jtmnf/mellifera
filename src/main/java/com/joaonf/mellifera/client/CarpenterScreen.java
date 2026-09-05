@@ -1,7 +1,5 @@
 package com.joaonf.mellifera.client;
 
-import org.jspecify.annotations.Nullable;
-
 import com.joaonf.mellifera.Mellifera;
 import com.joaonf.mellifera.bee.CarpenterRecipe;
 import com.joaonf.mellifera.block.CarpenterBlockEntity;
@@ -9,14 +7,10 @@ import com.joaonf.mellifera.item.FrameItem;
 import com.joaonf.mellifera.menu.CarpenterMenu;
 import com.joaonf.mellifera.registry.MelliferaCarpenterRecipes;
 import com.joaonf.mellifera.registry.MelliferaDataComponents;
-import com.joaonf.mellifera.registry.MelliferaFluids;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.block.FluidModel;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
@@ -44,10 +38,6 @@ public class CarpenterScreen extends AbstractContainerScreen<CarpenterMenu> {
     private static final MachineGeometry.Rect TANK = MachineGeometry.CARPENTER_TANK;
 
     private static final int BAR_FILL = 0xFFE0A526;
-    private static final int HONEY_TOP = 0xFFE0A526;
-
-    /// One tile of the fluid sprite, which is what a fluid texture is authored at.
-    private static final int TILE = 16;
 
     public CarpenterScreen(CarpenterMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, WIDTH, HEIGHT);
@@ -66,7 +56,7 @@ public class CarpenterScreen extends AbstractContainerScreen<CarpenterMenu> {
         EnergyColumn.render(graphics, x, y, menu.energy());
 
         renderProgressBar(graphics, x, y);
-        renderTank(graphics, x, y);
+        HoneyGauge.render(graphics, x, y, TANK, menu.fluid(), CarpenterBlockEntity.TANK_CAPACITY);
     }
 
     // Fills left-to-right, like a furnace's arrow.
@@ -82,66 +72,7 @@ public class CarpenterScreen extends AbstractContainerScreen<CarpenterMenu> {
         }
     }
 
-    /// The honey the machine has left to spend, drawn from the fluid's *own* sprite for the same
-    /// reason the Squeezer's tank is: a flat rectangle would be the one place in the game where this
-    /// fluid does not look like itself, and its colour would have to be kept in step by hand.
-    private void renderTank(GuiGraphicsExtractor graphics, int x, int y) {
-        int filled = Math.round(TANK.height() * Math.min(1.0F, (float) menu.fluid() / CarpenterBlockEntity.TANK_CAPACITY));
-        if (menu.fluid() > 0 && filled == 0) {
-            filled = 1;
-        }
 
-        if (filled <= 0) {
-            return;
-        }
-
-        int left = x + TANK.x();
-        int bottom = y + TANK.y() + TANK.height();
-        TextureAtlasSprite sprite = honeySprite();
-
-        if (sprite == null) {
-            // Before the atlas is built there is nothing to read; a flat fill for one frame beats a hole.
-            graphics.fill(left, bottom - filled, left + TANK.width(), bottom, HONEY_TOP);
-        } else {
-            for (int offsetX = 0; offsetX < TANK.width(); offsetX += TILE) {
-                int tileWidth = Math.min(TILE, TANK.width() - offsetX);
-
-                for (int tileBottom = bottom; tileBottom > bottom - filled; tileBottom -= TILE) {
-                    int tileHeight = Math.min(TILE, tileBottom - (bottom - filled));
-                    float u0 = sprite.getU0();
-                    float u1 = u0 + (sprite.getU1() - u0) * tileWidth / TILE;
-                    float v1 = sprite.getV1();
-                    // The clipped tile keeps the *bottom* of the sprite, so the cut lands at the surface.
-                    float v0 = v1 - (v1 - sprite.getV0()) * tileHeight / TILE;
-
-                    graphics.blit(sprite.atlasLocation(),
-                        left + offsetX, tileBottom - tileHeight,
-                        left + offsetX + tileWidth, tileBottom,
-                        u0, u1, v0, v1);
-                }
-            }
-        }
-
-        graphics.fill(left, bottom - filled, left + TANK.width(), bottom - filled + 1, HONEY_TOP);
-    }
-
-    /// The still sprite liquid honey is rendered with in the world, or null before the atlas exists.
-    private static @Nullable TextureAtlasSprite honeySprite() {
-        Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.getModelManager() == null) {
-            return null;
-        }
-
-        try {
-            FluidModel model = minecraft.getModelManager()
-                .getFluidStateModelSet()
-                .get(MelliferaFluids.HONEY.get().defaultFluidState());
-            return model.stillMaterial().sprite();
-        } catch (RuntimeException notReadyYet) {
-            // getFluidStateModelSet throws until models have baked, which is one frame at worst.
-            return null;
-        }
-    }
 
     /// Neither the strip nor the gauge is a slot, so nothing draws their tooltips for us. Same hook
     /// the other machine screens use, for the same reason.
@@ -208,8 +139,7 @@ public class CarpenterScreen extends AbstractContainerScreen<CarpenterMenu> {
             return;
         }
 
-        if (mouseX >= x + TANK.x() && mouseX < x + TANK.x() + TANK.width()
-            && mouseY >= y + TANK.y() && mouseY < y + TANK.y() + TANK.height()) {
+        if (HoneyGauge.isHovered(x, y, TANK, mouseX, mouseY)) {
             graphics.setTooltipForNextFrame(font, Component.translatable("gui.mellifera.carpenter.tank",
                 menu.fluid(), CarpenterBlockEntity.TANK_CAPACITY), mouseX, mouseY);
         }

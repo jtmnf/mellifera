@@ -35,6 +35,17 @@ public final class MelliferaCapabilities {
         event.registerBlockEntity(Capabilities.Energy.BLOCK, MelliferaBlockEntities.CARPENTER.get(),
             (carpenter, side) -> carpenter.energy());
 
+        // The Engine's buffer, which is the one in the mod that pays out rather than takes in: its
+        // handler refuses insertion and allows extraction, so a cable pulls from it and nothing can
+        // charge it. See MachineGenerator.
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, MelliferaBlockEntities.ENGINE.get(),
+            (engine, side) -> engine.energy());
+
+        // And its tank, an input like the Carpenter's: this is where a pipe from a Tank puts the
+        // honey the engine burns.
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, MelliferaBlockEntities.ENGINE.get(),
+            (engine, side) -> engine.tank());
+
         // The Carpenter's tank, which is an input rather than an output: this is where a pipe from a
         // Tank puts the honey the machine spends.
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, MelliferaBlockEntities.CARPENTER.get(),

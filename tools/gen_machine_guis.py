@@ -124,6 +124,16 @@ MACHINES = {
         "tank_housing": (120, HOUSING_TOP, 155, HOUSING_BOTTOM),
         "track_x": 50,
     },
+    # The Engine borrows the Squeezer's layout exactly, and on purpose: one thing in on the left, a
+    # tank on the right, the track between them. It is the machine with the least to show -- no
+    # output slot at all, because what it makes leaves through the sides of the block -- and giving
+    # it furniture of its own would only have been decoration.
+    "engine": {
+        "slots": [(25, 40)],
+        "tank": (112, 24, 139, 70),
+        "tank_housing": (108, HOUSING_TOP, 143, HOUSING_BOTTOM),
+        "track_x": 52,
+    },
 }
 
 

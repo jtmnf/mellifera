@@ -107,6 +107,7 @@ public class MelliferaJeiPlugin implements IModPlugin {
             new CentrifugeCategory(guiHelper),
             new SqueezerCategory(guiHelper),
             new CarpenterCategory(guiHelper),
+            new EngineCategory(guiHelper),
             new IsolatorCategory(guiHelper),
             new InfuserCategory(guiHelper));
     }
@@ -137,6 +138,9 @@ public class MelliferaJeiPlugin implements IModPlugin {
         registration.addRecipes(CentrifugeCategory.TYPE, spins);
 
         registration.addRecipes(SqueezerCategory.TYPE, SqueezerJeiRecipe.all());
+
+        // The Engine has no recipes at all, only fuels: two rows built from its own constants.
+        registration.addRecipes(EngineCategory.TYPE, EngineJeiRecipe.all());
 
         registerCarpenterRecipes(registration);
 
@@ -216,6 +220,7 @@ public class MelliferaJeiPlugin implements IModPlugin {
         registration.addCraftingStation(CentrifugeCategory.TYPE, MelliferaBlocks.CENTRIFUGE_ITEM.get());
         registration.addCraftingStation(SqueezerCategory.TYPE, MelliferaBlocks.SQUEEZER_ITEM.get());
         registration.addCraftingStation(CarpenterCategory.TYPE, MelliferaBlocks.CARPENTER_ITEM.get());
+        registration.addCraftingStation(EngineCategory.TYPE, MelliferaBlocks.ENGINE_ITEM.get());
         registration.addCraftingStation(IsolatorCategory.TYPE, MelliferaBlocks.ISOLATOR_ITEM.get());
         registration.addCraftingStation(InfuserCategory.TYPE, MelliferaBlocks.INFUSER_ITEM.get());
     }

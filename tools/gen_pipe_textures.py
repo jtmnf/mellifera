@@ -35,15 +35,23 @@ WINDOW_TOP = 5
 
 STEEL = (IRON.shadow, IRON.mid, IRON.light, IRON.spec)
 
-# The glass. Barely there: a cold tint over what is behind it, and its own highlight along the top of
-# the round. The first pass sat at alpha 54 and the honey behind it came out olive -- glass that
-# changes the colour of what is in it is not glass, it is a filter.
+# The glass. Barely there: a cold tint over what is behind it, and a highlight along the top of the
+# round.
+#
+# Twice tuned, both times downward. At alpha 54 the honey behind it came out olive -- glass that
+# changes the colour of what is in it is a filter, not a window. And the highlight sat at 132, which
+# on a six-pixel pipe is a solid white bar across a third of the only clear part: what was meant to
+# say "there is glass here" was saying "there is nothing to see here".
 GLASS = (0x9E, 0xB4, 0xBC)
-GLASS_ALPHA = 26
-GLASS_SPEC_ALPHA = 132
+GLASS_ALPHA = 16
+GLASS_SPEC_ALPHA = 56
 
 # The skeleton: a rail along the lit edge of the round and another along its underside, with a brass
 # band at each end of the sheet where a section is bolted to the next.
+#
+# Two rails out of six rows is a third of the pipe in solid metal, and that is the most it can be.
+# Everything between them is the window, and the liquid inside is drawn wide enough to fill it -- see
+# the models, where the sleeve is five pixels inside a six-pixel shell rather than four.
 RAIL_ROWS = (0, 5)
 BAND_COLUMNS = (0, 15)
 

@@ -1,5 +1,6 @@
 package com.joaonf.mellifera;
 
+import com.joaonf.mellifera.block.TankAccess;
 import com.joaonf.mellifera.registry.MelliferaBlockEntities;
 
 import net.neoforged.bus.api.SubscribeEvent;
@@ -59,21 +60,21 @@ public final class MelliferaCapabilities {
         // And its tank, an input like the Carpenter's: this is where a pipe from a Tank puts the
         // honey the engine burns.
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, MelliferaBlockEntities.ENGINE.get(),
-            (engine, side) -> engine.tank());
+            (engine, side) -> TankAccess.input(engine.tank(), TankAccess.honey()));
 
-        // The Carpenter's tank, which is an input rather than an output: this is where a pipe from a
-        // Tank puts the honey the machine spends.
+        // The Carpenter's tank, an input: a pipe fills it with the honey the machine spends, and
+        // cannot take that honey back out again. See TankAccess for why the wrapper is there at all.
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, MelliferaBlockEntities.CARPENTER.get(),
-            (carpenter, side) -> carpenter.tank());
+            (carpenter, side) -> TankAccess.input(carpenter.tank(), TankAccess.honey()));
 
         // The Squeezer's tank, which is the whole reason the machine exists: without this a pipe has no
         // way to find the honey and the fluid never leaves the block.
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, MelliferaBlockEntities.SQUEEZER.get(),
-            (squeezer, side) -> squeezer.tank());
+            (squeezer, side) -> TankAccess.output(squeezer.tank()));
 
         // The Tank, on every face and in both directions -- a pipe fills it from one side and drains
         // it from another, and which face does which is the plumbing's business, not the block's.
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, MelliferaBlockEntities.TANK.get(),
-            (tank, side) -> tank.tank());
+            (tank, side) -> TankAccess.storage(tank.tank()));
     }
 }

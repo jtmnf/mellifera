@@ -116,6 +116,15 @@
             12
           ],
           "texture": "#collar"
+        },
+        "south": {
+          "uv": [
+            4,
+            4,
+            12,
+            12
+          ],
+          "texture": "#collar"
         }
       }
     },
@@ -170,6 +179,15 @@
           "rotation": 90
         },
         "south": {
+          "uv": [
+            4,
+            4,
+            12,
+            12
+          ],
+          "texture": "#collar"
+        },
+        "north": {
           "uv": [
             4,
             4,

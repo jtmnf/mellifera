@@ -116,6 +116,15 @@
           ],
           "texture": "#collar",
           "cullface": "north"
+        },
+        "south": {
+          "uv": [
+            4,
+            4,
+            12,
+            12
+          ],
+          "texture": "#collar"
         }
       }
     }

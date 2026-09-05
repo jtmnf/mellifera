@@ -1,5 +1,7 @@
 # Ideas
 
+Done items are left in place with what was decided, so the reasoning does not have to be rebuilt from the commit later.
+
 Things that could be added, roughly in the order they seem worth doing. Nothing here is a commitment, and none of it comes from playing the mod - it comes from reading the code, so anything about how something *feels* is inference.
 
 ## 1. Fluid ducts
@@ -26,7 +28,7 @@ It is data only, and it is the one thing on this list that changes what a new pl
 
 The least visible item on this list and the one that protects the rest of it.
 
-## 4. Comparator output on the machines
+## 4. Comparator output on the machines - done
 
 The Tank has it. The Centrifuge, Squeezer, Carpenter, Engine and Apiary do not. For anyone automating, this is the default expectation: read the progress, the tank level, or how much life a queen has left.
 
@@ -34,7 +36,7 @@ The Tank has it. The Centrifuge, Squeezer, Carpenter, Engine and Apiary do not. 
 
 The Engine's buffer is 20,000 FE and the Cable holds nothing, so honey burned overnight cannot be saved for the morning's work. It is the third power block and it closes the set.
 
-## 6. Redstone control
+## 6. Redstone control - done
 
 Switching an Engine or a hive off without breaking the block. Pairs with the comparator output above.
 

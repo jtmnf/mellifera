@@ -6,6 +6,7 @@ import com.joaonf.mellifera.registry.MelliferaBlockEntities;
 import com.mojang.serialization.MapCodec;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -74,6 +75,18 @@ public class IsolatorBlock extends BaseEntityBlock {
         }
 
         return InteractionResult.CONSUME;
+    }
+
+    /// A comparator on this machine reads what it has made and not yet given away. See
+    /// MachineSignal.
+    @Override
+    protected boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+        return level.getBlockEntity(pos) instanceof IsolatorBlockEntity isolator ? isolator.comparatorSignal() : 0;
     }
 
     @Override

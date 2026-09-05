@@ -135,6 +135,14 @@ public class EngineBlockEntity extends BlockEntity implements WorldlyContainer, 
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, EngineBlockEntity engine) {
+        if (MachineSignal.switchedOff(level, pos)) {
+            // Held off by redstone. Whatever is in the firebox stays in it, and the buffer stays
+            // where it is rather than emptying into the neighbours -- an engine switched off is off,
+            // not a battery being drained. See MachineSignal.
+            setWorking(level, pos, state, false);
+            return;
+        }
+
         // Pushing first, and unconditionally: a full buffer is what stops the engine burning, so
         // emptying it before deciding is the difference between an engine that pauses for a tick
         // and one that pauses until something else happens to it.
@@ -200,6 +208,12 @@ public class EngineBlockEntity extends BlockEntity implements WorldlyContainer, 
 
         setChanged();
         return true;
+    }
+
+    /// The power in the buffer: what the engine has made and nothing has taken yet. A full
+    /// reading means the machines it feeds are not asking for anything.
+    public int comparatorSignal() {
+        return MachineSignal.scaled(energy.stored(), MachineGenerator.CAPACITY);
     }
 
     // -- Container ---------------------------------------------------------------------

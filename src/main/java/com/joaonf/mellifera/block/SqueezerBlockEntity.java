@@ -137,6 +137,12 @@ public class SqueezerBlockEntity extends BlockEntity implements WorldlyContainer
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, SqueezerBlockEntity squeezer) {
+        if (MachineSignal.switchedOff(level, pos)) {
+            // Held off by redstone. Progress and fuel stay where they are; see MachineSignal.
+            setWorking(level, pos, state, false);
+            return;
+        }
+
         // Bottling first, and unconditionally: it costs no power and no progress, so a full tank with a
         // bucket waiting should empty into it even while the press itself is stalled.
         squeezer.bottle();
@@ -257,6 +263,11 @@ public class SqueezerBlockEntity extends BlockEntity implements WorldlyContainer
     public void debugPress() {
         forcePress = true;
         setChanged();
+    }
+
+    /// The honey in the tank, which is the whole of what this machine makes.
+    public int comparatorSignal() {
+        return MachineSignal.scaled(tank.stored(), TANK_CAPACITY);
     }
 
     // -- Container ---------------------------------------------------------------------

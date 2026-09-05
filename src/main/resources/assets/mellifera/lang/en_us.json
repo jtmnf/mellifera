@@ -310,6 +310,7 @@
   "gui.mellifera.work.forage_ok": "Flowers",
   "gui.mellifera.work.forage_poor": "Few flowers",
   "gui.mellifera.work.forage_count": "%s of %s flowers",
+  "gui.mellifera.work.switched_off": "Switched off by redstone",
   "gui.mellifera.work.foragers_out": "Foragers out",
   "gui.mellifera.work.foragers_in": "Foragers in",
   "gui.mellifera.work.foragers_dark": "Too dark to fly",

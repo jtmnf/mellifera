@@ -396,7 +396,8 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
         boolean climate = housing.ignoresClimate() || housing.inClimate(level, pos, ownGenome, species);
         boolean producing = climate
             && housing.flowersInRange > 0
-            && housing.foragersOut(level, pos);
+            && housing.foragersOut(level, pos)
+            && !MachineSignal.switchedOff(level, pos);
         housing.syncActivity(level, pos, state, producing, species.primaryColor(), housing.territoryRadius(ownGenome));
 
         if (producing) {
@@ -431,6 +432,15 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
         if (producing) {
             housing.tickFlowering(level, pos, ownGenome);
         }
+    }
+
+    /// How full the output bay is: combs the hive has made and nobody has collected.
+    ///
+    /// The bay rather than the queen's remaining life, which is the other number a player might
+    /// want. A comparator is for automation, and what automation needs to know is whether there is
+    /// anything to fetch -- the queen's clock is on the window for the player to read.
+    public int comparatorSignal() {
+        return MachineSignal.fullness(this, outputStart, outputStart + activeOutputSlots());
     }
 
     /// Whether the temperature here is inside this queen's band, resampled once a second rather

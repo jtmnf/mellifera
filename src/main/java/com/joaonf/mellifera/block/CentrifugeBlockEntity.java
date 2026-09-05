@@ -109,6 +109,12 @@ public class CentrifugeBlockEntity extends BlockEntity implements WorldlyContain
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, CentrifugeBlockEntity centrifuge) {
+        if (MachineSignal.switchedOff(level, pos)) {
+            // Held off by redstone. Progress and fuel stay where they are; see MachineSignal.
+            setWorking(level, pos, state, false);
+            return;
+        }
+
         CentrifugeRecipe recipe = centrifuge.currentRecipe();
 
         if (recipe == null) {
@@ -204,6 +210,11 @@ public class CentrifugeBlockEntity extends BlockEntity implements WorldlyContain
     public void debugSpin() {
         forceSpin = true;
         setChanged();
+    }
+
+    /// How full the output bay is: what the machine has spun down and nobody has collected.
+    public int comparatorSignal() {
+        return MachineSignal.fullness(this, SLOT_OUTPUT_START, TOTAL_SLOTS);
     }
 
     // -- Container ---------------------------------------------------------------------

@@ -137,6 +137,12 @@ public class IsolatorBlockEntity extends BlockEntity implements WorldlyContainer
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, IsolatorBlockEntity isolator) {
+        if (MachineSignal.switchedOff(level, pos)) {
+            // Held off by redstone. Progress and fuel stay where they are; see MachineSignal.
+            setWorking(level, pos, state, false);
+            return;
+        }
+
         // A run already under way keeps going from the stored genome, with the bee long
         // gone; otherwise a fresh bee in the slot starts one.
         if (isolator.trackedGenome == null) {
@@ -260,6 +266,11 @@ public class IsolatorBlockEntity extends BlockEntity implements WorldlyContainer
                 return;
             }
         }
+    }
+
+    /// The serums drawn off and not yet collected.
+    public int comparatorSignal() {
+        return MachineSignal.fullness(this, SLOT_OUTPUT_START, TOTAL_SLOTS);
     }
 
     // -- Container ---------------------------------------------------------------------

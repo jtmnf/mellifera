@@ -511,6 +511,20 @@ public class ApiaryBlock extends BaseEntityBlock {
         apiary.setLevels(level, levels);
     }
 
+    /// A comparator reads the output bay: see BeeHousingBlockEntity.comparatorSignal. Only the
+    /// controller of a stack answers, because only the controller has bees in it.
+    @Override
+    protected boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
+        return level.getBlockEntity(pos) instanceof BeeHousingBlockEntity housing && isController(level, pos)
+            ? housing.comparatorSignal()
+            : 0;
+    }
+
     @Override
     protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
         Containers.updateNeighboursAfterDestroy(state, level, pos);

@@ -118,6 +118,12 @@ public class CarpenterBlockEntity extends BlockEntity implements WorldlyContaine
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, CarpenterBlockEntity carpenter) {
+        if (MachineSignal.switchedOff(level, pos)) {
+            // Held off by redstone. Progress and fuel stay where they are; see MachineSignal.
+            setWorking(level, pos, state, false);
+            return;
+        }
+
         Job job = carpenter.job();
 
         if (job == null) {
@@ -242,6 +248,11 @@ public class CarpenterBlockEntity extends BlockEntity implements WorldlyContaine
 
     /// One thing to make: what it costs, how long it takes, and what comes out.
     private record Job(int honeyMb, int ticks, ItemStack result) {}
+
+    /// The finished frame waiting to be taken. One slot, so this is 0 or 15 and nothing between.
+    public int comparatorSignal() {
+        return MachineSignal.fullness(this, SLOT_OUTPUT, SLOT_OUTPUT + 1);
+    }
 
     // -- Container ---------------------------------------------------------------------
 

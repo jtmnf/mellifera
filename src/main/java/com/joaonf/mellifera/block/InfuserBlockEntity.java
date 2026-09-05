@@ -129,6 +129,12 @@ public class InfuserBlockEntity extends BlockEntity implements WorldlyContainer,
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, InfuserBlockEntity infuser) {
+        if (MachineSignal.switchedOff(level, pos)) {
+            // Held off by redstone. Progress and fuel stay where they are; see MachineSignal.
+            setWorking(level, pos, state, false);
+            return;
+        }
+
         // Fuel first, and regardless of whether there is anything to infuse: see topUp.
         infuser.topUp();
 
@@ -253,6 +259,13 @@ public class InfuserBlockEntity extends BlockEntity implements WorldlyContainer,
 
     public ContainerData containerData() {
         return data;
+    }
+
+    /// The one machine whose comparator does not read its output, because it has none -- the bee
+    /// it writes to is the bee you put in, and it leaves by the slot it arrived in. So this reads
+    /// the rack instead: how much work is still queued up on it.
+    public int comparatorSignal() {
+        return MachineSignal.fullness(this, SLOT_SERUM_START, TOTAL_SLOTS);
     }
 
     // -- container ----------------------------------------------------------------------------

@@ -202,7 +202,20 @@ public class WorkPanel extends SideTab {
 
         climate(checks, level);
         forage(checks, level);
+        switched(checks, level);
         return checks;
+    }
+
+    /// The one gate a player sets themselves.
+    ///
+    /// Only shown when it is actually stopping the hive: a row saying "nobody has wired a lever to
+    /// this" would be on every window in the world forever. Read off the world rather than sent
+    /// from the server, like every other check here -- redstone power lives in the block states the
+    /// client already has, so both sides reach the same answer by asking the same question.
+    private void switched(List<Check> checks, Level level) {
+        if (level.hasNeighborSignal(menu.apiaryPos())) {
+            checks.add(new Check(Status.BAD, Component.translatable("gui.mellifera.work.switched_off")));
+        }
     }
 
     /// The gate that stops a hive dead, and the only one with figures worth printing.

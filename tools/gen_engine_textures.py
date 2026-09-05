@@ -88,30 +88,44 @@ def side_panel(frame, ramp, running):
 
 
 def top_panel(frame, ramp, running):
-    """The engine from above: a flywheel turning beside the flue it breathes out of."""
+    """The engine from above: a flywheel turning under a bolted plate.
+
+    Drawn as a ring with one lit spoke rather than as scattered highlights. The first pass laid the
+    wheel over a checkered plate and the two read as one field of noise -- at 10x10 a mechanism has
+    to be the only thing on the face with a shape, or it is not a mechanism.
+    """
     panel = blank_panel()
 
+    # A plain plate, lit from the upper left like every other machined part in the family.
     for y in range(PANEL):
         for x in range(PANEL):
-            put(panel, x, y, IRON.shadow if (x + y) % 2 else IRON.mid)
+            put(panel, x, y, IRON.mid)
+    for i in range(PANEL):
+        put(panel, i, 0, IRON.light)
+        put(panel, 0, i, IRON.light)
+        put(panel, i, PANEL - 1, IRON.shadow)
+        put(panel, PANEL - 1, i, IRON.shadow)
 
-    # The flywheel: a ring with one marked spoke, so the turn is legible instead of a shimmer.
-    centre = (PANEL - 4) // 2 + 1
-    for x, y in ((centre, centre - 2), (centre, centre + 2), (centre - 2, centre), (centre + 2, centre),
-                 (centre - 1, centre - 1), (centre + 1, centre - 1), (centre - 1, centre + 1), (centre + 1, centre + 1)):
-        put(panel, x, y, IRON.light)
+    # The wheel: a ring two pixels inside the plate, thick enough to survive being a circle drawn on
+    # ten pixels. Anything smaller closes into a blob and anything larger touches the rivets.
+    centre = (PANEL - 1) / 2.0
+    for y in range(PANEL):
+        for x in range(PANEL):
+            radius = np.hypot(x - centre, y - centre)
+            if 2.6 <= radius <= 3.7:
+                put(panel, x, y, IRON.shadow if y > centre else IRON.spec)
 
+    # One spoke, and the hub it turns on. The spoke is the whole of the animation: a ring that
+    # brightens all over would read as a lamp rather than as a wheel going round.
     angle = (frame / FRAMES) * 2.0 * np.pi
-    spoke_x = centre + int(round(np.cos(angle) * 2))
-    spoke_y = centre + int(round(np.sin(angle) * 2))
-    put(panel, spoke_x, spoke_y, ramp.spec if running else IRON.spec)
-    put(panel, centre, centre, ramp.mid if running else IRON.shadow)
+    for reach in (1.6, 3.0):
+        put(panel,
+            int(round(centre + np.cos(angle) * reach)),
+            int(round(centre + np.sin(angle) * reach)),
+            ramp.spec if running else IRON.light)
 
-    # The flue in the far corner, breathing on the same cycle as the stroke below.
-    flue = ramp.light if running and (frame // 2) % 2 == 0 else IRON.shadow
-    for y in range(PANEL - 3, PANEL - 1):
-        for x in range(PANEL - 3, PANEL - 1):
-            put(panel, x, y, flue)
+    for x, y in ((4, 4), (5, 4), (4, 5), (5, 5)):
+        put(panel, x, y, ramp.mid if running else IRON.shadow)
 
     for x, y in ((1, 1), (PANEL - 2, 1), (1, PANEL - 2), (PANEL - 2, PANEL - 2)):
         put(panel, x, y, RIVET if y == 1 else RIVET_DARK)

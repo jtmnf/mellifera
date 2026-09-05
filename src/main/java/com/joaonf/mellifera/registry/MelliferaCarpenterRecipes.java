@@ -41,12 +41,18 @@ public final class MelliferaCarpenterRecipes {
     private static final int STANDARD_TICKS = 400;
     private static final int GATE_TICKS = 600;
 
-    /// Honey to make a worn frame whole again, whatever kind it is.
+    /// Honey to make a worn frame whole again: a quarter of what that frame costs new, never less
+    /// than REPAIR_FLOOR_MB.
     ///
-    /// A flat rate, and cheaper than any frame here. It has to be: the point of repair is that a
-    /// spent Insulation frame is worth carrying back rather than throwing away, and a repair priced
-    /// near a new frame would just be a new frame with extra steps.
-    public static final int REPAIR_MB = 200;
+    /// A quarter rather than a flat rate. The point of repair is that a spent frame is worth
+    /// carrying back rather than throwing away, and a flat 200 said that about a Luminous frame
+    /// (1000 new) while saying the opposite about a Terminator (250 new, so a repair at 200 was a
+    /// new frame with extra steps and an ash saved). A fraction says the same thing about every
+    /// frame in the table, including any added later.
+    ///
+    /// The floor is for the plain frame, which has no row here -- it is the blank, made of sticks
+    /// and wax on the bench -- and for anything else the table cannot price.
+    public static final int REPAIR_FLOOR_MB = 100;
     public static final int REPAIR_TICKS = 200;
 
     private static final List<CarpenterRecipe> RECIPES = List.of(
@@ -80,6 +86,22 @@ public final class MelliferaCarpenterRecipes {
             MelliferaItems.FRAME_TERMINATOR));
 
     private MelliferaCarpenterRecipes() {}
+
+    /// What this frame costs to build, or 0 for one the table does not make.
+    public static int buildMb(ItemStack frame) {
+        for (CarpenterRecipe recipe : RECIPES) {
+            if (frame.is(recipe.result().get())) {
+                return recipe.honeyMb();
+            }
+        }
+
+        return 0;
+    }
+
+    /// What it costs to make this one whole again. See REPAIR_FLOOR_MB.
+    public static int repairMb(ItemStack frame) {
+        return Math.max(REPAIR_FLOOR_MB, buildMb(frame) / 4);
+    }
 
     public static List<CarpenterRecipe> all() {
         return RECIPES;

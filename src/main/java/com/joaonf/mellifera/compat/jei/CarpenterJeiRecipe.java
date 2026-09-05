@@ -42,7 +42,7 @@ public record CarpenterJeiRecipe(ItemStack frame, ItemStack ingredient, FluidSta
         return new CarpenterJeiRecipe(
             worn,
             ItemStack.EMPTY,
-            new FluidStack(MelliferaFluids.HONEY.get(), MelliferaCarpenterRecipes.REPAIR_MB),
+            new FluidStack(MelliferaFluids.HONEY.get(), MelliferaCarpenterRecipes.repairMb(fresh)),
             fresh,
             MelliferaCarpenterRecipes.REPAIR_TICKS);
     }

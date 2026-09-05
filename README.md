@@ -15,21 +15,47 @@ Diamond and Ecstatic lines at the top of each one, reached through a mutation tr
 climate, biome, date and the parents you feed it. The Apiarist Database item lists every
 species you have discovered, its products, and the pairs that lead to it.
 
-Queens drop combs; the Centrifuge turns those into honey, wax, propolis, phosphor and the
-resource drops of the deeper branches. Specialised Frames in the Apiary trade lifespan for
-production, force dominant or recessive inheritance, or raise the mutation rate. The Isolator
-extracts a single gene from a bee into a Serum, and the Infuser writes that Serum back into
-another bee, so a line can be built deliberately instead of by luck.
+Queens drop combs; the Centrifuge turns those into honey drops, wax, propolis, phosphor and
+the resource drops of the deeper branches. The Squeezer presses those drops into liquid honey,
+the Tank holds it, and the Carpenter spends it building the Frames that go back into the hive.
+The Isolator extracts a single gene from a bee into a Serum, and the Infuser writes that Serum
+back into another bee, so a line can be built deliberately instead of by luck.
 
-The machines run on Forge Energy and work with any tech mod that provides it.
+The machines run on Forge Energy and work with any tech mod that provides it. Power is speed
+and not permission: every one of them runs by hand at an eighth of the rate, so nothing in the
+mod is gated behind having a generator.
+
+The machines
+============
+- **Apiary** -- where a queen works. Three frame slots a level, and stacking them makes one
+  taller hive that works faster and carries a row of frames per level.
+- **Centrifuge** -- combs in, their contents out.
+- **Squeezer** -- honey drops and honeydew in, liquid honey out. Four drops to a bucket, eight
+  honeydew, and a bucket bay on the side for a player without pipes.
+- **Tank** -- sixteen buckets of any fluid, filled and drained by hand or by pipe.
+- **Carpenter** -- the plain Frame plus one ingredient and some honey becomes a specialised
+  frame; a worn frame with nothing beside it becomes a fresh one for a quarter of what it cost
+  to build.
+- **Isolator** -- a bee in, its eight genes out as Serums. The bee is used up.
+- **Infuser** -- a Serum and a bee in, that bee with the gene written into it out. Pollen
+  powers the writing.
+
+Frames
+======
+Every special frame is made in the Carpenter out of the plain one, and every one of them wears
+out with use. Three of them lift a stop a player has no other answer to -- the climate band a
+species will not work outside of (Insulation), the dark (Luminous) and the rain (Canopy) -- and
+those three are the most expensive for that reason. The rest trade in what a working hive is
+already doing: more combs, faster cycles, forced dominant or recessive inheritance, a higher
+mutation rate, a queen ended after one cycle, or a hive that re-queens itself.
 
 Requirements
 ============
 - Minecraft 26.2
 - NeoForge 26.2.0.56-beta or later
-- JEI, optional. With it installed, every comb, centrifuge recipe and mutation gets a page,
-  and a bee can be dragged from JEI onto an Apiary to set it as that hive's breeding
-  objective.
+- JEI, optional. With it installed, every comb, centrifuge recipe, mutation, squeezer and
+  carpenter recipe and both genetics machines get a page, and a bee can be dragged from JEI
+  onto an Apiary to set it as that hive's breeding objective.
 
 Bees of your own
 ================

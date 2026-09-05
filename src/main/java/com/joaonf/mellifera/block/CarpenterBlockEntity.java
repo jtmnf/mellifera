@@ -45,7 +45,7 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 /// the Squeezer's. It is filled by a pipe or by hand from a honey bucket, and drained by working.
 ///
 /// It also repairs. A frame that has worn down goes in the frame slot with nothing beside it and
-/// comes out fresh for a flat REPAIR_MB -- the reason a spent Insulation frame is worth carrying
+/// comes out fresh for a quarter of its build price -- the reason a spent Insulation frame is worth carrying
 /// home rather than dropping.
 public class CarpenterBlockEntity extends BlockEntity implements WorldlyContainer, MenuProvider {
     public static final int SLOT_FRAME = 0;
@@ -162,8 +162,8 @@ public class CarpenterBlockEntity extends BlockEntity implements WorldlyContaine
                 return null;
             }
 
-            return offerable(new Job(MelliferaCarpenterRecipes.REPAIR_MB, MelliferaCarpenterRecipes.REPAIR_TICKS,
-                repaired(frame)));
+            return offerable(new Job(MelliferaCarpenterRecipes.repairMb(frame),
+                MelliferaCarpenterRecipes.REPAIR_TICKS, repaired(frame)));
         }
 
         CarpenterRecipe recipe = MelliferaCarpenterRecipes.find(frame, ingredient);

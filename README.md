@@ -45,6 +45,11 @@ The machines
   next to it. A bucket of honey is 40,000 FE and a peat is 16,000, and it burns one fuel at a
   time: honey first, since that is the one that arrives by pipe. It will not burn into a full
   buffer, so an idle engine spends nothing.
+- **Cable** -- carries that power to machines the Engine is not touching. It holds nothing: a
+  push into any part of a run is handed straight to every machine that run reaches, so there is
+  no charge in a wire to lose and no delay down its length. It connects to anything that takes
+  Forge Energy, this mod's or another's, and it does not pull -- a generator that waits to be
+  drained still needs its own mod's cable.
 - **Isolator** -- a bee in, its eight genes out as Serums. The bee is used up.
 - **Infuser** -- a Serum and a bee in, that bee with the gene written into it out. Pollen
   powers the writing.

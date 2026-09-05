@@ -35,6 +35,11 @@ public final class MelliferaCapabilities {
         event.registerBlockEntity(Capabilities.Energy.BLOCK, MelliferaBlockEntities.CARPENTER.get(),
             (carpenter, side) -> carpenter.energy());
 
+        // The cable, on all six faces. It stores nothing -- what is inserted here is handed
+        // straight on to the machines behind it, in the caller's own transaction.
+        event.registerBlockEntity(Capabilities.Energy.BLOCK, MelliferaBlockEntities.CABLE.get(),
+            (cable, side) -> cable.conductor());
+
         // The Engine's buffer, which is the one in the mod that pays out rather than takes in: its
         // handler refuses insertion and allows extraction, so a cable pulls from it and nothing can
         // charge it. See MachineGenerator.

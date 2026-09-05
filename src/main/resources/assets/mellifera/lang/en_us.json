@@ -348,6 +348,7 @@
   "block.mellifera.carpenter": "Carpenter",
   "gui.mellifera.carpenter.tank": "%s / %s mB",
   "block.mellifera.engine": "Engine",
+  "block.mellifera.cable": "Cable",
   "gui.mellifera.engine.tank": "%s / %s mB",
   "gui.mellifera.jei.engine": "Engine Fuel",
   "gui.mellifera.jei.engine.output": "%s FE total",

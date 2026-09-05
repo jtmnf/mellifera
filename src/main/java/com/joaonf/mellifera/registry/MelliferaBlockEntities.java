@@ -3,6 +3,7 @@ package com.joaonf.mellifera.registry;
 import com.joaonf.mellifera.Mellifera;
 import com.joaonf.mellifera.block.ApiaryBlockEntity;
 import com.joaonf.mellifera.block.CarpenterBlockEntity;
+import com.joaonf.mellifera.block.CableBlockEntity;
 import com.joaonf.mellifera.block.CentrifugeBlockEntity;
 import com.joaonf.mellifera.block.EngineBlockEntity;
 import com.joaonf.mellifera.block.SqueezerBlockEntity;
@@ -34,6 +35,10 @@ public final class MelliferaBlockEntities {
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CarpenterBlockEntity>> CARPENTER =
         TYPES.register("carpenter", () -> new BlockEntityType<>(CarpenterBlockEntity::new, MelliferaBlocks.CARPENTER.get()));
+
+    // Never ticks: it exists only to hang the energy capability on. See CableBlockEntity.
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CableBlockEntity>> CABLE =
+        TYPES.register("cable", () -> new BlockEntityType<>(CableBlockEntity::new, MelliferaBlocks.CABLE.get()));
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<EngineBlockEntity>> ENGINE =
         TYPES.register("engine", () -> new BlockEntityType<>(EngineBlockEntity::new, MelliferaBlocks.ENGINE.get()));

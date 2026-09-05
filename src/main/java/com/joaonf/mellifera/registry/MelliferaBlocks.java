@@ -5,6 +5,7 @@ import java.util.List;
 import com.joaonf.mellifera.Mellifera;
 import com.joaonf.mellifera.block.ApiaryBlock;
 import com.joaonf.mellifera.block.CarpenterBlock;
+import com.joaonf.mellifera.block.CableBlock;
 import com.joaonf.mellifera.block.CentrifugeBlock;
 import com.joaonf.mellifera.block.EngineBlock;
 import com.joaonf.mellifera.block.SqueezerBlock;
@@ -103,6 +104,19 @@ public final class MelliferaBlocks {
             .sound(SoundType.STONE));
 
     public static final DeferredItem<BlockItem> CARPENTER_ITEM = ITEMS.registerSimpleBlockItem(CARPENTER);
+
+    // The wire between the two. Copper and wax rather than iron and stone: it is the one thing
+    // here that is not a machine, and it should not read as one at a distance.
+    public static final DeferredBlock<CableBlock> CABLE = BLOCKS.registerBlock(
+        "cable",
+        CableBlock::new,
+        p -> p.mapColor(MapColor.TERRACOTTA_ORANGE)
+            .requiresCorrectToolForDrops()
+            .strength(1.0F)
+            .noOcclusion()
+            .sound(SoundType.COPPER));
+
+    public static final DeferredItem<BlockItem> CABLE_ITEM = ITEMS.registerSimpleBlockItem(CABLE);
 
     // The only block here that makes power instead of spending it. Brighter than the rest when it
     // runs -- 13 against the family's 7 -- because this one has a fire in it and a row of engines

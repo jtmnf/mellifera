@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
+    "mellifera:cable",
     "mellifera:carpenter",
     "mellifera:centrifuge",
     "mellifera:engine",

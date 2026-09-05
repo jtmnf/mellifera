@@ -43,11 +43,6 @@ GLASS = (0x9E, 0xB4, 0xBC)
 GLASS_ALPHA = 30
 GLASS_SPEC_ALPHA = 90
 
-# The liquid, from the lit top of the round down to its floor. Four rows, which is what a one-pixel
-# frame leaves of a six-pixel cell.
-LIQUID = (0xFF, 0xE2, 0xC0, 0x98)
-
-
 def rgba(color, alpha=255):
     return (color[0], color[1], color[2], alpha)
 
@@ -95,25 +90,6 @@ def shell():
     return image
 
 
-def fluid():
-    """The liquid inside, white so it can be tinted to any fluid."""
-    image = np.zeros((SIZE, SIZE, 4), np.uint8)
-
-    for left, top, size in CELLS:
-        for row in range(size):
-            # Shaded down the cell like a body of liquid seen from the side, and painted across the
-            # whole cell rather than only the window: the sleeve is wider than the window, so its
-            # edges sit behind the frame and must not be a different colour there.
-            level = LIQUID[min(len(LIQUID) - 1, max(0, row - 1))]
-
-            for column in range(size):
-                ripple = 10 if (column + row) % 5 == 0 else 0
-                value = min(255, level + ripple)
-                image[top + row, left + column] = (value, value, value, 255)
-
-    return image
-
-
 def collar(brass):
     """The ring where a pipe clamps onto a machine, in two colours.
 
@@ -135,36 +111,23 @@ def collar(brass):
 
 
 def generate(out):
-    for name, image in (("pipe", shell()), ("pipe_fluid", fluid()),
+    for name, image in (("pipe", shell()),
                         ("pipe_collar_draw", collar(True)), ("pipe_collar_feed", collar(False))):
         Image.fromarray(image).save("%s/%s.png" % (out, name))
         print("%s/%s.png  16x16  still" % (out, name))
 
 
 def preview(textures, out, scale_to=14):
-    """Both cells, empty and with liquid behind them, at the size the models actually show them.
+    """The two cells of casing and the two collars, at the size the models show them.
 
-    The liquid is tinted the way the game will tint it: white says nothing about whether the two
-    sheets work together.
+    There is no liquid to compose behind them any more: what goes in the window is drawn by
+    PipeRenderer out of the fluid's own sprite, which this script never sees.
     """
-    HONEY = (0xE0, 0xA5, 0x26)
-
     shell_sheet = Image.open("%s/pipe.png" % textures).convert("RGBA")
-    fluid_sheet = Image.open("%s/pipe_fluid.png" % textures).convert("RGBA")
     rings = [Image.open("%s/pipe_collar_%s.png" % (textures, kind)).convert("RGBA")
              for kind in ("draw", "feed")]
 
-    tinted = Image.fromarray(
-        (np.array(fluid_sheet, np.float32) * np.array([*[c / 255.0 for c in HONEY], 1.0], np.float32))
-        .astype(np.uint8))
-    over = Image.alpha_composite(tinted, shell_sheet)
-
-    tiles = []
-    for left, top, size in CELLS:
-        box = (left, top, left + size, top + size)
-        tiles.append(shell_sheet.crop(box))
-        tiles.append(over.crop(box))
-
+    tiles = [shell_sheet.crop((left, top, left + size, top + size)) for left, top, size in CELLS]
     tiles += [ring.crop((0, 0, 2, 6)) for ring in rings]
 
     scaled = [t.resize((t.width * scale_to, t.height * scale_to), Image.NEAREST) for t in tiles]

@@ -7,27 +7,10 @@
     },
     {
       "when": {
-        "flowing": "true"
-      },
-      "apply": {
-        "model": "mellifera:block/pipe_core_fluid"
-      }
-    },
-    {
-      "when": {
         "north": "pipe"
       },
       "apply": {
         "model": "mellifera:block/pipe_arm"
-      }
-    },
-    {
-      "when": {
-        "north": "pipe",
-        "flowing": "true"
-      },
-      "apply": {
-        "model": "mellifera:block/pipe_arm_fluid"
       }
     },
     {
@@ -40,15 +23,6 @@
     },
     {
       "when": {
-        "north": "draw",
-        "flowing": "true"
-      },
-      "apply": {
-        "model": "mellifera:block/pipe_arm_fluid"
-      }
-    },
-    {
-      "when": {
         "north": "feed"
       },
       "apply": {
@@ -57,29 +31,10 @@
     },
     {
       "when": {
-        "north": "feed",
-        "flowing": "true"
-      },
-      "apply": {
-        "model": "mellifera:block/pipe_arm_fluid"
-      }
-    },
-    {
-      "when": {
         "east": "pipe"
       },
       "apply": {
         "model": "mellifera:block/pipe_arm",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "east": "pipe",
-        "flowing": "true"
-      },
-      "apply": {
-        "model": "mellifera:block/pipe_arm_fluid",
         "y": 90
       }
     },
@@ -94,30 +49,10 @@
     },
     {
       "when": {
-        "east": "draw",
-        "flowing": "true"
-      },
-      "apply": {
-        "model": "mellifera:block/pipe_arm_fluid",
-        "y": 90
-      }
-    },
-    {
-      "when": {
         "east": "feed"
       },
       "apply": {
         "model": "mellifera:block/pipe_arm_feed",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "east": "feed",
-        "flowing": "true"
-      },
-      "apply": {
-        "model": "mellifera:block/pipe_arm_fluid",
         "y": 90
       }
     },
@@ -132,30 +67,10 @@
     },
     {
       "when": {
-        "south": "pipe",
-        "flowing": "true"
-      },
-      "apply": {
-        "model": "mellifera:block/pipe_arm_fluid",
-        "y": 180
-      }
-    },
-    {
-      "when": {
         "south": "draw"
       },
       "apply": {
         "model": "mellifera:block/pipe_arm_draw",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "south": "draw",
-        "flowing": "true"
-      },
-      "apply": {
-        "model": "mellifera:block/pipe_arm_fluid",
         "y": 180
       }
     },
@@ -170,30 +85,10 @@
     },
     {
       "when": {
-        "south": "feed",
-        "flowing": "true"
-      },
-      "apply": {
-        "model": "mellifera:block/pipe_arm_fluid",
-        "y": 180
-      }
-    },
-    {
-      "when": {
         "west": "pipe"
       },
       "apply": {
         "model": "mellifera:block/pipe_arm",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "west": "pipe",
-        "flowing": "true"
-      },
-      "apply": {
-        "model": "mellifera:block/pipe_arm_fluid",
         "y": 270
       }
     },
@@ -208,30 +103,10 @@
     },
     {
       "when": {
-        "west": "draw",
-        "flowing": "true"
-      },
-      "apply": {
-        "model": "mellifera:block/pipe_arm_fluid",
-        "y": 270
-      }
-    },
-    {
-      "when": {
         "west": "feed"
       },
       "apply": {
         "model": "mellifera:block/pipe_arm_feed",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "west": "feed",
-        "flowing": "true"
-      },
-      "apply": {
-        "model": "mellifera:block/pipe_arm_fluid",
         "y": 270
       }
     },
@@ -246,30 +121,10 @@
     },
     {
       "when": {
-        "up": "pipe",
-        "flowing": "true"
-      },
-      "apply": {
-        "model": "mellifera:block/pipe_arm_fluid",
-        "x": 270
-      }
-    },
-    {
-      "when": {
         "up": "draw"
       },
       "apply": {
         "model": "mellifera:block/pipe_arm_draw",
-        "x": 270
-      }
-    },
-    {
-      "when": {
-        "up": "draw",
-        "flowing": "true"
-      },
-      "apply": {
-        "model": "mellifera:block/pipe_arm_fluid",
         "x": 270
       }
     },
@@ -284,30 +139,10 @@
     },
     {
       "when": {
-        "up": "feed",
-        "flowing": "true"
-      },
-      "apply": {
-        "model": "mellifera:block/pipe_arm_fluid",
-        "x": 270
-      }
-    },
-    {
-      "when": {
         "down": "pipe"
       },
       "apply": {
         "model": "mellifera:block/pipe_arm",
-        "x": 90
-      }
-    },
-    {
-      "when": {
-        "down": "pipe",
-        "flowing": "true"
-      },
-      "apply": {
-        "model": "mellifera:block/pipe_arm_fluid",
         "x": 90
       }
     },
@@ -322,30 +157,10 @@
     },
     {
       "when": {
-        "down": "draw",
-        "flowing": "true"
-      },
-      "apply": {
-        "model": "mellifera:block/pipe_arm_fluid",
-        "x": 90
-      }
-    },
-    {
-      "when": {
         "down": "feed"
       },
       "apply": {
         "model": "mellifera:block/pipe_arm_feed",
-        "x": 90
-      }
-    },
-    {
-      "when": {
-        "down": "feed",
-        "flowing": "true"
-      },
-      "apply": {
-        "model": "mellifera:block/pipe_arm_fluid",
         "x": 90
       }
     }

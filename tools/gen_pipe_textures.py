@@ -6,12 +6,11 @@
 Not part of the Gradle build, and kept for the same reason as every other generator here: the PNGs
 it writes are otherwise unmaintainable binary blobs.
 
-TWO SHEETS, because the pipe is two pieces of geometry: `pipe` is the glass shell, and `pipe_fluid`
-is the liquid inside it. The shell is mostly transparent -- that is the whole point of the block, and
-the model marks it force_translucent so it renders as glass rather than as a cutout. What is left of
-it is a machined skeleton: iron rails along the length, brass at the seams, and a specular streak
-where the light catches the round. Enough to read as a pipe from across a room and thin enough to see
-the honey move.
+TWO SHEETS, because the pipe is two pieces of geometry: `pipe` is the shell, and `pipe_fluid` is the
+liquid inside it. The shell is iron with a sight glass down the middle of it -- two rows of window in
+six rows of round -- and the model marks that texture force_translucent so the glass part renders as
+glass rather than as a hole. Enough casing to read as plumbing from across a room, enough window to
+watch the honey move.
 
 The liquid sheet is deliberately colourless -- a white with the round shaded into it. It is tinted at
 runtime by whatever is going through, which is what lets one texture carry this mod's honey and
@@ -46,13 +45,16 @@ GLASS = (0x9E, 0xB4, 0xBC)
 GLASS_ALPHA = 16
 GLASS_SPEC_ALPHA = 56
 
-# The skeleton: a rail along the lit edge of the round and another along its underside, with a brass
-# band at each end of the sheet where a section is bolted to the next.
+# The skeleton: metal along the top and bottom of the round, a brass band at each end of the sheet
+# where a section bolts to the next, and a window between them.
 #
-# Two rails out of six rows is a third of the pipe in solid metal, and that is the most it can be.
-# Everything between them is the window, and the liquid inside is drawn wide enough to fill it -- see
-# the models, where the sleeve is five pixels inside a six-pixel shell rather than four.
-RAIL_ROWS = (0, 5)
+# The window is two rows of the six, not four. Four was the first instinct -- more glass, more to see
+# -- and it was wrong twice over: a pipe that is mostly transparent has no silhouette, so a run of it
+# read as a faint smear rather than as plumbing, and a wide band of near-invisible glass makes the
+# thin line of liquid inside it look like a mistake rather than a fill. Two rows of window in four of
+# casing is a pipe with a sight glass, which is the thing this is meant to be.
+RAIL_ROWS = (0, 1, 4, 5)
+WINDOW_ROWS = (2, 3)
 BAND_COLUMNS = (0, 15)
 
 
@@ -77,12 +79,13 @@ def shell():
 
         for x in range(SIZE):
             if offset in RAIL_ROWS:
-                # Solid metal: the rails are what the eye follows, and they are the only part of the
-                # shell that is not see-through.
+                # Solid metal: the casing is what gives the pipe its silhouette, and it is the only
+                # part of the shell that is not see-through.
                 image[y, x] = rgba(tone(ROUND[offset], STEEL))
             elif x in BAND_COLUMNS:
                 image[y, x] = rgba(RIVET if offset < 3 else RIVET_DARK)
-            elif offset == 1:
+            elif offset == WINDOW_ROWS[0]:
+                # The lit edge of the glass, right under the casing.
                 image[y, x] = rgba(GLASS, GLASS_SPEC_ALPHA)
             else:
                 image[y, x] = rgba(GLASS, GLASS_ALPHA)
@@ -110,7 +113,33 @@ def fluid():
     return image
 
 
+def collar(brass):
+    """The ring where a pipe clamps onto a machine, in two colours.
+
+    Brass where the pipe draws out of that machine and steel where it feeds into it, so a glance down
+    a run says which end is which without clicking anything. The Cable has one collar because power
+    only ever travels one way through it; fluid does not, so this one has to be read.
+    """
+    ramp = (RIVET_DARK, RIVET, (0xE6, 0xC0, 0x74)) if brass else STEEL[:3] + (IRON.spec,)
+
+    image = np.zeros((SIZE, SIZE, 4), np.uint8)
+    for y in range(SIZE):
+        for x in range(SIZE):
+            # A groove every fourth pixel around the ring, which is what keeps it from reading as a
+            # painted stripe.
+            shade = ROUND[offset_at(y)] - (1 if x % 4 == 3 else 0)
+            image[y, x] = rgba(tone(shade - 1, ramp))
+
+    return image
+
+
 def generate(out):
+    Image.fromarray(collar(True)).save("%s/pipe_collar_draw.png" % out)
+    print("%s/pipe_collar_draw.png  16x16  still" % out)
+
+    Image.fromarray(collar(False)).save("%s/pipe_collar_feed.png" % out)
+    print("%s/pipe_collar_feed.png  16x16  still" % out)
+
     Image.fromarray(shell()).save("%s/pipe.png" % out)
     print("%s/pipe.png  16x16  still" % out)
 

@@ -8,7 +8,7 @@
       "force_translucent": true,
       "sprite": "mellifera:block/pipe"
     },
-    "collar": "mellifera:block/cable_collar"
+    "collar": "mellifera:block/pipe_collar_feed"
   },
   "elements": [
     {

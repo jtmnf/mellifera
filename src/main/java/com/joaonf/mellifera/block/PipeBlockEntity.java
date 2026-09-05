@@ -108,14 +108,14 @@ public class PipeBlockEntity extends BlockEntity {
         pipe.showFlowing(level, moved.resource());
     }
 
-    /// Draws from each machine this pipe is clamped to, into the rest of the run.
+    /// Draws from each machine this pipe is clamped to on a DRAW joint, into the rest of the run.
     ///
     /// Stops at the first side that gives something. A pipe emptying two tanks at once would be
     /// twice as fast as one emptying either, which makes throughput depend on how a bench is laid
     /// out rather than on how much pipe was built.
     private @Nullable ResourceStack<FluidResource> draw(Level level, BlockPos pos, BlockState state) {
         for (Direction side : Direction.values()) {
-            if (state.getValue(PipeBlock.propertyFor(side)) != PipeBlock.Connection.PLUG) {
+            if (state.getValue(PipeBlock.propertyFor(side)) != PipeBlock.Connection.DRAW) {
                 continue;
             }
 
@@ -173,6 +173,15 @@ public class PipeBlockEntity extends BlockEntity {
                 }
 
                 if (neighbour.equals(drawingFrom)) {
+                    continue;
+                }
+
+                // Only the joints a player has pointed at this machine. A pipe that delivered into
+                // everything it touched would empty a Tank into the Squeezer it was draining, and
+                // no arrangement of blocks could stop it.
+                BlockState state = level.getBlockState(pipe);
+                if (!state.is(getBlockState().getBlock())
+                    || state.getValue(PipeBlock.propertyFor(side)) != PipeBlock.Connection.FEED) {
                     continue;
                 }
 

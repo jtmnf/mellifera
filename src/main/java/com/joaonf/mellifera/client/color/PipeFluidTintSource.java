@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockTintSource;
 import net.minecraft.client.renderer.block.BlockAndTintGetter;
 import net.minecraft.client.renderer.block.FluidModel;
+import net.minecraft.util.ARGB;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -34,11 +35,18 @@ import net.neoforged.neoforge.client.fluid.FluidTintSource;
 /// for. The stateless `color` is the fallback for the item and for break particles, where there is
 /// no pipe and so nothing in it.
 public class PipeFluidTintSource implements BlockTintSource {
-    private static final int WHITE = 0xFFFFFF;
+    /// Opaque white: the liquid drawn as it was painted.
+    ///
+    /// The alpha byte is not decoration here. A block tint is ARGB and the alpha is used, so a
+    /// colour written as plain 0xRRGGBB is a colour with alpha zero -- which is how this whole thing
+    /// came to render nothing at all while the honey it was meant to be showing moved through the
+    /// pipe perfectly well. The two tint sources this mod already had say `0xFF000000 | rgb` for
+    /// exactly this reason; this one did not.
+    private static final int WHITE = ARGB.opaque(0xFFFFFF);
 
     /// The colour the rest of the mod paints honey: HoneyGauge's own surface line, so a pipe and the
     /// gauge on the machine at the end of it agree.
-    private static final int HONEY = 0xE0A526;
+    private static final int HONEY = ARGB.opaque(0xE0A526);
 
     @Override
     public int color(BlockState state) {
@@ -63,7 +71,9 @@ public class PipeFluidTintSource implements BlockTintSource {
         FluidModel model = Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(fluid);
         FluidTintSource tint = model.fluidTintSource();
 
-        return tint == null ? WHITE : tint.colorInWorld(fluid, state, level, pos);
+        // Forced opaque even when the fluid supplies its own: a tint that is see-through would be a
+        // pipe that shows less of what is in it the more its fluid has to say.
+        return tint == null ? WHITE : ARGB.opaque(tint.colorInWorld(fluid, state, level, pos));
     }
 
     /// FLOWING is the only property that changes the answer without the position changing, so it is

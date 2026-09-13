@@ -1,0 +1,45 @@
+{
+  "parent": "mellifera:engine",
+  "display": {
+    "icon": {
+      "id": "mellifera:pipe"
+    },
+    "title": {
+      "translate": "advancements.mellifera.pipes.title"
+    },
+    "description": {
+      "translate": "advancements.mellifera.pipes.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "has_energy_pipe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mellifera:cable"
+          }
+        ]
+      }
+    },
+    "has_fluid_pipe": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mellifera:pipe"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_energy_pipe"
+    ],
+    [
+      "has_fluid_pipe"
+    ]
+  ]
+}

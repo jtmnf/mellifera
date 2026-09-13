@@ -43,7 +43,7 @@ public class EngineCategory implements IRecipeCategory<EngineJeiRecipe> {
     private static final int FLUID_HEIGHT = 26;
 
     private static final int TEXT_X = 50;
-    private static final int TEXT_COLOR = 0xFF202020;
+    private static final int TEXT_WIDTH = WIDTH - TEXT_X - 4;
 
     private static final int TICKS_PER_SECOND = 20;
 
@@ -92,11 +92,13 @@ public class EngineCategory implements IRecipeCategory<EngineJeiRecipe> {
     @Override
     public void draw(EngineJeiRecipe recipe, IRecipeSlotsView slots, GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
         var font = Minecraft.getInstance().font;
-        graphics.text(font, Component.literal("→"), ARROW_X, SLOT_Y + 9, TEXT_COLOR, false);
-        graphics.text(font, Component.translatable("gui.mellifera.jei.engine.output", recipe.energy()),
-            TEXT_X, SLOT_Y + 4, TEXT_COLOR, false);
-        graphics.text(font, Component.translatable("gui.mellifera.jei.engine.rate",
-                EngineBlockEntity.FE_PER_TICK, recipe.ticks() / TICKS_PER_SECOND),
-            TEXT_X, SLOT_Y + 16, TEXT_COLOR, false);
+        graphics.text(font, Component.literal("→"), ARROW_X, SLOT_Y + 9, RecipeText.COLOR, false);
+
+        int y = RecipeText.draw(graphics, font,
+            Component.translatable("gui.mellifera.jei.engine.output", recipe.energy()),
+            TEXT_X, SLOT_Y + 4, TEXT_WIDTH);
+        RecipeText.draw(graphics, font,
+            Component.translatable("gui.mellifera.jei.engine.rate", EngineBlockEntity.FE_PER_TICK, recipe.ticks() / TICKS_PER_SECOND),
+            TEXT_X, y, TEXT_WIDTH);
     }
 }

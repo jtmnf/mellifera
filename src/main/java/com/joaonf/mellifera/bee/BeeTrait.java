@@ -9,7 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
 
-/// The eight chromosomes of a BeeGenome, named and ordered, so machinery can walk a genome
+/// The chromosomes of a BeeGenome, named and ordered, so machinery can walk a genome
 /// trait by trait instead of hard-coding eight branches everywhere.
 ///
 /// Declaration order *is* the Isolator's extraction order (see IsolatorBlockEntity's
@@ -29,7 +29,14 @@ public enum BeeTrait implements StringRepresentable {
     TERRITORY("territory", 0x5FBF60),
     TOLERANCE("tolerance", 0xE3703A),
     EFFECT("effect", 0x3FD4C0),
-    FLOWERING("flowering", 0xD64545);
+    FLOWERING("flowering", 0xD64545),
+
+    /// The three stops a line can be bred past, last because they were added last and this
+    /// order is the Isolator's extraction order -- a player who knows a bee yields its species
+    /// first should not find that changed under them.
+    NOCTURNAL("nocturnal", 0x3B4E8C),
+    TOLERANT_FLYER("tolerant_flyer", 0x7FA8C9),
+    CAVE_DWELLING("cave_dwelling", 0x8A7A5C);
 
     public static final BeeTrait[] ALL = values();
 
@@ -87,6 +94,9 @@ public enum BeeTrait implements StringRepresentable {
             case TOLERANCE -> genome.tolerance().active().getSerializedName();
             case EFFECT -> genome.effect().active().getSerializedName();
             case FLOWERING -> genome.flowering().active().getSerializedName();
+            case NOCTURNAL -> genome.nocturnal().active().getSerializedName();
+            case TOLERANT_FLYER -> genome.tolerantFlyer().active().getSerializedName();
+            case CAVE_DWELLING -> genome.caveDwelling().active().getSerializedName();
         };
     }
 
@@ -107,45 +117,31 @@ public enum BeeTrait implements StringRepresentable {
                 Identifier id = Identifier.tryParse(value);
                 yield id == null || MelliferaBeeSpecies.REGISTRY.getValue(id) == null
                     ? genome
-                    : withSpecies(genome, id);
+                    : genome.withSpecies(Chromosome.pure(id));
             }
-            case SPEED -> replace(SpeedAllele.values(), value, allele -> new BeeGenome(
-                genome.species(), Chromosome.pure(allele), genome.lifespan(), genome.territory(),
-                genome.fertility(), genome.tolerance(), genome.effect(), genome.flowering()), genome);
-            case LIFESPAN -> replace(LifespanAllele.values(), value, allele -> new BeeGenome(
-                genome.species(), genome.speed(), Chromosome.pure(allele), genome.territory(),
-                genome.fertility(), genome.tolerance(), genome.effect(), genome.flowering()), genome);
-            case FERTILITY -> replace(FertilityAllele.values(), value, allele -> new BeeGenome(
-                genome.species(), genome.speed(), genome.lifespan(), genome.territory(),
-                Chromosome.pure(allele), genome.tolerance(), genome.effect(), genome.flowering()), genome);
-            case TERRITORY -> replace(TerritoryAllele.values(), value, allele -> new BeeGenome(
-                genome.species(), genome.speed(), genome.lifespan(), Chromosome.pure(allele),
-                genome.fertility(), genome.tolerance(), genome.effect(), genome.flowering()), genome);
-            case TOLERANCE -> replace(ToleranceAllele.values(), value, allele -> new BeeGenome(
-                genome.species(), genome.speed(), genome.lifespan(), genome.territory(),
-                genome.fertility(), Chromosome.pure(allele), genome.effect(), genome.flowering()), genome);
-            case EFFECT -> replace(EffectAllele.values(), value, allele -> new BeeGenome(
-                genome.species(), genome.speed(), genome.lifespan(), genome.territory(),
-                genome.fertility(), genome.tolerance(), Chromosome.pure(allele), genome.flowering()), genome);
-            case FLOWERING -> replace(FloweringAllele.values(), value, allele -> new BeeGenome(
-                genome.species(), genome.speed(), genome.lifespan(), genome.territory(),
-                genome.fertility(), genome.tolerance(), genome.effect(), Chromosome.pure(allele)), genome);
+            case SPEED -> replace(SpeedAllele.values(), value, genome::withSpeed, genome);
+            case LIFESPAN -> replace(LifespanAllele.values(), value, genome::withLifespan, genome);
+            case FERTILITY -> replace(FertilityAllele.values(), value, genome::withFertility, genome);
+            case TERRITORY -> replace(TerritoryAllele.values(), value, genome::withTerritory, genome);
+            case TOLERANCE -> replace(ToleranceAllele.values(), value, genome::withTolerance, genome);
+            case EFFECT -> replace(EffectAllele.values(), value, genome::withEffect, genome);
+            case FLOWERING -> replace(FloweringAllele.values(), value, genome::withFlowering, genome);
+            case NOCTURNAL -> replace(ToggleAllele.values(), value, genome::withNocturnal, genome);
+            case TOLERANT_FLYER -> replace(ToggleAllele.values(), value, genome::withTolerantFlyer, genome);
+            case CAVE_DWELLING -> replace(ToggleAllele.values(), value, genome::withCaveDwelling, genome);
         };
     }
 
-    private static BeeGenome withSpecies(BeeGenome genome, Identifier species) {
-        return new BeeGenome(
-            Chromosome.pure(species), genome.speed(), genome.lifespan(),
-            genome.territory(), genome.fertility(), genome.tolerance(), genome.effect(), genome.flowering());
-    }
-
-    /// Finds the allele of `values` whose serialized name is `value` and hands it to
-    /// `build`, or gives back `fallback` when nothing matches.
+    /// Finds the allele of `values` whose serialized name is `value` and hands the matching
+    /// chromosome to `build`, or gives back `fallback` when nothing matches.
+    ///
+    /// Chromosome.pure, so both halves are written: see applyTo's note on why infusing replaces
+    /// a trait outright instead of leaving the old allele sitting in the hidden slot.
     private static <T extends StringRepresentable> BeeGenome replace(
-        T[] values, String value, java.util.function.Function<T, BeeGenome> build, BeeGenome fallback) {
+        T[] values, String value, java.util.function.Function<Chromosome<T>, BeeGenome> build, BeeGenome fallback) {
         for (T allele : values) {
             if (allele.getSerializedName().equals(value)) {
-                return build.apply(allele);
+                return build.apply(Chromosome.pure(allele));
             }
         }
 

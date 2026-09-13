@@ -106,16 +106,24 @@ MACHINES = {
         "tank_housing": (108, HOUSING_TOP, 143, HOUSING_BOTTOM),
         "track_x": 52,
     },
+    # Three rows, not two: the grid holds one cell per chromosome and there are eleven of those
+    # since nocturnal, tolerant flyer and cave dwelling were added. Twelve cells, so the last one
+    # sits empty -- which is better than the alternatives, all of which are a machine that stalls
+    # with a serum it has nowhere to put.
+    #
+    # The extra row does not fit between HOUSING_TOP and HOUSING_BOTTOM, which were picked when
+    # this was a two-row grid, so these two windows carry a taller housing of their own. It still
+    # ends inside FRAME, which is what actually bounds a window.
     "isolator": {
         "slots": [(20, 28), (20, 50)],
-        "grid": {"origin": (86, 28), "columns": 4, "rows": 2, "row_pitch": 22},
-        "grid_housing": (82, HOUSING_TOP, 160, HOUSING_BOTTOM),
+        "grid": {"origin": (86, 20), "columns": 4, "rows": 3, "row_pitch": 18},
+        "grid_housing": (82, 19, 160, 75),
         "track_x": 46,
     },
     "infuser": {
         "slots": [(20, 28), (20, 50)],
-        "grid": {"origin": (86, 28), "columns": 4, "rows": 2, "row_pitch": 22},
-        "grid_housing": (82, HOUSING_TOP, 160, HOUSING_BOTTOM),
+        "grid": {"origin": (86, 20), "columns": 4, "rows": 3, "row_pitch": 18},
+        "grid_housing": (82, 19, 160, 75),
         "track_x": 46,
     },
     "carpenter": {

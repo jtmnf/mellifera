@@ -1,0 +1,32 @@
+{
+  "parent": "mellifera:squeezer",
+  "display": {
+    "icon": {
+      "id": "mellifera:carpenter"
+    },
+    "title": {
+      "translate": "advancements.mellifera.carpenter.title"
+    },
+    "description": {
+      "translate": "advancements.mellifera.carpenter.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "has_carpenter": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mellifera:carpenter"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_carpenter"
+    ]
+  ]
+}

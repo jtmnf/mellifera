@@ -4,6 +4,7 @@ import com.joaonf.mellifera.Mellifera;
 import com.joaonf.mellifera.bee.BeeGenome;
 import com.joaonf.mellifera.bee.BeeProgression;
 import com.joaonf.mellifera.bee.BeeTrait;
+import com.joaonf.mellifera.bee.BeeStacks;
 import com.joaonf.mellifera.bee.QueenGenomeData;
 import com.joaonf.mellifera.item.SerumItem;
 
@@ -53,6 +54,8 @@ public final class MelliferaCreativeTabs {
                 output.accept(MelliferaBlocks.TANK_ITEM.get());
                 output.accept(MelliferaFluids.HONEY_BUCKET.get());
 
+                output.accept(MelliferaItems.SCOOP.get());
+                output.accept(MelliferaItems.BEEALYZER.get());
                 output.accept(MelliferaItems.BEE_GUIDE.get());
                 output.accept(MelliferaItems.BEE_LOCATOR.get());
                 output.accept(MelliferaItems.CLIMATE_CHART.get());
@@ -106,10 +109,12 @@ public final class MelliferaCreativeTabs {
 
     private MelliferaCreativeTabs() {}
 
+    /// Already analysed, unlike a bee out of a hive. This menu exists to show what a species is,
+    /// and an entry whose traits were hidden would be showing nothing -- see BeeStacks.isAnalysed.
     private static ItemStack beeStack(net.minecraft.world.item.Item item, Identifier speciesId) {
         ItemStack stack = new ItemStack(item);
         stack.set(MelliferaDataComponents.BEE_GENOME.get(), BeeGenome.pure(speciesId));
-        return stack;
+        return BeeStacks.analysed(stack);
     }
 
     /// A queen carries a pair of genomes, hers and her mate's. She is listed pure-bred to
@@ -119,7 +124,7 @@ public final class MelliferaCreativeTabs {
         BeeGenome genome = BeeGenome.pure(speciesId);
         ItemStack stack = new ItemStack(MelliferaItems.QUEEN_BEE.get());
         stack.set(MelliferaDataComponents.QUEEN_GENOME.get(), new QueenGenomeData(genome, genome));
-        return stack;
+        return BeeStacks.analysed(stack);
     }
 
     private static ItemStack combStack(Identifier combId) {

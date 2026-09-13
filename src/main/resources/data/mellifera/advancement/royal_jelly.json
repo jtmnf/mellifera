@@ -1,0 +1,32 @@
+{
+  "parent": "mellifera:centrifuge",
+  "display": {
+    "icon": {
+      "id": "mellifera:royal_jelly"
+    },
+    "title": {
+      "translate": "advancements.mellifera.royal_jelly.title"
+    },
+    "description": {
+      "translate": "advancements.mellifera.royal_jelly.description"
+    },
+    "frame": "goal"
+  },
+  "criteria": {
+    "has_jelly": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mellifera:royal_jelly"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_jelly"
+    ]
+  ]
+}

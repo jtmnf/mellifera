@@ -1,0 +1,32 @@
+{
+  "parent": "mellifera:centrifuge",
+  "display": {
+    "icon": {
+      "id": "mellifera:squeezer"
+    },
+    "title": {
+      "translate": "advancements.mellifera.squeezer.title"
+    },
+    "description": {
+      "translate": "advancements.mellifera.squeezer.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "has_squeezer": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mellifera:squeezer"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_squeezer"
+    ]
+  ]
+}

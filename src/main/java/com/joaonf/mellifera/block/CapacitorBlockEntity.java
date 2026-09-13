@@ -12,7 +12,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 
 /// Holds Forge Energy between the making of it and the spending of it.
 ///
-/// WHY IT EXISTS. An Engine burns at a flat 40 FE a tick and stops when its own 20,000 buffer is
+/// WHY IT EXISTS. An Engine burns at a flat 80 FE a tick and stops when its own 20,000 buffer is
 /// full, so a hive that keeps producing through the night makes power nobody is asking for and the
 /// engine simply idles. The Cable holds nothing by design. Without something that does, the mod's
 /// power is use-it-or-lose-it, and a bench that is busy in bursts -- which is what a bench is --

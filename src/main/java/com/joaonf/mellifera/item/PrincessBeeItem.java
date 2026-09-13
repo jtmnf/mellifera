@@ -1,6 +1,7 @@
 package com.joaonf.mellifera.item;
 
 import com.joaonf.mellifera.bee.BeeGenome;
+import com.joaonf.mellifera.bee.BeeStacks;
 import com.joaonf.mellifera.bee.BeeSpecies;
 import com.joaonf.mellifera.registry.MelliferaBeeSpecies;
 import com.joaonf.mellifera.registry.MelliferaDataComponents;
@@ -31,7 +32,7 @@ public class PrincessBeeItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag flag) {
         BeeGenome genome = stack.getOrDefault(MelliferaDataComponents.BEE_GENOME.get(), BeeGenome.defaultGenome());
-        BeeTooltip.appendGenome(genome, builder);
+        BeeTooltip.appendGenome(genome, BeeStacks.isAnalysed(stack), builder);
     }
 
     /// Forestry marks a handful of species with `setHasEffect()` -- Imperial, Industrious,

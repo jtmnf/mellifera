@@ -66,15 +66,12 @@ public final class MutationEngine {
                 .map(Chromosome::pure)
                 .orElse(childGenome.effect());
 
-            return new BeeGenome(
-                new Chromosome<>(mutation.result(), survivingParent),
-                childGenome.speed(),
-                childGenome.lifespan(),
-                childGenome.territory(),
-                childGenome.fertility(),
-                childGenome.tolerance(),
-                effect,
-                childGenome.flowering());
+            // Only the species and (when the cross forces one) the effect change. Everything else
+            // the child inherited stands, the three foraging toggles included: a mutation is a new
+            // species arriving on a bee that was already bred, not a fresh wild-type individual.
+            return childGenome
+                .withSpecies(new Chromosome<>(mutation.result(), survivingParent))
+                .withEffect(effect);
         }
 
         return childGenome;

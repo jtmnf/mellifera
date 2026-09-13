@@ -208,13 +208,30 @@ public final class MelliferaBlocks {
         hiveItem(HIVE_FOREST), hiveItem(HIVE_MEADOWS), hiveItem(HIVE_MARSHY),
         hiveItem(HIVE_MODEST), hiveItem(HIVE_TROPICAL), hiveItem(HIVE_WINTRY));
 
+    /// How long a wild hive takes to break, and it is deliberately absurd: thirty seconds by hand.
+    ///
+    /// It is not a difficulty knob, it is the only warning the game can give. Breaking a hive with
+    /// anything but a Scoop destroys it and drops nothing (see the hive loot tables), and a block
+    /// that shatters instantly and yields nothing teaches a player only that hives are worthless.
+    /// One that will not come apart teaches them they are holding the wrong thing.
+    ///
+    /// Thirty seconds is 600 ticks, and vanilla breaks a block in `destroyTime * 30 / toolSpeed`
+    /// ticks when the tool can harvest it -- which bare hands can, since nothing here asks for a
+    /// correct tool. So 600 / 30 = 20. The Scoop cancels it out again; see MelliferaItems.SCOOP,
+    /// which derives its speed from this very field so the two can never drift apart.
+    public static final float HIVE_DESTROY_TIME = 20.0F;
+
+    /// The divisor vanilla puts in the same sum, for a tool that can harvest what it is hitting.
+    /// Here so the arithmetic above and the Scoop's speed are both written out of one number.
+    public static final float HARVEST_MODIFIER = 30.0F;
+
     private static DeferredBlock<HiveBlock> registerHive(String name, Identifier species) {
         return BLOCKS.registerBlock(
             name,
             p -> new HiveBlock(species, p),
             p -> p.mapColor(MapColor.WOOD)
                 .noCollision()
-                .instabreak()
+                .destroyTime(HIVE_DESTROY_TIME)
                 .sound(SoundType.WOOD));
     }
 

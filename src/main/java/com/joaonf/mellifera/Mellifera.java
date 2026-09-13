@@ -10,6 +10,7 @@ import com.joaonf.mellifera.registry.MelliferaBlockEntities;
 import com.joaonf.mellifera.registry.MelliferaBlocks;
 import com.joaonf.mellifera.registry.MelliferaCombTypes;
 import com.joaonf.mellifera.registry.MelliferaCreativeTabs;
+import com.joaonf.mellifera.registry.MelliferaDataComponentPredicates;
 import com.joaonf.mellifera.registry.MelliferaDataComponents;
 import com.joaonf.mellifera.registry.MelliferaFluids;
 import com.joaonf.mellifera.registry.MelliferaItems;
@@ -32,6 +33,7 @@ public class Mellifera {
         MelliferaBlocks.register(modEventBus);
         MelliferaFluids.register(modEventBus);
         MelliferaDataComponents.register(modEventBus);
+        MelliferaDataComponentPredicates.register(modEventBus);
         MelliferaItems.register(modEventBus);
         MelliferaBlockEntities.register(modEventBus);
         MelliferaMenus.register(modEventBus);

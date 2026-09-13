@@ -82,7 +82,7 @@ public class InfuserBlockEntity extends BlockEntity implements WorldlyContainer,
     /// Forge Energy buffer. Priced per tick of progress, so a powered tick spends eight times
     /// this and buys eight ticks of work -- see MachineEnergy.workStep, and MachineEnergy
     /// itself for why the machine spends its own buffer directly rather than extract().
-    public static final int FE_PER_TICK = 10;
+    public static final int FE_PER_TICK = 5;
 
     private final MachineEnergy energy = new MachineEnergy(this);
 

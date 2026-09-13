@@ -42,6 +42,24 @@ import net.neoforged.neoforge.registries.RegisterEvent;
 /// six-notch enum, so each Forestry temperature class maps to a Celsius band; and there is
 /// no humidity axis at all, so Forestry's HUMIDITY_TOLERANCE alleles have no home here and
 /// are dropped rather than faked onto the temperature chromosome.
+///
+/// WHO CARRIES THE THREE FORAGING GENES, and this part is this mod's reading rather than a
+/// transcription. Forestry marks nocturnal, tolerant flyer and cave dwelling per definition and
+/// those marks were not carried over with the rest; they are assigned here by what each branch is
+/// about, and a player who knows upstream's table will find some of it moved:
+///
+/// - **Nocturnal** goes to the lines that belong to the dark. Infernal and Vengeful because their
+///   homes have no daylight to keep hours by, Monastic because a cloister keeps vigils. The End
+///   line is pointedly *not* on the list: the End has no skylight, so nothing there is ever stopped
+///   by nightfall in the first place and the gene would be a gift that does nothing.
+/// - **Tolerant flyer** goes to the three wild roots whose weather is their element -- Marshy,
+///   Tropical and Wintry -- and their branches. Putting it on roots rather than on bred species is
+///   deliberate: it is the one of the three a player can find in the world and breed inward from
+///   the first day, which is what makes it a genetics puzzle rather than a reward for finishing
+///   the tree.
+/// - **Cave dwelling** goes to the whole Extra Bees resource tree, which is about digging, and to
+///   Monastic, which is about staying indoors. It is the only one of the three with no frame to
+///   stand in for it, so an underground apiary is a thing that has to be bred for.
 public final class MelliferaBeeSpecies {
     private static final ResourceKey<Registry<BeeSpecies>> REGISTRY_KEY =
         ResourceKey.createRegistryKey(Identifier.fromNamespaceAndPath(Mellifera.MODID, "bee_species"));
@@ -150,21 +168,21 @@ public final class MelliferaBeeSpecies {
         SPECIES.register("sinister", () -> new BeeSpecies(
             "bee.mellifera.sinister", 40.0F, 70.0F, false, 0xB3D5E4,
             List.of(new CombProduct(MelliferaCombTypes.SIMMERING.getId(), 0.45F)),
-            BeeTemplate.DEFAULT.speed(SpeedAllele.SLOWER).lifespan(LifespanAllele.NORMAL).effect(EffectAllele.AGGRESSIVE),
+            BeeTemplate.DEFAULT.speed(SpeedAllele.SLOWER).lifespan(LifespanAllele.NORMAL).effect(EffectAllele.AGGRESSIVE).worksAtNight(),
             false));
 
     public static final DeferredHolder<BeeSpecies, BeeSpecies> FIENDISH =
         SPECIES.register("fiendish", () -> new BeeSpecies(
             "bee.mellifera.fiendish", 40.0F, 70.0F, true, 0xD7BEE5,
             List.of(new CombProduct(MelliferaCombTypes.SIMMERING.getId(), 0.55F)),
-            BeeTemplate.DEFAULT.speed(SpeedAllele.NORMAL).lifespan(LifespanAllele.LONG).effect(EffectAllele.AGGRESSIVE),
+            BeeTemplate.DEFAULT.speed(SpeedAllele.NORMAL).lifespan(LifespanAllele.LONG).effect(EffectAllele.AGGRESSIVE).worksAtNight(),
             false));
 
     public static final DeferredHolder<BeeSpecies, BeeSpecies> DEMONIC =
         SPECIES.register("demonic", () -> new BeeSpecies(
             "bee.mellifera.demonic", 40.0F, 70.0F, false, 0xF4E400,
             List.of(new CombProduct(MelliferaCombTypes.SIMMERING.getId(), 0.45F)),
-            BeeTemplate.DEFAULT.speed(SpeedAllele.SLOWER).lifespan(LifespanAllele.LONGER).effect(EffectAllele.IGNITION),
+            BeeTemplate.DEFAULT.speed(SpeedAllele.SLOWER).lifespan(LifespanAllele.LONGER).effect(EffectAllele.IGNITION).worksAtNight(),
             true));
 
     // -- Austere branch --
@@ -194,21 +212,21 @@ public final class MelliferaBeeSpecies {
         SPECIES.register("tropical", () -> new BeeSpecies(
             "bee.mellifera.tropical", 15.0F, 35.0F, false, 0x378020,
             List.of(new CombProduct(MelliferaCombTypes.SILKY.getId(), 0.20F)),
-            BeeTemplate.DEFAULT.speed(SpeedAllele.SLOWER).lifespan(LifespanAllele.SHORT),
+            BeeTemplate.DEFAULT.speed(SpeedAllele.SLOWER).lifespan(LifespanAllele.SHORT).worksInRain(),
             false));
 
     public static final DeferredHolder<BeeSpecies, BeeSpecies> EXOTIC =
         SPECIES.register("exotic", () -> new BeeSpecies(
             "bee.mellifera.exotic", 15.0F, 35.0F, true, 0x304903,
             List.of(new CombProduct(MelliferaCombTypes.SILKY.getId(), 0.30F)),
-            BeeTemplate.DEFAULT.speed(SpeedAllele.NORMAL).lifespan(LifespanAllele.LONG),
+            BeeTemplate.DEFAULT.speed(SpeedAllele.NORMAL).lifespan(LifespanAllele.LONG).worksInRain(),
             false));
 
     public static final DeferredHolder<BeeSpecies, BeeSpecies> EDENIC =
         SPECIES.register("edenic", () -> new BeeSpecies(
             "bee.mellifera.edenic", 15.0F, 35.0F, false, 0x393D0D,
             List.of(new CombProduct(MelliferaCombTypes.SILKY.getId(), 0.20F)),
-            BeeTemplate.DEFAULT.lifespan(LifespanAllele.LONGER).tolerance(ToleranceAllele.BOTH_2).effect(EffectAllele.EXPLORATION),
+            BeeTemplate.DEFAULT.lifespan(LifespanAllele.LONGER).tolerance(ToleranceAllele.BOTH_2).effect(EffectAllele.EXPLORATION).worksInRain(),
             true));
 
     // -- End branch --
@@ -238,21 +256,21 @@ public final class MelliferaBeeSpecies {
         SPECIES.register("wintry", () -> new BeeSpecies(
             "bee.mellifera.wintry", -20.0F, 0.0F, false, 0xA0FFC8,
             List.of(new CombProduct(MelliferaCombTypes.FROZEN.getId(), 0.30F)),
-            BeeTemplate.DEFAULT.speed(SpeedAllele.SLOWER).lifespan(LifespanAllele.SHORT).fertility(FertilityAllele.MAXIMUM),
+            BeeTemplate.DEFAULT.speed(SpeedAllele.SLOWER).lifespan(LifespanAllele.SHORT).fertility(FertilityAllele.MAXIMUM).worksInRain(),
             false));
 
     public static final DeferredHolder<BeeSpecies, BeeSpecies> ICY =
         SPECIES.register("icy", () -> new BeeSpecies(
             "bee.mellifera.icy", -20.0F, 0.0F, true, 0xA0FFFF,
             List.of(new CombProduct(MelliferaCombTypes.FROZEN.getId(), 0.20F)),
-            BeeTemplate.DEFAULT.speed(SpeedAllele.SLOW).lifespan(LifespanAllele.SHORT),
+            BeeTemplate.DEFAULT.speed(SpeedAllele.SLOW).lifespan(LifespanAllele.SHORT).worksInRain(),
             false));
 
     public static final DeferredHolder<BeeSpecies, BeeSpecies> GLACIAL =
         SPECIES.register("glacial", () -> new BeeSpecies(
             "bee.mellifera.glacial", -20.0F, 0.0F, false, 0xEFFFFF,
             List.of(new CombProduct(MelliferaCombTypes.FROZEN.getId(), 0.20F)),
-            BeeTemplate.DEFAULT.speed(SpeedAllele.SLOWER).lifespan(LifespanAllele.SHORT),
+            BeeTemplate.DEFAULT.speed(SpeedAllele.SLOWER).lifespan(LifespanAllele.SHORT).worksInRain(),
             true));
 
     // -- Vengeful branch --
@@ -260,21 +278,21 @@ public final class MelliferaBeeSpecies {
         SPECIES.register("vindictive", () -> new BeeSpecies(
             "bee.mellifera.vindictive", 0.0F, 30.0F, false, 0xEAFFF3,
             List.of(new CombProduct(MelliferaCombTypes.IRRADIATED.getId(), 0.25F)),
-            BeeTemplate.DEFAULT.speed(SpeedAllele.SLOWER).lifespan(LifespanAllele.NORMAL),
+            BeeTemplate.DEFAULT.speed(SpeedAllele.SLOWER).lifespan(LifespanAllele.NORMAL).worksAtNight(),
             false));
 
     public static final DeferredHolder<BeeSpecies, BeeSpecies> VENGEFUL =
         SPECIES.register("vengeful", () -> new BeeSpecies(
             "bee.mellifera.vengeful", 0.0F, 30.0F, false, 0xC2DE00,
             List.of(new CombProduct(MelliferaCombTypes.IRRADIATED.getId(), 0.40F)),
-            BeeTemplate.DEFAULT.speed(SpeedAllele.NORMAL).lifespan(LifespanAllele.LONGER),
+            BeeTemplate.DEFAULT.speed(SpeedAllele.NORMAL).lifespan(LifespanAllele.LONGER).worksAtNight(),
             false));
 
     public static final DeferredHolder<BeeSpecies, BeeSpecies> AVENGING =
         SPECIES.register("avenging", () -> new BeeSpecies(
             "bee.mellifera.avenging", 0.0F, 30.0F, false, 0xDDFF00,
             List.of(new CombProduct(MelliferaCombTypes.IRRADIATED.getId(), 0.40F)),
-            BeeTemplate.DEFAULT.lifespan(LifespanAllele.LONGEST),
+            BeeTemplate.DEFAULT.lifespan(LifespanAllele.LONGEST).worksAtNight(),
             true));
 
     // -- Festive branch --
@@ -333,21 +351,21 @@ public final class MelliferaBeeSpecies {
         SPECIES.register("marshy", () -> new BeeSpecies(
             "bee.mellifera.marshy", 0.0F, 30.0F, true, 0x546626,
             List.of(new CombProduct(MelliferaCombTypes.MOSSY.getId(), 0.30F)),
-            BeeTemplate.DEFAULT,
+            BeeTemplate.DEFAULT.worksInRain(),
             false));
 
     public static final DeferredHolder<BeeSpecies, BeeSpecies> MIRY =
         SPECIES.register("miry", () -> new BeeSpecies(
             "bee.mellifera.miry", 0.0F, 30.0F, true, 0x92AF42,
             List.of(new CombProduct(MelliferaCombTypes.MOSSY.getId(), 0.36F)),
-            BeeTemplate.DEFAULT.fertility(FertilityAllele.MAXIMUM),
+            BeeTemplate.DEFAULT.fertility(FertilityAllele.MAXIMUM).worksInRain(),
             false));
 
     public static final DeferredHolder<BeeSpecies, BeeSpecies> BOGGY =
         SPECIES.register("boggy", () -> new BeeSpecies(
             "bee.mellifera.boggy", 0.0F, 30.0F, true, 0x698948,
             List.of(new CombProduct(MelliferaCombTypes.MOSSY.getId(), 0.39F)),
-            BeeTemplate.DEFAULT.territory(TerritoryAllele.LARGER).effect(EffectAllele.MYCOPHILIC),
+            BeeTemplate.DEFAULT.territory(TerritoryAllele.LARGER).effect(EffectAllele.MYCOPHILIC).worksInRain(),
             false));
 
     // -- Monastic branch --
@@ -355,21 +373,21 @@ public final class MelliferaBeeSpecies {
         SPECIES.register("monastic", () -> new BeeSpecies(
             "bee.mellifera.monastic", 0.0F, 30.0F, false, 0x42371C,
             List.of(new CombProduct(MelliferaCombTypes.WHEATEN.getId(), 0.30F), new CombProduct(MelliferaCombTypes.MELLOW.getId(), 0.10F)),
-            BeeTemplate.DEFAULT,
+            BeeTemplate.DEFAULT.worksAtNight().worksUnderground(),
             false));
 
     public static final DeferredHolder<BeeSpecies, BeeSpecies> SECLUDED =
         SPECIES.register("secluded", () -> new BeeSpecies(
             "bee.mellifera.secluded", 0.0F, 30.0F, true, 0x7B6634,
             List.of(new CombProduct(MelliferaCombTypes.MELLOW.getId(), 0.20F)),
-            BeeTemplate.DEFAULT.flowering(FloweringAllele.FASTEST),
+            BeeTemplate.DEFAULT.flowering(FloweringAllele.FASTEST).worksAtNight().worksUnderground(),
             false));
 
     public static final DeferredHolder<BeeSpecies, BeeSpecies> HERMITIC =
         SPECIES.register("hermitic", () -> new BeeSpecies(
             "bee.mellifera.hermitic", 0.0F, 30.0F, false, 0xFFD46C,
             List.of(new CombProduct(MelliferaCombTypes.MELLOW.getId(), 0.20F)),
-            BeeTemplate.DEFAULT.effect(EffectAllele.REPULSION).flowering(FloweringAllele.FASTEST),
+            BeeTemplate.DEFAULT.effect(EffectAllele.REPULSION).flowering(FloweringAllele.FASTEST).worksAtNight().worksUnderground(),
             true));
 
     // -- Extra Bees resource line ------------------------------------------------------
@@ -510,7 +528,7 @@ public final class MelliferaBeeSpecies {
         SPECIES.register("excited", () -> new BeeSpecies(
             "bee.mellifera.excited", 0.0F, 30.0F, true, 0xFF4545,
             List.of(new CombProduct(MelliferaCombTypes.REDSTONE.getId(), 0.10F)),
-            BeeTemplate.DEFAULT,
+            BeeTemplate.DEFAULT.worksUnderground().worksUnderground().worksUnderground().worksUnderground().worksUnderground().worksUnderground().worksUnderground().worksUnderground().worksUnderground().worksUnderground().worksUnderground(),
             false));
 
     public static final DeferredHolder<BeeSpecies, BeeSpecies> ENERGETIC =

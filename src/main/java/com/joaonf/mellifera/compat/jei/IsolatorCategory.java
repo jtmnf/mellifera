@@ -1,6 +1,7 @@
 package com.joaonf.mellifera.compat.jei;
 
 import com.joaonf.mellifera.Mellifera;
+import com.joaonf.mellifera.bee.BeeTrait;
 import com.joaonf.mellifera.block.IsolatorBlockEntity;
 import com.joaonf.mellifera.registry.MelliferaBlocks;
 
@@ -33,8 +34,10 @@ public class IsolatorCategory implements IRecipeCategory<GeneticsJeiRecipe> {
     public static final IRecipeType<GeneticsJeiRecipe> TYPE =
         IRecipeType.create(Identifier.fromNamespaceAndPath(Mellifera.MODID, "isolator"), GeneticsJeiRecipe.class);
 
-    private static final int WIDTH = 160;
-    private static final int HEIGHT = 42;
+    /// Wide enough that the English lines mostly land on one line each, tall enough that the
+    /// ones that do not still fit -- see RecipeText for why both halves are needed.
+    private static final int WIDTH = 216;
+    private static final int HEIGHT = 58;
 
     private static final int SLOT_Y = 6;
     private static final int BEE_X = 4;
@@ -43,7 +46,9 @@ public class IsolatorCategory implements IRecipeCategory<GeneticsJeiRecipe> {
     private static final int OUTPUT_X = 68;
 
     private static final int TEXT_X = 92;
-    private static final int TEXT_COLOR = 0xFF202020;
+
+    /// What is left of the page once the slots have had their share.
+    private static final int TEXT_WIDTH = WIDTH - TEXT_X - 4;
 
     private static final int TICKS_PER_SECOND = 20;
 
@@ -89,13 +94,17 @@ public class IsolatorCategory implements IRecipeCategory<GeneticsJeiRecipe> {
     public void draw(GeneticsJeiRecipe recipe, IRecipeSlotsView slots, GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
         var font = Minecraft.getInstance().font;
 
-        graphics.text(font, Component.literal("→"), ARROW_X, SLOT_Y + 4, TEXT_COLOR, false);
-        graphics.text(font, Component.translatable("gui.mellifera.jei.isolator.trait", recipe.trait().label()),
-            TEXT_X, SLOT_Y, TEXT_COLOR, false);
-        graphics.text(font, Component.translatable("gui.mellifera.jei.isolator.time",
-                IsolatorBlockEntity.PROCESS_TICKS / TICKS_PER_SECOND),
-            TEXT_X, SLOT_Y + 12, TEXT_COLOR, false);
-        graphics.text(font, Component.translatable("gui.mellifera.jei.isolator.consumed"),
-            TEXT_X, SLOT_Y + 24, TEXT_COLOR, false);
+        graphics.text(font, Component.literal("→"), ARROW_X, SLOT_Y + 4, RecipeText.COLOR, false);
+
+        int y = SLOT_Y;
+        y = RecipeText.draw(graphics, font,
+            Component.translatable("gui.mellifera.jei.isolator.trait", recipe.trait().label()),
+            TEXT_X, y, TEXT_WIDTH);
+        y = RecipeText.draw(graphics, font,
+            Component.translatable("gui.mellifera.jei.isolator.time", IsolatorBlockEntity.PROCESS_TICKS / TICKS_PER_SECOND),
+            TEXT_X, y, TEXT_WIDTH);
+        RecipeText.draw(graphics, font,
+            Component.translatable("gui.mellifera.jei.isolator.consumed", BeeTrait.ALL.length),
+            TEXT_X, y, TEXT_WIDTH);
     }
 }

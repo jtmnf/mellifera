@@ -24,6 +24,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
 import net.minecraft.world.item.ItemStack;
 
+import org.joml.Vector2f;
 import org.joml.Vector3fc;
 
 /// Draws a bee item as the actual vanilla bee: vanilla's geometry, vanilla's texture,
@@ -66,10 +67,23 @@ public class BeeSpecialRenderer implements SpecialModelRenderer<Integer> {
     /// model's +Z side, so without a yaw the slot shows the item its own stinger.
     private static final float YAW = 200.0F;
 
-    /// Tilts the bee nose-down. Applied outside the yaw so it reads as the camera looking
-    /// down on it rather than the bee rolling. Negative because the -1 scale above flips the
-    /// X axis: on this stack a larger angle pitches the nose up, not down.
+    /// Tilts the bee nose-down. Applied outside the yaw so it reads as the camera looking down on
+    /// it rather than the bee rolling. Negative because the -1 scale above flips the X axis: on
+    /// this stack a larger angle pitches the nose up, not down.
+    ///
+    /// This is the icon's angle and it is right for an icon: in a slot the camera looks straight
+    /// at the bee, so nose-down reads as looking down on it from above.
     private static final float PITCH = -25.0F;
+
+    /// The same tilt for a bee lying on the ground, where it is seen from the side instead and the
+    /// icon's angle reads as a nose-dive. Positive, so the nose comes up.
+    ///
+    /// A second baked renderer rather than a `rotation` in the item model's `display` block, for
+    /// the reason set out in GroundVariantUnbaked: the rotations in this class turn the bee about
+    /// its own root bone, and the ones in a display block turn it about the corner of the block the
+    /// item is drawn inside, which swings it sideways and makes a dropped bee orbit a point instead
+    /// of turning on the spot.
+    private static final float GROUND_PITCH = 10.0F;
 
     /// Nudges the bee down in the slot so it sits centred. In pixels of the 16x16 icon, so
     /// it can be tuned a pixel at a time; negative is down.
@@ -84,11 +98,20 @@ public class BeeSpecialRenderer implements SpecialModelRenderer<Integer> {
     private final BeeRenderState state = new BeeRenderState();
     private final float scale;
     private final boolean goldAntennae;
+    private final float pitch;
+    private final boolean centred;
 
-    public BeeSpecialRenderer(AdultBeeModel model, float scale, boolean stinger, boolean goldAntennae) {
+    /// Measured rather than declared, and lazily, because it is the baked model's own bounding
+    /// box: how far the bee's middle sits from the axis it is drawn around. Null until asked for.
+    private @Nullable Vector2f xzOffset;
+
+    public BeeSpecialRenderer(AdultBeeModel model, float scale, boolean stinger, boolean goldAntennae,
+                              float pitch, boolean centred) {
         this.model = model;
         this.scale = scale;
         this.goldAntennae = goldAntennae;
+        this.pitch = pitch;
+        this.centred = centred;
 
         // setupAnim drives stinger visibility off the state, so the caste's stinger has to
         // be expressed there -- hiding the part directly would be undone every frame.
@@ -99,11 +122,64 @@ public class BeeSpecialRenderer implements SpecialModelRenderer<Integer> {
     /// Applied identically in submit() and getExtents(), so what is measured for the
     /// auto-fit into the slot is the same thing that gets drawn.
     private void transform(PoseStack poseStack) {
+        if (this.centred) {
+            Vector2f offset = xzOffset();
+            poseStack.translate(-offset.x(), 0.0F, -offset.y());
+        }
+
+        place(poseStack);
+    }
+
+    /// Where the bee stands before any centring: the transform this class has always applied.
+    ///
+    /// Split out so xzOffset() has something to measure against. It cannot measure against
+    /// transform() itself, which is the thing the measurement is for.
+    private void place(PoseStack poseStack) {
         poseStack.translate(0.5F, 0.5F + Y_NUDGE_PIXELS / 16.0F, 0.5F);
         poseStack.scale(-this.scale, -this.scale, this.scale);
         poseStack.translate(0.0F, -BONE_HEIGHT, 0.0F);
-        poseStack.mulPose(Axis.XP.rotationDegrees(PITCH));
+        poseStack.mulPose(Axis.XP.rotationDegrees(this.pitch));
         poseStack.mulPose(Axis.YP.rotationDegrees(YAW));
+    }
+
+    /// How far the bee's bounding box sits off the axis the item is spun around, in X and Z.
+    ///
+    /// The transform above lands the bee's *root bone* on that axis, which is not the same as its
+    /// middle: the abdomen hangs behind the root, and the yaw then swings that overhang out to the
+    /// side. In a slot nothing shows -- the icon is drawn face-on and fitted to what is there --
+    /// but a dropped item spins about that axis, so the leftover offset is a radius and the bee
+    /// circles a point rather than turning on the spot.
+    ///
+    /// Y is deliberately not corrected. ItemEntityRenderer already lifts a dropped item by its own
+    /// bounding box, and the slot's framing is Y_NUDGE_PIXELS, which is tuned by eye and matched by
+    /// ObjectivePanel's ghost.
+    private Vector2f xzOffset() {
+        Vector2f offset = this.xzOffset;
+        if (offset != null) {
+            return offset;
+        }
+
+        PoseStack probe = new PoseStack();
+        place(probe);
+
+        // minX, maxX, minZ, maxZ. A float[] rather than four locals because the consumer below
+        // cannot assign to a local.
+        float[] bounds = { Float.MAX_VALUE, -Float.MAX_VALUE, Float.MAX_VALUE, -Float.MAX_VALUE };
+        this.model.root().getExtentsForGui(probe, corner -> {
+            bounds[0] = Math.min(bounds[0], corner.x());
+            bounds[1] = Math.max(bounds[1], corner.x());
+            bounds[2] = Math.min(bounds[2], corner.z());
+            bounds[3] = Math.max(bounds[3], corner.z());
+        });
+
+        // A model that reported nothing leaves the bee exactly where it was, which is the old
+        // behaviour rather than a bee flung somewhere by two MAX_VALUEs.
+        offset = bounds[0] > bounds[1]
+            ? new Vector2f()
+            : new Vector2f((bounds[0] + bounds[1]) / 2.0F, (bounds[2] + bounds[3]) / 2.0F);
+
+        this.xzOffset = offset;
+        return offset;
     }
 
     /// The clock is wrapped before it reaches a float. Util.getMillis() comes off nanoTime,
@@ -195,7 +271,8 @@ public class BeeSpecialRenderer implements SpecialModelRenderer<Integer> {
         return MelliferaBeeSpecies.get(species).primaryColor();
     }
 
-    public record Unbaked(float scale, boolean stinger, boolean goldAntennae) implements SpecialModelRenderer.Unbaked<Integer> {
+    public record Unbaked(float scale, boolean stinger, boolean goldAntennae)
+        implements SpecialModelRenderer.Unbaked<Integer>, GroundVariantUnbaked {
         public static final MapCodec<Unbaked> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             Codec.FLOAT.optionalFieldOf("scale", 1.0F).forGetter(Unbaked::scale),
             Codec.BOOL.optionalFieldOf("stinger", true).forGetter(Unbaked::stinger),
@@ -209,8 +286,22 @@ public class BeeSpecialRenderer implements SpecialModelRenderer<Integer> {
 
         @Override
         public BeeSpecialRenderer bake(SpecialModelRenderer.BakingContext context) {
+            return bake(context, PITCH, false);
+        }
+
+        /// The ground bee, and the two differences are not independent: it is pitched up because it
+        /// is seen from the side there, and it is centred because that is the one context that spins
+        /// it. Neither is a knob the item model needs -- there is exactly one right answer for a bee
+        /// lying on the floor -- so neither is a field.
+        @Override
+        public BeeSpecialRenderer bakeGround(SpecialModelRenderer.BakingContext context) {
+            return bake(context, GROUND_PITCH, true);
+        }
+
+        private BeeSpecialRenderer bake(SpecialModelRenderer.BakingContext context, float pitch, boolean centred) {
             return new BeeSpecialRenderer(
-                new AdultBeeModel(context.entityModelSet().bakeLayer(ModelLayers.BEE)), scale, stinger, goldAntennae);
+                new AdultBeeModel(context.entityModelSet().bakeLayer(ModelLayers.BEE)),
+                scale, stinger, goldAntennae, pitch, centred);
         }
     }
 }

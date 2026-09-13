@@ -1,0 +1,133 @@
+{
+  "parent": "mellifera:root",
+  "display": {
+    "icon": {
+      "id": "mellifera:bee_locator"
+    },
+    "title": {
+      "translate": "advancements.mellifera.wild_hives.title"
+    },
+    "description": {
+      "translate": "advancements.mellifera.wild_hives.description"
+    },
+    "frame": "challenge"
+  },
+  "criteria": {
+    "has_forest": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "mellifera:bee": {
+                "species": [
+                  "mellifera:forest"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "has_meadows": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "mellifera:bee": {
+                "species": [
+                  "mellifera:meadows"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "has_marshy": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "mellifera:bee": {
+                "species": [
+                  "mellifera:marshy"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "has_modest": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "mellifera:bee": {
+                "species": [
+                  "mellifera:modest"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "has_tropical": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "mellifera:bee": {
+                "species": [
+                  "mellifera:tropical"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    "has_wintry": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "mellifera:bee": {
+                "species": [
+                  "mellifera:wintry"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_forest"
+    ],
+    [
+      "has_marshy"
+    ],
+    [
+      "has_meadows"
+    ],
+    [
+      "has_modest"
+    ],
+    [
+      "has_tropical"
+    ],
+    [
+      "has_wintry"
+    ]
+  ]
+}

@@ -1,6 +1,7 @@
 package com.joaonf.mellifera.item;
 
 import com.joaonf.mellifera.bee.BeeSpecies;
+import com.joaonf.mellifera.bee.BeeStacks;
 import com.joaonf.mellifera.bee.QueenGenomeData;
 import com.joaonf.mellifera.registry.MelliferaBeeSpecies;
 import com.joaonf.mellifera.registry.MelliferaDataComponents;
@@ -31,8 +32,16 @@ public class QueenBeeItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag flag) {
         QueenGenomeData data = stack.getOrDefault(MelliferaDataComponents.QUEEN_GENOME.get(), QueenGenomeData.defaultGenome());
-        BeeTooltip.appendGenome(data.own(), builder);
-        BeeTooltip.appendMate(data.mate(), builder);
+        boolean analysed = BeeStacks.isAnalysed(stack);
+
+        BeeTooltip.appendGenome(data.own(), analysed, builder);
+
+        // Her mate goes the same way. Reading only her own genome and then printing what she is
+        // carrying would hand over the more useful half of the answer for nothing -- the mate's
+        // species is what decides which mutations are on the table for her brood.
+        if (analysed) {
+            BeeTooltip.appendMate(data.mate(), builder);
+        }
     }
 
     /// See PrincessBeeItem.isFoil -- a queen glints for her own species, not her mate's.

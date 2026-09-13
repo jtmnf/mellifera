@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " c ",
+    "iri",
+    " i "
+  ],
+  "key": {
+    "c": "mellifera:honey_drop",
+    "i": "minecraft:copper_ingot",
+    "r": "minecraft:redstone"
+  },
+  "result": {
+    "id": "mellifera:beealyzer"
+  }
+}

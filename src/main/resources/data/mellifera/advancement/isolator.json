@@ -1,0 +1,32 @@
+{
+  "parent": "mellifera:first_mutation",
+  "display": {
+    "icon": {
+      "id": "mellifera:isolator"
+    },
+    "title": {
+      "translate": "advancements.mellifera.isolator.title"
+    },
+    "description": {
+      "translate": "advancements.mellifera.isolator.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "has_isolator": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mellifera:isolator"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_isolator"
+    ]
+  ]
+}

@@ -65,7 +65,7 @@ public class CarpenterBlockEntity extends BlockEntity implements WorldlyContaine
     public static final int TANK_CAPACITY = 4_000;
     public static final int BUCKET_MB = 1_000;
 
-    public static final int FE_PER_TICK = 10;
+    public static final int FE_PER_TICK = 5;
 
     private NonNullList<ItemStack> items = NonNullList.withSize(TOTAL_SLOTS, ItemStack.EMPTY);
 

@@ -1,0 +1,32 @@
+{
+  "parent": "mellifera:root",
+  "display": {
+    "icon": {
+      "id": "mellifera:bee_guide"
+    },
+    "title": {
+      "translate": "advancements.mellifera.bee_guide.title"
+    },
+    "description": {
+      "translate": "advancements.mellifera.bee_guide.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "has_guide": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mellifera:bee_guide"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_guide"
+    ]
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "parent": "mellifera:engine",
+  "display": {
+    "icon": {
+      "id": "mellifera:capacitor"
+    },
+    "title": {
+      "translate": "advancements.mellifera.capacitor.title"
+    },
+    "description": {
+      "translate": "advancements.mellifera.capacitor.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "has_capacitor": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mellifera:capacitor"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_capacitor"
+    ]
+  ]
+}

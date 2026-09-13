@@ -1,0 +1,58 @@
+{
+  "parent": "mellifera:frame",
+  "display": {
+    "icon": {
+      "id": "mellifera:frame_insulation"
+    },
+    "title": {
+      "translate": "advancements.mellifera.hard_frames.title"
+    },
+    "description": {
+      "translate": "advancements.mellifera.hard_frames.description"
+    },
+    "frame": "challenge"
+  },
+  "criteria": {
+    "has_insulation": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mellifera:frame_insulation"
+          }
+        ]
+      }
+    },
+    "has_luminous": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mellifera:frame_luminous"
+          }
+        ]
+      }
+    },
+    "has_canopy": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mellifera:frame_canopy"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_canopy"
+    ],
+    [
+      "has_insulation"
+    ],
+    [
+      "has_luminous"
+    ]
+  ]
+}

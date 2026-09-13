@@ -1,0 +1,32 @@
+{
+  "parent": "mellifera:serum",
+  "display": {
+    "icon": {
+      "id": "mellifera:infuser"
+    },
+    "title": {
+      "translate": "advancements.mellifera.infuser.title"
+    },
+    "description": {
+      "translate": "advancements.mellifera.infuser.description"
+    },
+    "frame": "goal"
+  },
+  "criteria": {
+    "has_infuser": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mellifera:infuser"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_infuser"
+    ]
+  ]
+}

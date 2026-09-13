@@ -81,7 +81,7 @@ public class SqueezerBlockEntity extends BlockEntity implements WorldlyContainer
 
     /// Ticks of *progress*: 16 seconds a drop unpowered, 2 seconds on FE.
     public static final int PROCESS_TICKS = 320;
-    public static final int FE_PER_TICK = 10;
+    public static final int FE_PER_TICK = 5;
 
     private static final int[] AUTOMATION_SLOTS = {SLOT_INPUT, SLOT_BUCKET_IN, SLOT_BUCKET_OUT};
 

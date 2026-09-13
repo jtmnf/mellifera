@@ -59,33 +59,62 @@ public final class Foraging {
     /// true at once during a night storm, and then both frames are needed; that is not a special
     /// case, it is what the two flags mean.
     ///
-    /// The attribute still decides *whether* they are grounded, because that is vanilla's own rule
-    /// and a datapack may change it. What is derived here is only the *cause*, and only from things
-    /// with no bearing on that decision: whether it is raining in this dimension, and whether the
-    /// sky is dark. `grounded` with neither cause showing is a reason no frame lifts -- some other
-    /// mod's or datapack's -- and the record says so by leaving both flags false, which keeps the
-    /// hive stopped rather than letting a Luminous frame quietly answer a question nobody asked.
-    public record Grounding(boolean grounded, boolean night, boolean rain) {
-        public static final Grounding FLYING = new Grounding(false, false, false);
+    /// The attribute decides whether *vanilla* grounds them, because that is vanilla's own rule and
+    /// a datapack may change it. What is derived here is the *cause*, and only from things with no
+    /// bearing on that decision: whether it is raining in this dimension, and whether the sky is
+    /// dark. `grounded` with no cause showing is a reason nothing lifts -- some other mod's or
+    /// datapack's -- and the record says so by leaving the flags false, which keeps the hive stopped
+    /// rather than letting a Luminous frame quietly answer a question nobody asked.
+    ///
+    /// The third cause is this mod's alone: a hive with no sky over it is grounded whatever the
+    /// attribute says, which is why `grounded` is not simply `flying()` inverted any more. See
+    /// enclosed().
+    public record Grounding(boolean grounded, boolean night, boolean rain, boolean enclosed) {
+        public static final Grounding FLYING = new Grounding(false, false, false, false);
 
-        /// Whether a hive with these two frames may work through it.
-        public boolean liftedBy(boolean worksAtNight, boolean worksInRain) {
+        /// Whether a hive whose stops are lifted this way may work through it.
+        ///
+        /// Each flag is a cause answered, and every cause in play has to be answered: a hive
+        /// underground during a night storm needs all three. The three arguments arrive from two
+        /// places that mean the same thing -- a frame installed in the hive, or a gene in the
+        /// queen -- and this does not care which, see BeeHousingBlockEntity.foragersOut.
+        public boolean liftedBy(boolean worksAtNight, boolean worksInRain, boolean worksUnderground) {
             if (!grounded) {
                 return true;
             }
 
-            if (!night && !rain) {
-                // Grounded for a reason neither frame covers.
+            if (!night && !rain && !enclosed) {
+                // Grounded for a reason none of the three covers.
                 return false;
             }
 
-            return (!night || worksAtNight) && (!rain || worksInRain);
+            return (!night || worksAtNight)
+                && (!rain || worksInRain)
+                && (!enclosed || worksUnderground);
         }
     }
 
+    /// Whether a hive here is shut in: no sky above it, in a world that has a sky to be shut out of.
+    ///
+    /// THIS IS THE MOD'S OWN RULE, and the only one of the three causes that is. Night and rain are
+    /// vanilla's, read off BEES_STAY_IN_HIVE; nothing in vanilla stops a beehive working under a
+    /// roof, so a bee that needs daylight is something this mod has to assert.
+    ///
+    /// `hasSkyLight` is what keeps it from being absurd. The Nether has a ceiling everywhere, so a
+    /// plain canSeeSky would make every Nether hive permanently enclosed and every Infernal bee
+    /// need the cave gene to work in the place it comes from. A dimension with no sky has no
+    /// daylight to be denied, so there is nothing there for this rule to say.
+    public static boolean enclosed(Level level, BlockPos pos) {
+        return level.dimensionType().hasSkyLight() && !level.canSeeSky(pos.above());
+    }
+
     public static Grounding grounding(Level level, BlockPos pos) {
+        boolean enclosed = enclosed(level, pos);
+
         if (flying(level, pos)) {
-            return Grounding.FLYING;
+            // Vanilla is content to let them out, so a roof is the only thing left that can stop
+            // them -- and when there is none, nothing is stopping them at all.
+            return enclosed ? new Grounding(true, false, false, true) : Grounding.FLYING;
         }
 
         // Dimension-wide rather than isRainingAt: the attribute that grounded them is set by the
@@ -105,6 +134,6 @@ public final class Foraging {
         // step with which frame lifts it.
         boolean night = !level.dimensionType().hasFixedTime() && isAfterDusk(level.getDefaultClockTime() % DAY_LENGTH);
 
-        return new Grounding(true, night, rain);
+        return new Grounding(true, night, rain, enclosed);
     }
 }

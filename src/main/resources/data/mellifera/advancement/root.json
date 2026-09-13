@@ -1,0 +1,34 @@
+{
+  "display": {
+    "icon": {
+      "id": "mellifera:princess_bee"
+    },
+    "title": {
+      "translate": "advancements.mellifera.root.title"
+    },
+    "description": {
+      "translate": "advancements.mellifera.root.description"
+    },
+    "background": "minecraft:gui/advancements/backgrounds/husbandry",
+    "frame": "task"
+  },
+  "criteria": {
+    "has_bee": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "mellifera:bee": {}
+            }
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_bee"
+    ]
+  ]
+}

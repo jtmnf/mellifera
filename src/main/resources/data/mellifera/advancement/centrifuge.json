@@ -1,0 +1,32 @@
+{
+  "parent": "mellifera:first_comb",
+  "display": {
+    "icon": {
+      "id": "mellifera:centrifuge"
+    },
+    "title": {
+      "translate": "advancements.mellifera.centrifuge.title"
+    },
+    "description": {
+      "translate": "advancements.mellifera.centrifuge.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "has_centrifuge": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mellifera:centrifuge"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_centrifuge"
+    ]
+  ]
+}

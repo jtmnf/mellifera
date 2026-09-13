@@ -1,0 +1,36 @@
+{
+  "parent": "mellifera:apiary",
+  "display": {
+    "icon": {
+      "id": "mellifera:drone_bee"
+    },
+    "title": {
+      "translate": "advancements.mellifera.first_mutation.title"
+    },
+    "description": {
+      "translate": "advancements.mellifera.first_mutation.description"
+    },
+    "frame": "goal"
+  },
+  "criteria": {
+    "has_bred_bee": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "mellifera:bee": {
+                "min_tier": 1
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_bred_bee"
+    ]
+  ]
+}

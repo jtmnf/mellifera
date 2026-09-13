@@ -2,6 +2,7 @@ package com.joaonf.mellifera.registry;
 
 import com.joaonf.mellifera.Mellifera;
 import com.joaonf.mellifera.item.BeeGuideItem;
+import com.joaonf.mellifera.item.BeealyzerItem;
 import com.joaonf.mellifera.item.BeeLocatorItem;
 import com.joaonf.mellifera.item.DebugStickItem;
 import com.joaonf.mellifera.item.DroneBeeItem;
@@ -10,14 +11,17 @@ import com.joaonf.mellifera.item.FrameItem;
 import com.joaonf.mellifera.item.HoneyCombItem;
 import com.joaonf.mellifera.item.PrincessBeeItem;
 import com.joaonf.mellifera.item.QueenBeeItem;
+import com.joaonf.mellifera.item.ScoopItem;
 import com.joaonf.mellifera.item.SerumItem;
 
 import java.util.List;
 
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.item.component.Tool;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -90,6 +94,66 @@ public final class MelliferaItems {
     // Isolator output: one bottled gene each. One item id for all of them, the SERUM_DATA
     // component carries which -- see SerumItem.
     public static final DeferredItem<SerumItem> SERUM = ITEMS.registerItem("serum", SerumItem::new);
+
+    /// Takes a wild hive apart without destroying it.
+    ///
+    /// Two halves, and they say the same thing twice on purpose because a player meets them at
+    /// different moments. What the Scoop *drops* is decided by the six hive loot tables, which
+    /// check for it with `minecraft:match_tool` -- that is the rule, and it is enforced there so
+    /// there is one place to read it. What the Scoop *is for* is decided here: a hive takes thirty
+    /// seconds to break with anything else (see MelliferaBlocks.HIVE_DESTROY_TIME) and comes apart
+    /// in a single tick with this, so a player who has not found the Scoop yet is told so by the
+    /// block refusing to move, long before they get as far as being told by an empty floor.
+    ///
+    /// The speed is derived rather than typed: vanilla breaks a block in
+    /// `destroyTime * HARVEST_MODIFIER / toolSpeed` ticks, so a speed of exactly that product
+    /// finishes it in one. Doubled for margin, and because a number sitting on the edge of a
+    /// float comparison is a number waiting to take two ticks on somebody's machine.
+    ///
+    /// `overrideSpeed` rather than `minesAndDrops`: this rule is about speed only, and claiming
+    /// the drops here as well would put a second opinion about them next to the loot tables'.
+    ///
+    /// Sixteen hives and it is done, and then it breaks the way a tool does -- unlike the
+    /// Beealyzer, which fills up and stays in the hand. The difference is what they are: a full
+    /// ledger is a thing you keep, and a net dragged through sixteen hives is a thing that has
+    /// given out.
+    public static final int SCOOP_USES = 16;
+
+    public static final DeferredItem<ScoopItem> SCOOP = ITEMS.registerItem("scoop", p -> new ScoopItem(
+        p.durability(SCOOP_USES)
+            .component(DataComponents.TOOL, new Tool(
+                List.of(Tool.Rule.overrideSpeed(
+                    BuiltInRegistries.acquireBootstrapRegistrationLookup(BuiltInRegistries.BLOCK)
+                        .getOrThrow(MelliferaBlockTags.HIVES),
+                    MelliferaBlocks.HIVE_DESTROY_TIME * MelliferaBlocks.HARVEST_MODIFIER * 2.0F)),
+                1.0F,
+                // Zero, and the wear is charged in ScoopItem.mineBlock instead. Left to the
+                // component, a Tool spends this on *every* block it breaks that is not instabreak,
+                // rules or no rules -- which on a sixteen-point tool means a player who cleared
+                // some dirt while holding it has quietly spent a quarter of their Scoop.
+                0,
+                true))
+            .component(DataComponents.LORE, new ItemLore(List.of(
+                Component.translatable("tooltip.mellifera.scoop"))))));
+
+    /// Reads the genome of every bee the player is carrying. See BeealyzerItem.
+    ///
+    /// Thirty-two readings and it is spent, one point per bee. That is the price of a reading:
+    /// there is no second charge to carry, which is why the honey the earlier version wanted per
+    /// bee moved into the recipe instead -- a honey drop is a Centrifuge output, so the gate on
+    /// reading anything at all is still that a player has a machine spinning combs.
+    ///
+    /// It glints, like the royal jelly and the pollen: this is a prize of a tool rather than a
+    /// stick, and the glint is the only thing that says so at 16 pixels.
+    ///
+    /// It is NOT enchantable, and that falls out of never calling `enchantable(...)`: the
+    /// ENCHANTABLE component is what an enchanting table and an anvil look for, and an item with
+    /// durability does not acquire one by having durability. Said out loud here because the
+    /// absence of a line is a poor way to record a decision -- Unbreaking on this would make the
+    /// wearing-out that is its whole cost into a formality.
+    public static final DeferredItem<BeealyzerItem> BEEALYZER = ITEMS.registerItem("beealyzer",
+        p -> new BeealyzerItem(p.stacksTo(1).durability(BeealyzerItem.READINGS)
+            .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true)));
 
     // Points at the nearest wild hive. See BeeLocatorItem.
     public static final DeferredItem<BeeLocatorItem> BEE_LOCATOR = ITEMS.registerItem("bee_locator", BeeLocatorItem::new);

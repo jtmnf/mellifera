@@ -23,11 +23,18 @@ public class BeeMutationCategory implements IRecipeCategory<BeeMutationRecipe> {
         IRecipeType.create(Identifier.fromNamespaceAndPath(Mellifera.MODID, "bee_mutation"), BeeMutationRecipe.class);
 
     private static final int WIDTH = 160;
-    private static final int HEIGHT = 62;
+
+    /// Room for both rows below the slots to wrap to two lines. A biome or a block name is
+    /// whatever the pack that added it called it, so neither row has a length this can assume.
+    private static final int HEIGHT = 78;
+
+    /// The full page, less a margin each side: these two rows have the width to themselves.
+    private static final int TEXT_X = 4;
+    private static final int TEXT_WIDTH = WIDTH - TEXT_X * 2;
+    private static final int TEXT_Y = 30;
 
     /// Near-black, no drop shadow: JEI draws recipes on a light panel, and the mid-grey this
     /// used to use was effectively invisible against it.
-    private static final int TEXT_COLOR = 0xFF202020;
 
     private final IDrawable icon;
 
@@ -83,16 +90,17 @@ public class BeeMutationCategory implements IRecipeCategory<BeeMutationRecipe> {
     public void draw(BeeMutationRecipe recipe, IRecipeSlotsView slots, GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
         var font = Minecraft.getInstance().font;
 
-        graphics.text(font, Component.literal("+"), 24, 10, TEXT_COLOR, false);
-        graphics.text(font, Component.literal("→"), 60, 10, TEXT_COLOR, false);
+        graphics.text(font, Component.literal("+"), 24, 10, RecipeText.COLOR, false);
+        graphics.text(font, Component.literal("→"), 60, 10, RecipeText.COLOR, false);
 
         // Chance and condition on their own rows under the slots, where there is room for
         // them -- squeezed alongside the result slot they ran off the edge of the category.
-        graphics.text(font, recipe.chanceText(), 4, 30, TEXT_COLOR, false);
+        // Wrapped as well as moved: "Nearby: <some pack's block>" has no length worth assuming.
+        int y = RecipeText.draw(graphics, font, recipe.chanceText(), TEXT_X, TEXT_Y, TEXT_WIDTH);
 
         Component condition = recipe.conditionText();
         if (condition != null) {
-            graphics.text(font, condition, 4, 44, TEXT_COLOR, false);
+            RecipeText.draw(graphics, font, condition, TEXT_X, y + 4, TEXT_WIDTH);
         }
     }
 }

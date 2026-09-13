@@ -1,0 +1,53 @@
+{
+  "parent": "mellifera:first_mutation",
+  "display": {
+    "icon": {
+      "id": "mellifera:queen_bee"
+    },
+    "title": {
+      "translate": "advancements.mellifera.branch_top.title"
+    },
+    "description": {
+      "translate": "advancements.mellifera.branch_top.description"
+    },
+    "frame": "challenge"
+  },
+  "criteria": {
+    "has_top": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "predicates": {
+              "mellifera:bee": {
+                "species": [
+                  "mellifera:imperial",
+                  "mellifera:industrious",
+                  "mellifera:heroic",
+                  "mellifera:demonic",
+                  "mellifera:austere",
+                  "mellifera:edenic",
+                  "mellifera:phantasmal",
+                  "mellifera:glacial",
+                  "mellifera:avenging",
+                  "mellifera:tricky",
+                  "mellifera:agrarian",
+                  "mellifera:boggy",
+                  "mellifera:hermitic",
+                  "mellifera:gold",
+                  "mellifera:diamond",
+                  "mellifera:ecstatic"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_top"
+    ]
+  ]
+}

@@ -9,6 +9,7 @@ import com.mojang.serialization.Codec;
 
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.Identifier;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.fluids.SimpleFluidContent;
@@ -35,6 +36,21 @@ public final class MelliferaDataComponents {
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Identifier>> COMB_TYPE =
         COMPONENTS.registerComponentType("comb_type", builder -> builder.persistent(Identifier.CODEC));
 
+    /// Whether this bee's genome has been read, and so whether its tooltip prints anything but
+    /// its species. See BeeTooltip and the Beealyzer.
+    ///
+    /// Absent means unanalysed, which makes every bee that already exists in a world -- and every
+    /// bee any loot table, recipe or other mod produces without knowing about this -- start off
+    /// unread. That is the right default: the alternative is a component every producer of a bee
+    /// has to remember to leave off, and the ones that forget hand the player a free answer.
+    ///
+    /// Synchronised as well as persisted. The tooltip is drawn from the client's copy of the
+    /// stack, so a server that kept this to itself would show every bee as unanalysed.
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> BEE_ANALYSED =
+        COMPONENTS.registerComponentType("bee_analysed", builder -> builder
+            .persistent(Codec.BOOL)
+            .networkSynchronized(ByteBufCodecs.BOOL));
+
     /// Set by combining a frame with an ender pearl on an anvil (see MelliferaAnvilRecipes).
     /// Such a frame never loses wear at all -- see FrameItem.neverWears.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Boolean>> FRAME_UNBREAKABLE =
@@ -46,7 +62,7 @@ public final class MelliferaDataComponents {
 
     /// One gene bottled by the Isolator: which chromosome, and what it held. See SerumData --
     /// it is deliberately trait-name + value strings rather than a typed allele, so this one
-    /// component covers all eight chromosomes and survives an allele being renamed.
+    /// component covers every chromosome and survives an allele being renamed.
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<SerumData>> SERUM_DATA =
         COMPONENTS.registerComponentType("serum_data", builder -> builder.persistent(SerumData.CODEC));
 

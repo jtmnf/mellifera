@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 import java.util.stream.IntStream;
 
 import com.joaonf.mellifera.bee.BeeGenome;
+import com.joaonf.mellifera.bee.BeeStacks;
 import com.joaonf.mellifera.bee.Foraging;
 import com.joaonf.mellifera.bee.BeeSpecies;
 import com.joaonf.mellifera.bee.CombProduct;
@@ -273,15 +274,27 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
         return true;
     }
 
-    /// Whether the foragers are out: vanilla's own hours and weather, less whatever the installed
-    /// frames lift.
+    /// Whether the foragers are out: vanilla's own hours and weather, plus this mod's roof, less
+    /// whatever the frames and the queen's own genes lift.
     ///
-    /// The frames answer one cause each -- Luminous the dark, Canopy the rain -- so a hive with
-    /// both works around the clock and one with neither keeps the hours every vanilla beehive
-    /// keeps. See Foraging.Grounding, which is where the two causes are told apart.
+    /// Three causes and two ways to answer each. A frame answers one while it is installed and
+    /// wearing out -- Luminous the dark, Canopy the rain -- and a gene answers one for good, in
+    /// every hive that queen or her daughters ever sit in. Neither is better: a frame is bought
+    /// once at the Carpenter and moved between hives, and a gene is bred for and then never
+    /// thought about again. The third cause, being shut in with no sky, has no frame at all: the
+    /// cave-dwelling gene is the only answer to it, which is the one place this mod says a problem
+    /// must be solved inside the bee.
+    ///
+    /// The queen, not the mate: she is the individual doing the work. What the drone contributed
+    /// shows up in her daughters, not in her.
     private boolean foragersOut(Level level, BlockPos pos) {
-        return Foraging.grounding(level, pos)
-            .liftedBy(anyFrame(FrameType::lightsNight), anyFrame(FrameType::shelters));
+        BeeGenome queen = BeeStacks.genomeOf(getItem(SLOT_QUEEN));
+
+        boolean lit = anyFrame(FrameType::lightsNight) || (queen != null && queen.worksAtNight());
+        boolean sheltered = anyFrame(FrameType::shelters) || (queen != null && queen.worksInRain());
+        boolean burrowing = queen != null && queen.worksUnderground();
+
+        return Foraging.grounding(level, pos).liftedBy(lit, sheltered, burrowing);
     }
 
     /// True when the queen is sheltered from the species' temperature band, letting a
@@ -871,6 +884,11 @@ public abstract class BeeHousingBlockEntity extends BlockEntity implements World
 
         ItemStack stack = new ItemStack(item);
         stack.set(MelliferaDataComponents.BEE_GENOME.get(), result);
+
+        // No BEE_ANALYSED, and that omission is the point rather than an oversight. A bee out of a
+        // queen's brood is the one a player most needs to read: it is where a recessive allele
+        // surfaces and where a mutation arrives, and being told what came out for free would be
+        // being told the answer to the only question the hive asks. See BeealyzerItem.
         return stack;
     }
 

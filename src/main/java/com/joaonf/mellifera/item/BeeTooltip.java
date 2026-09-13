@@ -21,7 +21,22 @@ import net.minecraft.util.StringRepresentable;
 public final class BeeTooltip {
     private BeeTooltip() {}
 
-    public static void appendGenome(BeeGenome genome, Consumer<Component> lines) {
+    /// The whole genome, for a bee that has been read.
+    ///
+    /// `analysed` false prints the expressed species and one line saying the rest is unknown. Not
+    /// the recessive half of the species chromosome either: that is the single most valuable thing
+    /// on the tooltip, and a bee whose hidden species was legible would make the Beealyzer a
+    /// formality. See BeeStacks.isAnalysed.
+    public static void appendGenome(BeeGenome genome, boolean analysed, Consumer<Component> lines) {
+        if (!analysed) {
+            lines.accept(label("species", Component.translatable(
+                MelliferaBeeSpecies.get(genome.species().active()).translationKey())
+                .copy().withStyle(ChatFormatting.WHITE)));
+            lines.accept(Component.translatable("tooltip.mellifera.bee.unanalysed")
+                .withStyle(ChatFormatting.DARK_GRAY));
+            return;
+        }
+
         lines.accept(species(genome.species()));
         lines.accept(trait("speed", genome.speed()));
         lines.accept(trait("lifespan", genome.lifespan()));
@@ -30,6 +45,9 @@ public final class BeeTooltip {
         lines.accept(trait("tolerance", genome.tolerance()));
         lines.accept(trait("effect", genome.effect()));
         lines.accept(trait("flowering", genome.flowering()));
+        lines.accept(trait("nocturnal", genome.nocturnal()));
+        lines.accept(trait("tolerant_flyer", genome.tolerantFlyer()));
+        lines.accept(trait("cave_dwelling", genome.caveDwelling()));
     }
 
     /// The drone a queen mated with -- only its species, since that is what decides which

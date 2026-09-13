@@ -34,8 +34,10 @@ public class InfuserCategory implements IRecipeCategory<GeneticsJeiRecipe> {
     public static final IRecipeType<GeneticsJeiRecipe> TYPE =
         IRecipeType.create(Identifier.fromNamespaceAndPath(Mellifera.MODID, "infuser"), GeneticsJeiRecipe.class);
 
-    private static final int WIDTH = 160;
-    private static final int HEIGHT = 42;
+    /// Wider than the Isolator's page because this machine has one more slot in the same row,
+    /// so the text starts twenty pixels further right and needs the difference back.
+    private static final int WIDTH = 236;
+    private static final int HEIGHT = 58;
 
     private static final int SLOT_Y = 6;
     private static final int BEE_X = 4;
@@ -45,7 +47,9 @@ public class InfuserCategory implements IRecipeCategory<GeneticsJeiRecipe> {
     private static final int OUTPUT_X = 90;
 
     private static final int TEXT_X = 112;
-    private static final int TEXT_COLOR = 0xFF202020;
+
+    /// What is left of the page once the slots have had their share.
+    private static final int TEXT_WIDTH = WIDTH - TEXT_X - 4;
 
     private static final int TICKS_PER_SECOND = 20;
 
@@ -93,14 +97,17 @@ public class InfuserCategory implements IRecipeCategory<GeneticsJeiRecipe> {
     public void draw(GeneticsJeiRecipe recipe, IRecipeSlotsView slots, GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
         var font = Minecraft.getInstance().font;
 
-        graphics.text(font, Component.literal("→"), ARROW_X, SLOT_Y + 4, TEXT_COLOR, false);
-        graphics.text(font, Component.translatable("gui.mellifera.jei.infuser.trait", recipe.trait().label()),
-            TEXT_X, SLOT_Y, TEXT_COLOR, false);
-        graphics.text(font, Component.translatable("gui.mellifera.jei.infuser.time",
-                InfuserBlockEntity.PROCESS_TICKS / TICKS_PER_SECOND),
-            TEXT_X, SLOT_Y + 12, TEXT_COLOR, false);
-        graphics.text(font, Component.translatable("gui.mellifera.jei.infuser.charges",
-                InfuserBlockEntity.CHARGES_PER_POLLEN),
-            TEXT_X, SLOT_Y + 24, TEXT_COLOR, false);
+        graphics.text(font, Component.literal("→"), ARROW_X, SLOT_Y + 4, RecipeText.COLOR, false);
+
+        int y = SLOT_Y;
+        y = RecipeText.draw(graphics, font,
+            Component.translatable("gui.mellifera.jei.infuser.trait", recipe.trait().label()),
+            TEXT_X, y, TEXT_WIDTH);
+        y = RecipeText.draw(graphics, font,
+            Component.translatable("gui.mellifera.jei.infuser.time", InfuserBlockEntity.PROCESS_TICKS / TICKS_PER_SECOND),
+            TEXT_X, y, TEXT_WIDTH);
+        RecipeText.draw(graphics, font,
+            Component.translatable("gui.mellifera.jei.infuser.charges", InfuserBlockEntity.CHARGES_PER_POLLEN),
+            TEXT_X, y, TEXT_WIDTH);
     }
 }

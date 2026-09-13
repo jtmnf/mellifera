@@ -63,7 +63,7 @@ public class CentrifugeBlockEntity extends BlockEntity implements WorldlyContain
     /// those a tick and so spends eight times this, and without power it earns one a tick for
     /// free -- see MachineEnergy.workStep, and MachineEnergy itself for why the machine spends
     /// its own buffer directly rather than through the transfer API's extract().
-    public static final int FE_PER_TICK = 10;
+    public static final int FE_PER_TICK = 5;
 
     private final MachineEnergy energy = new MachineEnergy(this);
 

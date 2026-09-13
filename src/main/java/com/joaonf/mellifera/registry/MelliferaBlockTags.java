@@ -13,5 +13,10 @@ public final class MelliferaBlockTags {
     // tag per metal, so this is the union of those plus quartz/debris, which never had a tag.
     public static final TagKey<Block> ORES = TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(Mellifera.MODID, "ores"));
 
+    /// The six wild hives. Two things read it: the Scoop, which mines them and nothing else
+    /// quickly (see MelliferaItems.SCOOP), and a data pack that wants to add a hive of its own and
+    /// have the Scoop work on it.
+    public static final TagKey<Block> HIVES = TagKey.create(Registries.BLOCK, Identifier.fromNamespaceAndPath(Mellifera.MODID, "hives"));
+
     private MelliferaBlockTags() {}
 }

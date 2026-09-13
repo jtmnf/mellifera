@@ -1,0 +1,32 @@
+{
+  "parent": "mellifera:isolator",
+  "display": {
+    "icon": {
+      "id": "mellifera:serum"
+    },
+    "title": {
+      "translate": "advancements.mellifera.serum.title"
+    },
+    "description": {
+      "translate": "advancements.mellifera.serum.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "has_serum": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mellifera:serum"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_serum"
+    ]
+  ]
+}

@@ -26,9 +26,14 @@ public class IsolatorMenu extends AbstractContainerMenu {
     private static final int BOTTLE_SLOT_X = 20;
     private static final int BOTTLE_SLOT_Y = 50;
 
+    /// The grid the chromosomes come out into: four across, one cell per trait, so its depth is
+    /// however many chromosomes a bee has rather than a number written here. Twelve cells are
+    /// painted (see tools/gen_machine_guis.py) and eleven are used; the loop below stops at the
+    /// slots that exist rather than filling the row, so the spare cell stays a painted well with
+    /// no slot behind it instead of a slot pointing past the end of the container.
     private static final int OUTPUT_GRID_X = 86;
+    private static final int OUTPUT_GRID_Y = 20;
     private static final int OUTPUT_COLUMNS = 4;
-    private static final int[] OUTPUT_ROW_Y = {28, 50};
 
     private static final int SLOT_PITCH = 18;
     private static final int INVENTORY_Y = 94;
@@ -58,13 +63,11 @@ public class IsolatorMenu extends AbstractContainerMenu {
         addSlot(new InputSlot(isolator, IsolatorBlockEntity.SLOT_BEE, BEE_SLOT_X, BEE_SLOT_Y));
         addSlot(new InputSlot(isolator, IsolatorBlockEntity.SLOT_BOTTLE, BOTTLE_SLOT_X, BOTTLE_SLOT_Y));
 
-        for (int row = 0; row < OUTPUT_ROW_Y.length; row++) {
-            for (int column = 0; column < OUTPUT_COLUMNS; column++) {
-                addSlot(new OutputSlot(isolator,
-                    IsolatorBlockEntity.SLOT_OUTPUT_START + column + row * OUTPUT_COLUMNS,
-                    OUTPUT_GRID_X + column * SLOT_PITCH,
-                    OUTPUT_ROW_Y[row]));
-            }
+        for (int cell = 0; cell < IsolatorBlockEntity.OUTPUT_SLOTS; cell++) {
+            addSlot(new OutputSlot(isolator,
+                IsolatorBlockEntity.SLOT_OUTPUT_START + cell,
+                OUTPUT_GRID_X + (cell % OUTPUT_COLUMNS) * SLOT_PITCH,
+                OUTPUT_GRID_Y + (cell / OUTPUT_COLUMNS) * SLOT_PITCH));
         }
 
         for (int row = 0; row < 3; row++) {

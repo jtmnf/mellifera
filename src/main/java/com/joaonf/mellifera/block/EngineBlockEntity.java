@@ -62,14 +62,15 @@ public class EngineBlockEntity extends BlockEntity implements WorldlyContainer, 
 
     /// Forge Energy a burning tick is worth.
     ///
-    /// Four times what a machine spends (MachineEnergy prices a tick of progress at 10), so one
-    /// engine keeps four machines at full speed -- or one machine running while its own buffer
-    /// fills for the next job. Any less and the first thing a player would learn is that the engine
-    /// they built cannot run the machine they built it for.
-    public static final int FE_PER_TICK = 40;
+    /// Twice what a machine draws flat out. MachineEnergy prices a tick of *progress* at 5 and a
+    /// powered machine buys eight of those a game tick, so a machine at full speed costs 40 -- and
+    /// one engine keeps two of them there, or one of them there while a second buffer fills for the
+    /// next job. Any less and the first thing a player would learn is that the engine they built
+    /// cannot run the machine they built it for.
+    public static final int FE_PER_TICK = 80;
 
-    /// A draught of honey: 100 mB bought for 100 ticks of burning, so honey is worth 40 FE the
-    /// millibucket and a bucket is 40,000 FE.
+    /// A draught of honey: 100 mB bought for 100 ticks of burning, so honey is worth 80 FE the
+    /// millibucket and a bucket is 80,000 FE.
     ///
     /// Drawn in draughts rather than a millibucket a tick because a tank that ticks down by one is
     /// a gauge that never visibly moves, and because a part-spent millibucket is a thing the tank
@@ -77,7 +78,7 @@ public class EngineBlockEntity extends BlockEntity implements WorldlyContainer, 
     public static final int HONEY_DRAUGHT_MB = 100;
     public static final int HONEY_DRAUGHT_TICKS = 100;
 
-    /// Peat: 400 ticks, so 16,000 FE a lump. Boggy bees drop it at 0.08 a pulse, roughly one lump
+    /// Peat: 400 ticks, so 32,000 FE a lump. Boggy bees drop it at 0.08 a pulse, roughly one lump
     /// every two minutes of a hive working, and it burns for rather longer than that -- peat is the
     /// fuel carried home, honey is the one plumbed in.
     public static final int PEAT_TICKS = 400;

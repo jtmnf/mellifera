@@ -1,0 +1,32 @@
+{
+  "parent": "mellifera:squeezer",
+  "display": {
+    "icon": {
+      "id": "mellifera:engine"
+    },
+    "title": {
+      "translate": "advancements.mellifera.engine.title"
+    },
+    "description": {
+      "translate": "advancements.mellifera.engine.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "has_engine": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mellifera:engine"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_engine"
+    ]
+  ]
+}

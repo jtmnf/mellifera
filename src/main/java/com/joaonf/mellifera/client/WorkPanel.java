@@ -279,20 +279,24 @@ public class WorkPanel extends SideTab {
             Component.translatable("gui.mellifera.work.forage_count", flowers, wanted)));
 
         // Asked of the client's own world, which is where the answer lives: the hive syncs nothing
-        // about the hour or the weather because both sides can already see them. The frames that
-        // lift those stops are in slots this window is already showing, so the whole verdict can
-        // still be reached here -- see BeeHousingBlockEntity.foragersOut, which is the same sum.
+        // about the hour, the weather or the roof because both sides can already see them. The
+        // frames that lift those stops are in slots this window is already showing and the queen's
+        // genes are on the stack in another, so the whole verdict can still be reached here -- see
+        // BeeHousingBlockEntity.foragersOut, which is the same sum.
         Foraging.Grounding grounding = Foraging.grounding(level, menu.apiaryPos());
-        boolean lit = hasFrame(FrameType.LUMINOUS);
-        boolean sheltered = hasFrame(FrameType.CANOPY);
-        boolean out = grounding.liftedBy(lit, sheltered);
+        BeeGenome queen = BeeStacks.genomeOf(menu.queenStack());
+
+        boolean lit = hasFrame(FrameType.LUMINOUS) || (queen != null && queen.worksAtNight());
+        boolean sheltered = hasFrame(FrameType.CANOPY) || (queen != null && queen.worksInRain());
+        boolean burrowing = queen != null && queen.worksUnderground();
+        boolean out = grounding.liftedBy(lit, sheltered, burrowing);
 
         checks.add(new Check(
             out ? Status.OK : Status.BAD,
             Component.translatable(out
                 ? "gui.mellifera.work.foragers_out"
                 : "gui.mellifera.work.foragers_in"),
-            foragerDetail(grounding, out, lit, sheltered)));
+            foragerDetail(grounding, out, lit, sheltered, burrowing)));
     }
 
     /// Why they are in, or what is keeping them out.
@@ -300,11 +304,28 @@ public class WorkPanel extends SideTab {
     /// A working hive at midnight has something worth saying too: the frame doing it. Without that
     /// line the panel would read exactly the same at noon, and the one frame whose whole job is
     /// invisible would stay invisible.
-    private static @Nullable Component foragerDetail(Foraging.Grounding grounding, boolean out, boolean lit, boolean sheltered) {
+    private static @Nullable Component foragerDetail(
+        Foraging.Grounding grounding, boolean out, boolean lit, boolean sheltered, boolean burrowing
+    ) {
         if (!out) {
-            return Component.translatable(grounding.rain()
-                ? "gui.mellifera.work.foragers_rain"
-                : grounding.night() ? "gui.mellifera.work.foragers_dark" : "gui.mellifera.work.foragers_in");
+            // The unanswered cause, and the roof goes last of the three: a hive that is buried is
+            // buried at noon as well, so naming the weather or the hour first says the more
+            // surprising thing while it lasts.
+            if (grounding.rain() && !sheltered) {
+                return Component.translatable("gui.mellifera.work.foragers_rain");
+            }
+
+            if (grounding.night() && !lit) {
+                return Component.translatable("gui.mellifera.work.foragers_dark");
+            }
+
+            return Component.translatable(grounding.enclosed()
+                ? "gui.mellifera.work.foragers_roofed"
+                : "gui.mellifera.work.foragers_in");
+        }
+
+        if (grounding.enclosed() && burrowing) {
+            return Component.translatable("gui.mellifera.work.foragers_burrowing");
         }
 
         if (grounding.rain() && sheltered) {

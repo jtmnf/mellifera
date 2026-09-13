@@ -1,0 +1,42 @@
+{
+  "parent": "mellifera:carpenter",
+  "display": {
+    "icon": {
+      "id": "mellifera:frame_accelerator"
+    },
+    "title": {
+      "translate": "advancements.mellifera.frame.title"
+    },
+    "description": {
+      "translate": "advancements.mellifera.frame.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "has_frame": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "mellifera:frame_accelerator",
+              "mellifera:frame_dominant",
+              "mellifera:frame_recessive",
+              "mellifera:frame_mutagenic",
+              "mellifera:frame_terminator",
+              "mellifera:frame_automation",
+              "mellifera:frame_insulation",
+              "mellifera:frame_luminous",
+              "mellifera:frame_canopy"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_frame"
+    ]
+  ]
+}

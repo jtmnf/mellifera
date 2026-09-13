@@ -82,7 +82,7 @@ public class IsolatorBlockEntity extends BlockEntity implements WorldlyContainer
     /// Forge Energy buffer. Priced per tick of progress, so a powered tick spends eight times
     /// this and buys eight ticks of work -- see MachineEnergy.workStep, and MachineEnergy
     /// itself for why the machine spends its own buffer directly rather than extract().
-    public static final int FE_PER_TICK = 10;
+    public static final int FE_PER_TICK = 5;
 
     private final MachineEnergy energy = new MachineEnergy(this);
 
@@ -179,7 +179,7 @@ public class IsolatorBlockEntity extends BlockEntity implements WorldlyContainer
 
         setWorking(level, pos, state, true);
         // Power is speed, not permission -- see MachineEnergy.workStep. PROCESS_TICKS is per
-        // trait and there are eight of them, so the unpowered run is the long one by design.
+        // trait and there is one per chromosome, so the unpowered run is the long one by design.
         isolator.progress += isolator.energy.workStep(FE_PER_TICK);
 
         if (isolator.progress >= PROCESS_TICKS) {

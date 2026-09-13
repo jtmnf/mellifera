@@ -26,9 +26,14 @@ public class InfuserMenu extends AbstractContainerMenu {
     private static final int POLLEN_SLOT_X = 20;
     private static final int POLLEN_SLOT_Y = 50;
 
+    /// The grid the chromosomes come out into: four across, one cell per trait, so its depth is
+    /// however many chromosomes a bee has rather than a number written here. Twelve cells are
+    /// painted (see tools/gen_machine_guis.py) and eleven are used; the loop below stops at the
+    /// slots that exist rather than filling the row, so the spare cell stays a painted well with
+    /// no slot behind it instead of a slot pointing past the end of the container.
     private static final int SERUM_GRID_X = 86;
+    private static final int SERUM_GRID_Y = 20;
     private static final int SERUM_COLUMNS = 4;
-    private static final int[] SERUM_ROW_Y = {28, 50};
 
     private static final int SLOT_PITCH = 18;
     private static final int INVENTORY_Y = 94;
@@ -58,13 +63,11 @@ public class InfuserMenu extends AbstractContainerMenu {
         addSlot(machineSlot(InfuserBlockEntity.SLOT_BEE, BEE_SLOT_X, BEE_SLOT_Y));
         addSlot(machineSlot(InfuserBlockEntity.SLOT_POLLEN, POLLEN_SLOT_X, POLLEN_SLOT_Y));
 
-        for (int row = 0; row < SERUM_ROW_Y.length; row++) {
-            for (int column = 0; column < SERUM_COLUMNS; column++) {
-                addSlot(machineSlot(
-                    InfuserBlockEntity.SLOT_SERUM_START + column + row * SERUM_COLUMNS,
-                    SERUM_GRID_X + column * SLOT_PITCH,
-                    SERUM_ROW_Y[row]));
-            }
+        for (int cell = 0; cell < InfuserBlockEntity.SERUM_SLOTS; cell++) {
+            addSlot(machineSlot(
+                InfuserBlockEntity.SLOT_SERUM_START + cell,
+                SERUM_GRID_X + (cell % SERUM_COLUMNS) * SLOT_PITCH,
+                SERUM_GRID_Y + (cell / SERUM_COLUMNS) * SLOT_PITCH));
         }
 
         for (int row = 0; row < 3; row++) {

@@ -3,7 +3,9 @@ Mellifera
 
 Beekeeping as a breeding game, for Minecraft 26.2 on NeoForge.
 
-Find a wild hive, take the Princess and the Drones inside it, and put them in an Apiary. Every bee carries a genome -- species, speed, lifespan, fertility, flowering, territory, temperature tolerance and a special effect -- with a dominant and a recessive allele for each. What a queen produces, how fast she works, and whether she will work at all where you put her all follow from those genes.
+Find a wild hive, open it with a Scoop, take the Princess and the Drones inside it, and put them in an Apiary. Every bee carries a genome -- species, speed, lifespan, fertility, flowering, territory, temperature tolerance, a special effect, and whether it will fly at night, in the rain or with no sky over it -- with a dominant and a recessive allele for each. What a queen produces, how fast she works, and whether she will work at all where you put her all follow from those genes.
+
+You do not get to read any of that for free. A bee out of a hive, or out of a queen's brood, names its species and nothing else until a Beealyzer reads it -- which is the point: what a bee is quietly carrying is the thing to find out, not the thing to be told.
 
 Cross two species and they may mutate into a third. There are 58 species across twenty branches, from the wild Forest and Meadows bees up to the Imperial, Demonic, Phantasmal, Diamond and Ecstatic lines at the top of each one, reached through a mutation tree gated on climate, biome, date and the parents you feed it. The Apiarist Database item lists every species you have discovered, its products, and the pairs that lead to it.
 
@@ -13,6 +15,14 @@ The machines run on Forge Energy and work with any tech mod that provides it. Po
 
 The honey a Squeezer makes has three ends: the Carpenter spends it on frames, the Engine burns it for power, and a bucket of it crafts into a Vanilla honey block, which is where the surplus goes.
 
+The tools
+=========
+- **Scoop** -- a wild hive broken with anything else is a wild hive destroyed. It will also take you thirty seconds to break it, which is the point: the block refuses to move long before an empty floor would have told you the same thing. With the Scoop it comes apart in one tick. Sticks and string, and the recipe is in the book from the start, because nothing else in the mod can begin without it.
+- **Beealyzer** -- a ledger in the machines' own leather, and the only thing that will tell you what a bee is carrying. Reads every bee in your inventory at once and is good for 32 of them, after which it is full and you write out another. It costs a honey drop to make, and a drop comes out of a Centrifuge, so the first few hives are worked blind. It cannot be enchanted: filling up is the price, not an inconvenience to engineer around.
+- **Apiarist Database** -- every species, its products and the pairs that lead to it.
+- **Habitat Locator** -- points at the nearest wild hive.
+- **Climate Chart** -- the temperature where you are standing, while you hold it.
+
 The machines
 ============
 - **Apiary** -- where a queen works. Three frame slots a level, and stacking them makes one taller hive that works faster and carries a row of frames per level.
@@ -20,22 +30,40 @@ The machines
 - **Squeezer** -- honey drops and honeydew in, liquid honey out. Four drops to a bucket, eight honeydew, and a bucket bay on the side for a player without pipes.
 - **Tank** -- sixteen buckets of any fluid, filled and drained by hand or by pipe.
 - **Carpenter** -- the plain Frame plus one ingredient and some honey becomes a specialised frame; a worn frame with nothing beside it becomes a fresh one for a quarter of what it cost to build.
-- **Engine** -- burns liquid honey or peat and puts out 40 FE a tick, pushed into whatever is next to it. A bucket of honey is 40,000 FE and a peat is 16,000, and it burns one fuel at a time: honey first, since that is the one that arrives by pipe. It will not burn into a full buffer, so an idle engine spends nothing.
+- **Engine** -- burns liquid honey or peat and puts out 80 FE a tick, pushed into whatever is next to it. A bucket of honey is 80,000 FE and a peat is 32,000, and it burns one fuel at a time: honey first, since that is the one that arrives by pipe. A machine at full speed draws 40, so one engine keeps two of them there. It will not burn into a full buffer, so an idle engine spends nothing.
 - **Capacitor** -- banks 200,000 FE. An Engine stops burning when its own buffer is full, so without one a hive working overnight makes power nobody asked for. It takes at both ends and hands power on to anything beside it, except another Capacitor.
 - **Energy Pipe** -- carries that power to machines the Engine is not touching. It holds nothing: a push into any part of a run is handed straight to every machine that run reaches, so there is no charge in a wire to lose and no delay down its length. It connects to anything that takes Forge Energy, this mod's or another's, and it does not pull -- a generator that waits to be drained still needs its own mod's cable.
 - **Fluid Pipe** -- the same run for liquid, and glass, so what is going through it can be seen going through it. Unlike the energy run it pulls: nothing in the mod pushes fluid, so a pipe clamped to a machine draws from it, 50 mB a tick, and one in the middle of a run does nothing at all.
 - **Isolator** -- a bee in, its eight genes out as Serums. The bee is used up.
 - **Infuser** -- a Serum and a bee in, that bee with the gene written into it out. Pollen powers the writing.
 
+The three stops
+===============
+A hive stops for three things, and each of them can be answered two ways. **The dark** and **the rain** are vanilla's own hours and weather; a Luminous or a Canopy frame lifts one while it is installed and wearing out, and the nocturnal and tolerant-flyer genes lift it for good in every hive that queen's line ever sits in. **No sky overhead** is this mod's own rule and has no frame at all: an apiary under a roof works only for a bee with the cave-dwelling gene, which is the one place a problem has to be solved inside the bee.
+
+None of the three is on a wild Forest bee. Tolerant flyer is on the Marshy, Tropical and Wintry roots, so it can be found in the world and bred inward from the first day; nocturnal belongs to the Infernal, Vengeful and Monastic lines, and cave dwelling to the Monastic line and the whole ore tree. All three are recessive, so crossing one into a line buries it, and the Recessive frame is how it comes back out.
+
 Frames
 ======
 Every special frame is made in the Carpenter out of the plain one, and every one of them wears out with use. Three of them lift a stop a player has no other answer to -- the climate band a species will not work outside of (Insulation), the dark (Luminous) and the rain (Canopy) -- and those three are the most expensive for that reason. The rest trade in what a working hive is already doing: more combs, faster cycles, forced dominant or recessive inheritance, a higher mutation rate, a queen ended after one cycle, or a hive that re-queens itself.
+
+Advancements
+============
+Nineteen of them, starting the moment a wild hive is broken open and branching four ways: the combs (Centrifuge, Royal Jelly, Squeezer, Carpenter, frames), the power (Engine, Capacitor, both pipes), the breeding, and the genetics bench. The two that matter are the breeding pair -- one for a species neither parent was, one for a species at the top of its branch -- because they are the only things in the tree a player cannot simply craft their way to.
+
+A data pack can add its own. Naming an item is Vanilla's `minecraft:inventory_changed`, and naming a *bee* is this mod's `mellifera:bee` predicate, which takes a list of species, a `min_tier`, or nothing at all:
+
+```json
+{ "predicates": { "mellifera:bee": { "min_tier": 1 } } }
+```
+
+`min_tier` is how deep into the mutation tree a species sits, so `1` reads as "a bee that came out of a cross" and counts the crosses a custom bee brings with it. With no fields at all it is simply "a bee", which covers a Princess, a Drone and a Queen without naming three items.
 
 Requirements
 ============
 - Minecraft 26.2
 - NeoForge 26.2.0.76 or later
-- JEI, optional. With it installed, every comb, centrifuge recipe, mutation, squeezer and carpenter recipe and both genetics machines get a page, and a bee can be dragged from JEI onto an Apiary to set it as that hive's breeding objective.
+- JEI, optional. With it installed, every comb, centrifuge recipe, mutation, squeezer and carpenter recipe and both genetics machines get a page; clicking the drive track in the middle of a machine's window opens that machine's page; and a bee can be dragged from JEI onto an Apiary to set it as that hive's breeding objective.
 
 Bees of your own
 ================
@@ -68,7 +96,7 @@ Drop a JSON file in `config/mellifera/custom_bees/` and it becomes a real specie
     }
   ],
 
-  "traits": { "speed": "slowest", "lifespan": "long", "fertility": "low", "tolerance": "both_2" },
+  "traits": { "speed": "slowest", "lifespan": "long", "fertility": "low", "tolerance": "both_2", "nocturnal": "yes", "cave_dwelling": "yes" },
 
   "mutations": [
     { "parents": ["mellifera:rock", "mellifera:sinister"], "chance": 0.06 }

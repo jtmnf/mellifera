@@ -34,8 +34,8 @@ public class CarpenterCategory implements IRecipeCategory<CarpenterJeiRecipe> {
     public static final IRecipeType<CarpenterJeiRecipe> TYPE =
         IRecipeType.create(Identifier.fromNamespaceAndPath(Mellifera.MODID, "carpenter"), CarpenterJeiRecipe.class);
 
-    private static final int WIDTH = 160;
-    private static final int HEIGHT = 46;
+    private static final int WIDTH = 216;
+    private static final int HEIGHT = 52;
 
     /// The two inputs stacked on the left, the way the machine's own window has them.
     private static final int FRAME_X = 2;
@@ -53,7 +53,9 @@ public class CarpenterCategory implements IRecipeCategory<CarpenterJeiRecipe> {
     private static final int OUTPUT_Y = 14;
 
     private static final int TEXT_X = 90;
-    private static final int TEXT_COLOR = 0xFF202020;
+
+    /// What is left of the page once the slots and the honey gauge have had their share.
+    private static final int TEXT_WIDTH = WIDTH - TEXT_X - 4;
 
     /// What the fluid gauge is drawn against, so a full bar means a bucket. The machine's own tank
     /// holds four, and drawing 1000 as a quarter-full sliver would say something true about the tank
@@ -114,15 +116,20 @@ public class CarpenterCategory implements IRecipeCategory<CarpenterJeiRecipe> {
     public void draw(CarpenterJeiRecipe recipe, IRecipeSlotsView slots, GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
         var font = Minecraft.getInstance().font;
 
-        graphics.text(font, Component.literal("→"), ARROW_X, OUTPUT_Y + 4, TEXT_COLOR, false);
-        graphics.text(font, Component.translatable("gui.mellifera.jei.carpenter.honey", recipe.honey().getAmount()),
-            TEXT_X, OUTPUT_Y - 4, TEXT_COLOR, false);
-        graphics.text(font, Component.translatable("gui.mellifera.jei.carpenter.time", recipe.ticks() / TICKS_PER_SECOND),
-            TEXT_X, OUTPUT_Y + 8, TEXT_COLOR, false);
+        graphics.text(font, Component.literal("→"), ARROW_X, OUTPUT_Y + 4, RecipeText.COLOR, false);
+
+        int y = OUTPUT_Y - 4;
+        y = RecipeText.draw(graphics, font,
+            Component.translatable("gui.mellifera.jei.carpenter.honey", recipe.honey().getAmount()),
+            TEXT_X, y, TEXT_WIDTH);
+        y = RecipeText.draw(graphics, font,
+            Component.translatable("gui.mellifera.jei.carpenter.time", recipe.ticks() / TICKS_PER_SECOND),
+            TEXT_X, y, TEXT_WIDTH);
 
         if (recipe.isRepair()) {
-            graphics.text(font, Component.translatable("gui.mellifera.jei.carpenter.repair"),
-                TEXT_X, OUTPUT_Y + 20, TEXT_COLOR, false);
+            RecipeText.draw(graphics, font,
+                Component.translatable("gui.mellifera.jei.carpenter.repair"),
+                TEXT_X, y, TEXT_WIDTH);
         }
     }
 }

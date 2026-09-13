@@ -11,6 +11,13 @@ import com.joaonf.mellifera.bee.BeeProgression;
 import com.joaonf.mellifera.bee.CarpenterRecipe;
 import com.joaonf.mellifera.bee.CentrifugeRecipe;
 import com.joaonf.mellifera.client.ApiaryScreen;
+import com.joaonf.mellifera.client.CarpenterScreen;
+import com.joaonf.mellifera.client.CentrifugeScreen;
+import com.joaonf.mellifera.client.EngineScreen;
+import com.joaonf.mellifera.client.InfuserScreen;
+import com.joaonf.mellifera.client.IsolatorScreen;
+import com.joaonf.mellifera.client.MachineGeometry;
+import com.joaonf.mellifera.client.SqueezerScreen;
 import com.joaonf.mellifera.registry.MelliferaBeeMutations;
 import com.joaonf.mellifera.registry.MelliferaBeeSpecies;
 import com.joaonf.mellifera.registry.MelliferaBlocks;
@@ -145,7 +152,7 @@ public class MelliferaJeiPlugin implements IModPlugin {
         registerCarpenterRecipes(registration);
 
         // The genetics bench. Both machines work off a bee's genome rather than off a recipe, so
-        // neither has anything JEI could discover; the eight rows apiece are the eight chromosomes.
+        // neither has anything JEI could discover; the rows apiece are the chromosomes themselves.
         registration.addRecipes(IsolatorCategory.TYPE, GeneticsJeiRecipe.all());
         registration.addRecipes(InfuserCategory.TYPE, GeneticsJeiRecipe.all());
 
@@ -211,6 +218,29 @@ public class MelliferaJeiPlugin implements IModPlugin {
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
         registration.addGuiContainerHandler(ApiaryScreen.class, new ApiaryGuiHandler());
         registration.addGhostIngredientHandler(ApiaryScreen.class, new ApiaryGhostHandler());
+
+        registerMachineRecipeAreas(registration);
+    }
+
+    /// Clicking the drive track in the middle of a machine window opens that machine's page.
+    /// See MachineRecipeArea for why every one of these machines needs it more than most.
+    ///
+    /// The Apiary is deliberately not here. Its progress gauge is a two-pixel strip down the
+    /// left edge rather than a track in the middle, and it is the one window that already has
+    /// another way in: a bee dragged out of the ingredient list onto its objective tab.
+    private static void registerMachineRecipeAreas(IGuiHandlerRegistration registration) {
+        registration.addGuiContainerHandler(CentrifugeScreen.class,
+            MachineRecipeArea.of(MachineGeometry.CENTRIFUGE_TRACK, CentrifugeCategory.TYPE));
+        registration.addGuiContainerHandler(SqueezerScreen.class,
+            MachineRecipeArea.of(MachineGeometry.SQUEEZER_TRACK, SqueezerCategory.TYPE));
+        registration.addGuiContainerHandler(CarpenterScreen.class,
+            MachineRecipeArea.of(MachineGeometry.CARPENTER_TRACK, CarpenterCategory.TYPE));
+        registration.addGuiContainerHandler(EngineScreen.class,
+            MachineRecipeArea.of(MachineGeometry.ENGINE_TRACK, EngineCategory.TYPE));
+        registration.addGuiContainerHandler(IsolatorScreen.class,
+            MachineRecipeArea.of(MachineGeometry.ISOLATOR_TRACK, IsolatorCategory.TYPE));
+        registration.addGuiContainerHandler(InfuserScreen.class,
+            MachineRecipeArea.of(MachineGeometry.INFUSER_TRACK, InfuserCategory.TYPE));
     }
 
     @Override

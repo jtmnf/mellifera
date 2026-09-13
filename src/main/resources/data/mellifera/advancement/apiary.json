@@ -1,0 +1,32 @@
+{
+  "parent": "mellifera:root",
+  "display": {
+    "icon": {
+      "id": "mellifera:apiary"
+    },
+    "title": {
+      "translate": "advancements.mellifera.apiary.title"
+    },
+    "description": {
+      "translate": "advancements.mellifera.apiary.description"
+    },
+    "frame": "task"
+  },
+  "criteria": {
+    "has_apiary": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": "mellifera:apiary"
+          }
+        ]
+      }
+    }
+  },
+  "requirements": [
+    [
+      "has_apiary"
+    ]
+  ]
+}

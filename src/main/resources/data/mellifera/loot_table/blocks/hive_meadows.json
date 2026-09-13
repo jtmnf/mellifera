@@ -49,6 +49,14 @@
             }
           ]
         }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:match_tool",
+          "predicate": {
+            "items": "mellifera:scoop"
+          }
+        }
       ]
     },
     {
@@ -105,6 +113,14 @@
             }
           ]
         }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:match_tool",
+          "predicate": {
+            "items": "mellifera:scoop"
+          }
+        }
       ]
     },
     {
@@ -125,6 +141,14 @@
               }
             }
           ]
+        }
+      ],
+      "conditions": [
+        {
+          "condition": "minecraft:match_tool",
+          "predicate": {
+            "items": "mellifera:scoop"
+          }
         }
       ]
     }
